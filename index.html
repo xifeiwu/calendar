@@ -1,100 +1,242 @@
-<!doctype html>
-<html>
-  <head>
-    <style>
-      html, body {
-        overflow-y: hidden;
-        background-color: black;
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-      }
+<!DOCTYPE HTML>
+<html class="ltr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" type="text/css" href="./style/calendar.css">
+  <link rel="stylesheet" type="text/css" href="./style/ui.css">
+  <title>Gaia Calendar</title>
+</head>
+<body>
 
-      #chrome {
-        height: 800px;
-        width: 480px;
-        border-radius: 20px;
-        border: 1px solid grey;
-        background-color: #272727;
-        padding: 30px 15px 0;
-        margin: auto;
-        margin-top: 10px;
-        box-shadow: 0px 0px 8px white;
-      }
+<section id="calendar">
 
-      #chrome-controls {
-        margin-top: 12px;
-        padding: 0;
-      }
+  <section id="views">
+    <section id="month">
+      <header class="toolbar">
+        <a data-l10n-id="buttons.accounts" role="button" class="accounts" href="#accounts">
+          Accounts
+        </a>
 
-      #chrome-controls .button {
-        display: inline-table;
-        margin: 0;
-        padding: 0;
-        width: 31%;
-        height: 64px;
-        line-height: 64px;
-        text-align: center;
-        color: white;
-        font-weight: 600;
-        border: 2px solid black;
-        border-radius: 5px;
-        background-image: -moz-linear-gradient(bottom, rgb(16,16,16) 54%, rgb(13,13,13) 84%, rgb(27,27,27));
-        -moz-user-select: none;
-      }
+        <h3>
+          <span class="month">MAY</month>
+          <span class="year">2012</month>  
+        </h3>
 
-      #chrome-controls .button:hover:active {
-        background-image: -moz-linear-gradient(top, rgb(16,16,16) 54%, rgb(13,13,13) 84%, rgb(27,27,27));
-      }
+        <a data-l10n-id="buttons.new-event" role="button" class="new-event" href="#new-event">
+          New Event
+        </a>
+      </header>
+      <!--- title row all the days this will be static -->
+      <header id="month-days" role="row">
+        <ol role="row">
+          <li data-l10n-id="day.sun" role="column">sun</li>
+          <li data-l10n-id="day.mon" role="column">mon</li>
+          <li data-l10n-id="day.tue" role="column">tue</li>
+          <li data-l10n-id="day.wed" role="column">wed</li>
+          <li data-l10n-id="day.thu" role="column">thu</li>
+          <li data-l10n-id="day.fri" role="column">fri</li>
+          <li data-l10n-id="day.sat" role="column">sat</li>
+        </ol>
+      </header>
+      <!--- 
+        month grid there may be multiple of these
+        in the DOM at any one time for caching.
+        only one will ever be displayed.
+       -->
+      <section id="month-2012-1" class="month">
+        <ol role="row">
+          <li id="month-day-2012-5-1" class="past">
+            <span class="day">1</day>
+            <div class="busy-indicator"></div>
+          </li>
+          <li id="month-day-2012-5-2" class="past">
+            <span class="day">2</day>
+            <div class="busy-indicator"></div>
+          </li>
+          <li id="month-day-2012-5-3" class="past">
+            <span class="day">3</day>
+            <div class="busy-indicator"></div>
+          </li>
 
-      #content {
-        height: -moz-calc(800px - 118px);
-        width: 480px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 5px;
-      }
-    </style>
+          <li id="month-day-2012-5-4" class="past">
+            <span class="day">4</day>
+            <div class="busy-indicator"></div>
+          </li>
 
-    <script>
-      window.addEventListener('load', function onload(e) {
-        if (document.location.protocol === 'file:') {
-          var paths = document.location.pathname.split('/');
-          paths.pop();
-          var src = 'file://' + paths.join('/') + '/apps/system/index.html';
-        } else {
-          var host = document.location.host;
-          var domain = host.replace(/(^[\w\d]+\.)?([\w\d]+\.[a-z]+)/, '$2');
-          var src = 'http://system.' + domain;
-        }
+          <li id="month-day-2012-5-5" class="past">
+            <span class="day">5</day>
+            <div class="busy-indicator"></div>
+          </li>
+          <li id="month-day-2012-5-6" class="past">
 
-        document.getElementById('content').src = src;
-      });
+            <span class="day">6</day>
+            <div class="busy-indicator"></div>
+          </li>
+          <li id="month-day-2012-5-7" class="past">
 
-      /* Simulate the HOME button */
-      window.addEventListener('load', function() {
-        var home = document.querySelector('#chrome-home');
-        home.addEventListener('click', function() {
-          var content = document.querySelector('#content');
-          content.contentWindow.WindowManager.closeForegroundWindow();
-        }, true);
-      }, true);
-    </script>
+            <span class="day">7</day>
+            <div class="busy-indicator"></div>
+          </li>
+        </ol> 
+        <ol role="row">
+          <li id="month-day-2012-5-1">
+            <span class="day">1</day>
+            <div class="busy-indicator"></div>
+          </li>
 
-  </head>
+          <li id="month-day-2012-5-2">
+            <span class="day">2</day>
+            <div class="busy-indicator"></div>
+          </li>
 
-  <body>
-    <div id="chrome">
-      <iframe id="content">
-      </iframe>
-      <div id="chrome-controls">
-        <center>
-          <span id="chrome-home" class="button">
-            Home
-          </span>
-        </center>
-      </div>
-    </div>
-  </body>
+          <li id="month-day-2012-5-3">
+            <span class="day">3</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-4">
+            <span class="day">4</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-5">
+            <span class="day">5</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-6">
+            <span class="day">6</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-7">
+            <span class="day">7</day>
+            <div class="busy-indicator"></div>
+          </li>
+        </ol>
+        <ol role="row">
+          <li id="month-day-2012-5-1">
+            <span class="day">1</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-2">
+            <span class="day">2</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-3">
+            <span class="day">3</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-4" class="current">
+            <span class="day">4</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-5">
+            <span class="day">5</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-6">
+            <span class="day">6</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-7">
+            <span class="day">7</day>
+            <div class="busy-indicator"></div>
+          </li>
+        </ol>
+        <ol role="row">
+          <li id="month-day-2012-5-1">
+            <span class="day">1</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-2">
+            <span class="day">2</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-3">
+            <span class="day">3</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-4">
+            <span class="day">4</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-5">
+            <span class="day">5</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-6">
+            <span class="day">6</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-7">
+            <span class="day">7</day>
+            <div class="busy-indicator"></div>
+          </li>
+        </ol>
+        <ol role="row">
+          <li id="month-day-2012-5-1">
+            <span class="day">1</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-2">
+            <span class="day">2</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-3">
+            <span class="day">3</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-4">
+            <span class="day">4</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-5">
+            <span class="day">5</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-6">
+            <span class="day">6</day>
+            <div class="busy-indicator"></div>
+          </li>
+
+          <li id="month-day-2012-5-7">
+            <span class="day">7</day>
+            <div class="busy-indicator"></div>
+          </li>
+        </ol>
+      </section>
+    </section>
+
+    <section id="day">
+    </section>
+
+    <section id="agenda">
+    </section>
+
+    <section id="week">
+    </section>
+  </section>
+  
+</section>
+
+</body>
 </html>
 
