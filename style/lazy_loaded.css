@@ -5,12 +5,12 @@
  * performance, that way we load a single CSS file.
  */
 @import url("forms.css");
-@import url("../shared/style/buttons.css");
-@import url("../shared/style/confirm.css");
-@import url("../shared/style/input_areas.css");
-@import url("../shared/style/progress_activity.css");
-@import url("../shared/style/status.css");
-@import url("../shared/style/switches.css");
+@import url("../shared/buttons/buttons.css");
+@import url("../shared/confirm/confirm.css");
+@import url("../shared/input_areas/input_areas.css");
+@import url("../shared/progress_activity/progress_activity.css");
+@import url("../shared/status/status.css");
+@import url("../shared/switches/switches.css");
 @import url("event_view.css");
 @import url("modify_account_view.css");
 @import url("modify_event_view.css");

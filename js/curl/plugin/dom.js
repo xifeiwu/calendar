@@ -1,7 +1,7 @@
 define(function(require, exports) {
 'use strict';
 
-var LazyLoader = require('shared/lazy_loader');
+var LazyLoader = require('shared/lazy_loader/lazy_loader');
 
 exports.load = function(id, require, onLoad, config) {
   if (config.isBuild) {

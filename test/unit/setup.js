@@ -8,7 +8,7 @@ function configureLoader() {
     paths: {
       css: '/test/unit/support/css',
       dom: '/test/unit/support/dom',
-      shared: '/shared/js',
+      shared: '/shared',
       sharedtest: '/shared/test/unit',
       test: '/test/unit'
     },
@@ -20,9 +20,12 @@ function configureLoader() {
     shim: {
       'ext/caldav': { exports: 'Caldav' },
       'ext/ical': { exports: 'ICAL' },
-      'shared/accessibility_helper': { exports: 'AccessibilityHelper' },
-      'shared/gesture_detector': { exports: 'GestureDetector' },
-      'shared/notification_helper': { exports: 'NotificationHelper' },
+      'shared/accessibility_helper/accessibility_helper':
+        { exports: 'AccessibilityHelper' },
+      'shared/gesture_detector/gesture_detector':
+        { exports: 'GestureDetector' },
+      'shared/notification_helper/notification_helper':
+        { exports: 'NotificationHelper' },
       'sharedtest/mocks/mock_l10n': { exports: 'MockL10n' }
     }
   });
@@ -52,8 +55,8 @@ function l10nMeta(defaultLanguage, availableLanguages) {
 
 function loadL10n() {
   return new Promise((resolve) => {
-    requirejs(['shared/l10n'], () => {
-      requirejs(['shared/l10n_date'], () => {
+    requirejs(['shared/l10n/l10n'], () => {
+      requirejs(['shared/l10n_date/l10n_date'], () => {
         // Massive hack to trick l10n to load
         // TODO: upstream a fix to l10n.js
         document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -100,7 +103,7 @@ window.testAgentRuntime.testLoader = function(path) {
 
     console.log('Will setup app localization...');
     l10nLink('/locales/calendar.{locale}.properties');
-    l10nLink('/shared/locales/date/date.{locale}.properties');
+    l10nLink('/shared/date/date.{locale}.properties');
     l10nMeta('en-US', ['en-US']);
     return loadL10n();
   })

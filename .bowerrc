@@ -1,0 +1,7 @@
+{
+  "directory" : "shared",
+  "json"      : "bower.json",
+  "searchpath"  : "",
+  "shorthand_resolver" : "",
+  "interactive": true
+}

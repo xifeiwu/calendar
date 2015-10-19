@@ -4,9 +4,9 @@
  * these dependencies will be inlined during the build stage to improve
  * performance, that way we load a single CSS file.
  */
-@import url("../shared/style/toolbars.css");
-@import url("../shared/style/tabs.css");
-@import url("../shared/style/icons.css");
+@import url("../shared/toolbars/toolbars.css");
+@import url("../shared/tabs/tabs.css");
+@import url("../shared/icons/icons.css");
 @import url("calendar.css");
 @import url("ui.css");
 @import url("month.css");

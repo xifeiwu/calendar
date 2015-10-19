@@ -5,7 +5,7 @@ define(function(require) {
 var CalendarError = require('error');
 var EventBase = require('views/event_base');
 var Factory = require('test/support/factory');
-var InputParser = require('shared/input_parser');
+var InputParser = require('shared/input_parser/input_parser');
 var ModifyEvent = require('views/modify_event');
 var QueryString = require('querystring');
 var Template = require('template');
