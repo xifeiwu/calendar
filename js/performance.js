@@ -1,7 +1,7 @@
 define(function(require, exports) {
 'use strict';
 
-require('shared/performance_testing_helper');
+require('shared/performance_testing_helper/performance_testing_helper');
 
 // Helper for the performance testing events. we created
 // this dedicated module since we need some "state machine" logic to avoid

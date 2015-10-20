@@ -7,7 +7,7 @@ require.config({
   baseUrl: '/js',
   waitSeconds: 60,
   paths: {
-    shared: '/shared/js',
+    shared: '../shared',
     dom: 'curl/plugin/dom',
     css: 'curl/plugin/css'
   },
@@ -15,12 +15,15 @@ require.config({
     'ext/caldav': { exports: 'Caldav' },
     'ext/ical': { exports: 'ICAL' },
     'ext/page': { exports: 'page' },
-    'shared/accessibility_helper': { exports: 'AccessibilityHelper' },
-    'shared/gesture_detector': { exports: 'GestureDetector' },
-    'shared/input_parser': { exports: 'InputParser' },
-    'shared/lazy_loader': { exports: 'LazyLoader' },
-    'shared/notification_helper': { exports: 'NotificationHelper' },
-    'shared/performance_testing_helper': { exports: 'PerformanceTestingHelper' }
+    'shared/accessibility_helper/accessibility_helper':
+      { exports: 'AccessibilityHelper' },
+    'shared/gesture_detector/gesture_detector': { exports: 'GestureDetector' },
+    'shared/input_parser/input_parser': { exports: 'InputParser' },
+    'shared/lazy_loader/lazy_loader': { exports: 'LazyLoader' },
+    'shared/notification_helper/notification_helper':
+      { exports: 'NotificationHelper' },
+    'shared/performance_testing_helper/performance_testing_helper':
+      { exports: 'PerformanceTestingHelper' }
   }
 });
 

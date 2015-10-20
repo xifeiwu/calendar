@@ -9,17 +9,17 @@
 
 <!-- stylesheets -->
 <!-- need to keep shared styles on the markup so it gets copied to build_stage
-<link rel="stylesheet" type="text/css" href="/shared/style/toolbars.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/tabs.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/icons.css">
+<link rel="stylesheet" type="text/css" href="/shared/toolbars/toolbars.css">
+<link rel="stylesheet" type="text/css" href="/shared/tabs/tabs.css">
+<link rel="stylesheet" type="text/css" href="/shared/icons/icons.css">
 -->
 <!-- lazy-loaded styles
-<link rel="stylesheet" type="text/css" href="/shared/style/buttons.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/confirm.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/switches.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/status.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/progress_activity.css">
-<link rel="stylesheet" type="text/css" href="/shared/style/input_areas.css">
+<link rel="stylesheet" type="text/css" href="/shared/buttons/buttons.css">
+<link rel="stylesheet" type="text/css" href="/shared/confirm/confirm.css">
+<link rel="stylesheet" type="text/css" href="/shared/switches/switches.css">
+<link rel="stylesheet" type="text/css" href="/shared/status/status.css">
+<link rel="stylesheet" type="text/css" href="/shared/progress_activity/progress_activity.css">
+<link rel="stylesheet" type="text/css" href="/shared/input_areas/input_areas.css">
 -->
 <link rel="stylesheet" type="text/css" href="/style/base.css">
 
@@ -27,29 +27,29 @@
 <meta name="defaultLanguage" content="en-US">
 <meta name="availableLanguages" content="ar, en-US, fr, zh-TW">
 <link rel="localization" href="locales/calendar.{locale}.properties">
-<link rel="localization" href="/shared/locales/date/date.{locale}.properties">
-<script defer src="/shared/js/date_time_helper.js"></script>
-<script defer src="/shared/js/l10n.js"></script>
-<script defer src="/shared/js/l10n_date.js"></script>
+<link rel="localization" href="/shared/date/date.{locale}.properties">
+<script defer src="/shared/date_time_helper/date_time_helper.js"></script>
+<script defer src="/shared/l10n/l10n.js"></script>
+<script defer src="/shared/l10n_date/l10n_date.js"></script>
 
 <!-- The following scripts are lazy loaded but left here to ensure
      they get copied over from shared during the build -->
-<!-- <script defer src="/shared/js/accessibility_helper.js"></script> -->
-<!-- <script defer src="/shared/js/gesture_detector.js"></script> -->
-<!-- <script defer src="/shared/js/input_parser.js"></script> -->
-<!-- <script defer src="/shared/js/lazy_loader.js"></script> -->
-<!-- <script defer src="/shared/js/notification_helper.js"></script> -->
-<!-- <script defer src="/shared/js/performance_testing_helper.js"></script> -->
+<!-- <script defer src="/shared/accessibility_helper/accessibility_helper.js"></script> -->
+<!-- <script defer src="/shared/gesture_detector/gesture_detector.js"></script> -->
+<!-- <script defer src="/shared/input_parser/input_parser.js"></script> -->
+<!-- <script defer src="/shared/lazy_loader/lazy_loader.js"></script> -->
+<!-- <script defer src="/shared/notification_helper/notification_helper.js"></script> -->
+<!-- <script defer src="/shared/performance_testing_helper/performance_testing_helper.js"></script> -->
 
 <!-- Web Components -->
-<script defer src="shared/js/component_utils.js"></script>
-<script defer src="shared/elements/gaia_subheader/script.js"></script>
-<script defer src="shared/elements/config.js"></script>
-<link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/gaia-theme.css" />
-<script defer src="shared/elements/gaia-header/dist/gaia-header.js"></script>
-<link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/elements/gaia-theme/style.css" />
+<script defer src="shared/component_utils/component_utils.js"></script>
+<script defer src="shared/gaia_subheader/script.js"></script>
+<script defer src="shared/config/config.js"></script>
+<link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/gaia-theme/gaia-theme.css" />
+<script defer src="shared/gaia-header/dist/gaia-header.js"></script>
+<link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/gaia-theme/style.css" />
 <!-- Icons are lazy loaded by gaia-header -->
-<!-- <link rel="stylesheet" type="text/css" href="shared/elements/gaia-icons/gaia-icons.css" /> -->
+<!-- <link rel="stylesheet" type="text/css" href="shared/gaia-icons/gaia-icons.css" /> -->
 
 <script defer src="/js/bundle.js"></script>
 

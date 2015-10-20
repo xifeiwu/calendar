@@ -1,8 +1,8 @@
 {
   appDir: '..',
   baseUrl: 'js',
-  dir: '../../../build_stage/calendar',
-  fileExclusionRegExp: /^\.|^build$|^test$/,
+  dir: '../build_stage/calendar',
+  fileExclusionRegExp: /^\.|^build$|^build_stage$|^test$/,
   mainConfigFile: '../js/main.js',
   optimize: 'none',
   logLevel: 2,
@@ -75,7 +75,7 @@
 
   paths: {
     prim: 'empty:',
-    shared: '../shared/js'
+    shared: '../shared'
   },
 
   // Keeping build dir since Makefile cleans it up and

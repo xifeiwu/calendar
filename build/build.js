@@ -35,6 +35,8 @@ exports.execute = function(options) {
 
   optimize.then(() => {
     dump('[OK] rjs optimize\n');
+    // Copy app's build_stage to gaia's build_stage
+    utils.copyToStage(options, 'build_stage');
   })
   .catch((err) => {
     dump(err + '\n');

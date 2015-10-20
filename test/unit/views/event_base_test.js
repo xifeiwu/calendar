@@ -1,7 +1,7 @@
 define(function(require) {
 'use strict';
 
-require('/shared/elements/gaia-header/dist/gaia-header.js');
+require('/shared/gaia-header/dist/gaia-header.js');
 var EventBase = require('views/event_base');
 var EventModel = require('models/event');
 var View = require('view');

@@ -1,7 +1,8 @@
 define(function(require, exports, module) {
 'use strict';
 
-var AccessibilityHelper = require('shared/accessibility_helper');
+var AccessibilityHelper =
+  require('shared/accessibility_helper/accessibility_helper');
 var Calc = require('calc');
 var DateL10n = require('date_l10n');
 var Db = require('db');
