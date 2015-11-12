@@ -1,0 +1,7 @@
+*.focus,
+ .hasfocused {
+  background-color: #0c99d5 !important;
+}
+*.focus1 {
+  background-color: #0c99d5 !important;
+}
