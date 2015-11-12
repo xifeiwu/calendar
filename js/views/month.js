@@ -9,6 +9,8 @@ var dateFromId = Calc.dateFromId;
 var monthStart = Calc.monthStart;
 var performance = require('performance');
 var router = require('router');
+var debug = require('debug')('month');
+var navigationHandler = require('navigation_handler');
 
 // minimum difference between X and Y axis to be considered an horizontal swipe
 var XSWIPE_OFFSET = window.innerWidth / 10;
@@ -50,6 +52,7 @@ Month.prototype = {
     if (this.currentFrame) {
       this.currentFrame.activate();
     }
+    window.addEventListener('keydown', this._keyDownEvent.bind(this), false);
   },
 
   _onswipe: function(data) {
@@ -94,8 +97,87 @@ Month.prototype = {
     this.delegate(this.element, 'click', '.month-day', this);
     this.delegate(this.element, 'dbltap', '.month-day', this);
 
+    /**
+     * This is the place where GestureDetector used to start.
+     * The location of require is: 'shared/gesture_detector/gesture_detector'
+     * GestureDetector will be closed later.
+     */
     this.gd = new GestureDetector(this.element);
     this.gd.startDetecting();
+    navigationHandler.start();
+  },
+
+  _postMonthChanged: function(delta) {
+    var item = navigationHandler.getCurItem();
+    var currentDate = dateFromId(item.dataset.date);
+    var nextDate  = this._getDay(currentDate, delta);
+
+    this.controller.move(nextDate);
+    var evt = new CustomEvent('h5os-date-changed', {
+      detail: {
+        toDate: nextDate
+      },
+      bubbles: true,
+      cancelable: false
+    });
+
+    document.dispatchEvent(evt);
+  },
+
+  _getDay: function(date , count) {
+    var yesterdayAllMilliseconds = date.getTime() - count * 1000 * 60 * 60 * 24;
+    var today = new Date();
+    today.setTime(yesterdayAllMilliseconds);
+    var tempHour = today.getHours();
+    var tempDate = today.getDate();
+    if (tempHour >= 12) {
+      today.setDate(tempDate + 1);
+      today.setHours(0);
+    }
+    return today;
+  },
+
+  _keyDownEvent: function(evt) {
+    if (this.app.softKey === undefined) {
+      debug('_keyDownEvent, ' + evt.target.id + ': ' + evt.key);
+      switch(evt.key) {
+        case 'Enter':
+        case 'Accept':
+          router.go('/day/');
+          break;
+        case 'BrowserBack':
+          window.close();
+          break;
+        case 'ArrowLeft':
+          if (evt.target.style.getPropertyValue('--pre-month-1')) {
+            this._postMonthChanged(1);
+          }
+          break;
+        case 'ArrowRight':
+          if (evt.target.style.getPropertyValue('--next-month-1')) {
+            this._postMonthChanged(-1);
+          }
+          break;
+        case 'ArrowDown':
+          if (evt.target.style.getPropertyValue('--next-month-7')) {
+            this._postMonthChanged(-7);
+          }
+          break;
+        case 'ArrowUp':
+          if (evt.target.style.getPropertyValue('--pre-month-7')) {
+            this._postMonthChanged(7);
+          }
+          break;
+      }
+    } else {
+      switch (evt.key) {
+        case 'BrowserBack':
+          break;
+        case 'Enter':
+        case 'Accept':
+          break;
+      }
+    }
   },
 
   handleEvent: function(e, target) {
