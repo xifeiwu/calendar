@@ -23,6 +23,8 @@ var periodicSyncController = require('controllers/periodic_sync');
 var performance = require('performance');
 var providerFactory = require('provider/provider_factory');
 var snakeCase = require('snake_case');
+var NavigationManager =
+  require('shared/navigation_manager/navigation_manager');
 
 var pendingClass = 'pending-operation';
 
@@ -315,6 +317,7 @@ module.exports = {
     }
 
     this.db.load(() => {
+      this._initNavigation();
       this._initControllers();
       // it should only start listening for month change after we have the
       // calendars data, otherwise we might display events from calendars that
@@ -325,6 +328,22 @@ module.exports = {
       // we init the UI after the db.load to increase perceived performance
       // (will feel like busytimes are displayed faster)
       navigator.mozL10n.once(() => this._initUI());
+    });
+  },
+
+  _initNavigation: function() {
+    this.keyNavigation = new NavigationManager(null, {
+      defaultStrict: true,
+      defaultDirection: {
+        up: true,
+        right: true,
+        down: true,
+        left: true
+      }
+    });
+
+    this.keyNavigation.on('focus', function(focusElement) {
+      focusElement.focus();
     });
   },
 
