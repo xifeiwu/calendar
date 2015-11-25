@@ -9,7 +9,10 @@ require.config({
   paths: {
     shared: '../shared',
     dom: 'curl/plugin/dom',
-    css: 'curl/plugin/css'
+    css: 'curl/plugin/css',
+    evt: '../shared/evt/index',
+    SpatialNavigator: '../shared/navigation_manager/spatial_navigator',
+    KeyNavigationAdapter: '../shared/navigation_manager/key_navigation_adapter'
   },
   shim: {
     'ext/caldav': { exports: 'Caldav' },
@@ -23,7 +26,9 @@ require.config({
     'shared/notification_helper/notification_helper':
       { exports: 'NotificationHelper' },
     'shared/performance_testing_helper/performance_testing_helper':
-      { exports: 'PerformanceTestingHelper' }
+      { exports: 'PerformanceTestingHelper' },
+    'shared/navigation_manager/navigation_manager':
+      { exports: 'NavigationManager' }
   }
 });
 

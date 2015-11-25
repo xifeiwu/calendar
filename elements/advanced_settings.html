@@ -12,11 +12,11 @@
         <span data-l10n-id="account-list-header">Accounts</span>
       </gaia-subheader>
 
-      <ol class="account-list link-list" aria-labelledby="account-list-header" role="listbox">
+      <ol class="account-list link-list" aria-labelledby="account-list-header" role="listbox" tabIndex="0">
       </ol>
 
       <ol role="presentation">
-        <li class="create-account-item" role="presentation">
+        <li class="create-account-item" role="presentation" tabIndex="0">
           <button class="create-account" href="/select-preset/"
                   data-l10n-id="advanced-settings-add-account">
             Add Account
@@ -29,11 +29,11 @@
       </gaia-subheader>
 
       <ol class="settings-list link-list" role="presentation">
-        <li role="presentation">
+        <li role="presentation" tabIndex="0">
           <label>
             <span data-l10n-id="sync-frequency">Sync Calendar</span>
             <span class="button icon icon-dialog">
-              <select id="setting-sync-frequency" name="syncFrequency">
+              <select id="setting-sync-frequency" name="syncFrequency" nav-scope nav-ignore>
                 <option data-l10n-id="sync-frequency-15min" value="15">15 min</option>
                 <option data-l10n-id="sync-frequency-30min" value="30">30 min</option>
                 <option data-l10n-id="sync-frequency-manual" value="null">Manual</option>
@@ -48,16 +48,16 @@
       </gaia-subheader>
 
       <ol class="settings-list link-list" role="presentation">
-        <li role="presentation">
+        <li role="presentation" tabIndex="0">
           <label id="default-event-alarm">
             <span data-l10n-id="events">Events</span>
-            <span class="button icon icon-dialog"></span>
+            <span class="button icon icon-dialog" nav-scope nav-ignore></span>
           </label>
         </li>
-        <li role="presentation">
+        <li role="presentation" tabIndex="0">
           <label id="default-allday-alarm">
             <span data-l10n-id="allday-events">All-day Events</span>
-            <span class="button icon icon-dialog"></span>
+            <span class="button icon icon-dialog" nav-scope nav-ignore></span>
           </label>
         </li>
       </ol>

@@ -38,6 +38,7 @@
     "toolbars": "git@git.acadine.com:shared/toolbars.git#~0.0.1",
     "test_integration": "git@git.acadine.com:shared/test_integration.git#~0.0.1",
     "accessibility_helper": "git@git.acadine.com:shared/accessibility_helper#~0.0.1",
-    "performance_testing_helper": "git@git.acadine.com:shared/performance_testing_helper.git#~0.0.1"
+    "performance_testing_helper": "git@git.acadine.com:shared/performance_testing_helper.git#~0.0.1",
+    "navigation_manager": "git@git.acadine.com:shared/navigation_manager.git#~0.0.20"
   }
 }
