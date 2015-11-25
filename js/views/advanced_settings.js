@@ -138,6 +138,29 @@ AdvancedSettings.prototype = {
     }
   },
 
+  handleKeyDownEvent: function(evt) {
+    switch (evt.key) {
+      case 'Enter':
+      case 'Accept':
+        break;
+      case 'AcaSoftLeft':
+        break;
+      case 'AcaSoftRight':
+        break;
+    }
+  },
+
+  onactive: function() {
+    View.prototype.onactive.apply(this, arguments);
+    this._keyDownHandler = this.handleKeyDownEvent.bind(this);
+    window.addEventListener('keydown', this._keyDownHandler, false);
+  },
+
+  oninactive: function() {
+    View.prototype.oninactive.call(this);
+    window.removeEventListener('keydown', this._keyDownHandler);
+  },
+
   onCreateAccount: function(event) {
     event.stopPropagation();
     event.preventDefault();
