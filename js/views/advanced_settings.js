@@ -23,24 +23,23 @@ AdvancedSettings.prototype = {
   selectors: {
     element: '#advanced-settings-view',
     accountList: '#advanced-settings-view .account-list',
-    createAccountButton: '#advanced-settings-view .create-account',
-    accountListHeader: '#advanced-settings-view .account-list-header',
+    setupCalendar: '#advanced-settings-view .setup-calendar',
     syncFrequency: '#setting-sync-frequency',
     header: '#advanced-settings-header',
     standardAlarmLabel: '#default-event-alarm',
     alldayAlarmLabel: '#default-allday-alarm'
   },
 
+  get rootElement() {
+    return this._findElement('element');
+  },
+
   get accountList() {
     return this._findElement('accountList');
   },
 
-  get createAccountButton() {
-    return this._findElement('createAccountButton');
-  },
-
-  get accountListHeader() {
-    return this._findElement('accountListHeader');
+  get setupCalendar() {
+    return this._findElement('setupCalendar');
   },
 
   get syncFrequency() {
@@ -90,8 +89,8 @@ AdvancedSettings.prototype = {
     account.on('update', this._updateAccount.bind(this));
     account.on('preRemove', this._removeAccount.bind(this));
 
-    this.createAccountButton.addEventListener('click',
-                                             this.onCreateAccount.bind(this));
+    this.setupCalendar.addEventListener('click',
+                                       this.onSetupCalendar.bind(this));
     setting.on('syncFrequencyChange', this);
     this.syncFrequency.addEventListener('change', this);
 
@@ -144,6 +143,7 @@ AdvancedSettings.prototype = {
       case 'Accept':
         break;
       case 'AcaSoftLeft':
+        router.go('/month/');
         break;
       case 'AcaSoftRight':
         break;
@@ -154,6 +154,7 @@ AdvancedSettings.prototype = {
     View.prototype.onactive.apply(this, arguments);
     this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
+    this.rootElement.focus();
   },
 
   oninactive: function() {
@@ -161,7 +162,7 @@ AdvancedSettings.prototype = {
     window.removeEventListener('keydown', this._keyDownHandler);
   },
 
-  onCreateAccount: function(event) {
+  onSetupCalendar: function(event) {
     event.stopPropagation();
     event.preventDefault();
     router.show(event.target.getAttribute('href'));
@@ -263,8 +264,6 @@ AdvancedSettings.prototype = {
         next();
       };
     }
-
-    this.header.runFontFitSoon();
 
     var settings = this.app.store('Setting');
     var accounts = this.app.store('Account');

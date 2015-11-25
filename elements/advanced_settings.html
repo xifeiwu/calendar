@@ -1,66 +1,75 @@
 <element name="advanced-settings" extends="section">
   <template>
-    <gaia-header id="advanced-settings-header">
+    <h5-header id="advanced-settings-header">
       <h1 data-l10n-id="advanced-settings-header"></h1>
-      <a href="/settings/" data-l10n-id="done"></a>
-    </gaia-header>
+    </h5-header>
 
     <section class="content">
       <div class="errors"></div>
 
-      <gaia-subheader id="account-list-header" class="account-list-header" skin="organic" role="heading" aria-level="2">
-        <span data-l10n-id="account-list-header">Accounts</span>
-      </gaia-subheader>
+      <h5-separator id="account-list-header" data-l10n-id="account-list-header"></h5-separator>
 
-      <ol class="account-list link-list" aria-labelledby="account-list-header" role="listbox" tabIndex="0">
-      </ol>
+      <ul class="account-list link-list" aria-labelledby="account-list-header" role="listbox">
+      </ul>
 
-      <ol role="presentation">
-        <li class="create-account-item" role="presentation" tabIndex="0">
-          <button class="create-account" href="/select-preset/"
-                  data-l10n-id="advanced-settings-add-account">
-            Add Account
-          </button>
-        </li>
-      </ol>
-
-      <gaia-subheader skin="organic" role="heading" aria-level="2">
-        <span data-l10n-id="advanced-settings-personalization">Personalization</span>
-      </gaia-subheader>
-
-      <ol class="settings-list link-list" role="presentation">
-        <li class="sk-advs-sync-frequency" role="presentation" tabIndex="0">
-          <label>
-            <span data-l10n-id="sync-frequency">Sync Calendar</span>
-            <span class="button icon icon-dialog">
-              <select id="setting-sync-frequency" name="syncFrequency" nav-scope nav-ignore>
-                <option data-l10n-id="sync-frequency-15min" value="15">15 min</option>
-                <option data-l10n-id="sync-frequency-30min" value="30">30 min</option>
-                <option data-l10n-id="sync-frequency-manual" value="null">Manual</option>
-              </select>
+      <ul role="presentation">
+        <li class="pack-select create-account-item sk-advs-setup-calendar" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <span class="setup-calendar" href="/select-preset/"
+                    data-l10n-id="advanced-settings-setup-calendars">
+              Setup calendars
             </span>
-          </label>
+          </a>
         </li>
-      </ol>
+      </ul>
 
-      <gaia-subheader skin="organic" role="heading" aria-level="2">
-        <span data-l10n-id="advanced-settings-reminders">Reminders</span>
-      </gaia-subheader>
+      <h5-separator data-l10n-id="advanced-settings-personalization"></h5-separator>
 
-      <ol class="settings-list link-list" role="presentation">
-        <li class = "sk-advs-event-alarm" role="presentation" tabIndex="0">
-          <label id="default-event-alarm">
-            <span data-l10n-id="events">Events</span>
-            <span class="button icon icon-dialog" nav-scope nav-ignore></span>
-          </label>
+      <ul class="settings-list link-list" role="presentation">
+        <li class="pack-select sk-advs-sync-frequency" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="sync-frequency">Sync Calendar</small>
+            <select id="setting-sync-frequency" name="syncFrequency" nav-scope nav-ignore>
+              <option data-l10n-id="sync-frequency-15min" value="15">Every 15 minutes</option>
+              <option data-l10n-id="sync-frequency-30min" value="30">Every 30 minutes<</option>
+              <option data-l10n-id="sync-frequency-manual" value="null">Manual</option>
+            </select>
+          </a>
         </li>
-        <li class = "sk-advs-allday-alarm" role="presentation" tabIndex="0">
-          <label id="default-allday-alarm">
-            <span data-l10n-id="allday-events">All-day Events</span>
-            <span class="button icon icon-dialog" nav-scope nav-ignore></span>
-          </label>
+      </ul>
+
+      <ul class="settings-list link-list" role="presentation">
+        <li class="pack-select sk-advs-setting-default" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="default-calendar">default-calendar</small>
+            <select id="setting-default" name="defaultCalendar" nav-scope nav-ignore>
+              <option data-l10n-id="default-calendar-offline-work" value="work">Offline calendar - Work</option>
+              <option data-l10n-id="default-calendar-offline-home" value="30">Offline calendar - Home</option>
+            </select>
+          </a>
         </li>
-      </ol>
+      </ul>
+
+      <h5-separator data-l10n-id="advanced-settings-alert"></h5-separator>
+
+      <ul class="settings-list link-list" role="presentation">
+        <li class = "pack-select sk-advs-allday-alarm" role="presentation" tabIndex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="allday-events">All-day event alert</small>
+            <label id="default-allday-alarm" nav-scope nav-ignore>
+              <span class="button" nav-scope nav-ignore></span>
+            </label>
+          </a>
+        </li>
+        <li class = "pack-select sk-advs-event-alarm" role="presentation" tabIndex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="events">Events alert<</small>
+            <label id="default-event-alarm" nav-scope nav-ignore>
+              <span class="button" nav-scope nav-ignore></span>
+            </label>
+          </a>
+        </li>
+      </ul>
     </section>
   </template>
 </element>
