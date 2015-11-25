@@ -26,6 +26,8 @@ var snakeCase = require('snake_case');
 var NavigationManager =
   require('shared/navigation_manager/navigation_manager');
 
+require('softkey/select_handler');
+
 var pendingClass = 'pending-operation';
 
 /**

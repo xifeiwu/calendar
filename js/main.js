@@ -28,7 +28,9 @@ require.config({
     'shared/performance_testing_helper/performance_testing_helper':
       { exports: 'PerformanceTestingHelper' },
     'shared/navigation_manager/navigation_manager':
-      { exports: 'NavigationManager' }
+      { exports: 'NavigationManager' },
+    'shared/soft_keys_helper/soft_keys_helper':
+      { exports: 'SoftKeysHelper' }
   }
 });
 
