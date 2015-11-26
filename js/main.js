@@ -12,7 +12,8 @@ require.config({
     css: 'curl/plugin/css',
     evt: '../shared/evt/index',
     SpatialNavigator: '../shared/navigation_manager/spatial_navigator',
-    KeyNavigationAdapter: '../shared/navigation_manager/key_navigation_adapter'
+    KeyNavigationAdapter: '../shared/navigation_manager/key_navigation_adapter',
+    SimpleKeyNavigator: '../shared/simple_key_navigator/dist/amd/simple_key_navigator'
   },
   shim: {
     'ext/caldav': { exports: 'Caldav' },

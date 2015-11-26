@@ -11,6 +11,8 @@ var performance = require('performance');
 var router = require('router');
 var debug = require('debug')('month');
 var navigationHandler = require('navigation_handler');
+require('shared/h5-option-menu/dist/amd/script');
+var _ = navigator.mozL10n.get;
 
 // minimum difference between X and Y axis to be considered an horizontal swipe
 var XSWIPE_OFFSET = window.innerWidth / 10;
@@ -19,6 +21,50 @@ function Month() {
   View.apply(this, arguments);
   this.frames = new Map();
   window.addEventListener('localized', this);
+
+  var keys = ['month-view-current-date', 'month-view-go-to-date',
+    'month-view-calendars-to-display', 'month-view-settings'];
+  var items = [];
+  keys.forEach(function(name) {
+    items.push({
+      title: navigator.mozL10n.get(name),
+      key: name
+    });
+  });
+
+  this.optionMenu = document.body.querySelector('h5-option-menu');
+  this.optionMenu.setOptions({
+    items: items
+  });
+
+  this.optionMenu.on('h5options:closed', function() {
+    debug('h5options: closed');
+    navigationHandler.getCurItem().focus();
+  }.bind(this));
+
+  this.optionMenu.on('h5options:opened', function() {
+    debug('h5options:opened');
+  }.bind(this));
+
+  this.optionMenu.on('h5options:selected', function(e) {
+    var optionKey = e.detail.key;
+    debug('h5options:selected, key is ' + optionKey);
+    switch(optionKey) {
+      case 'month-view-current-date':
+        this._goToCurrentDay();
+        break;
+      case 'month-view-go-to-date':
+        router.go('/switchto-date/');
+        break;
+      case 'month-view-calendars-to-display':
+        router.go('/settings/');
+        break;
+      case 'month-view-settings':
+        router.go('/advanced-settings/');
+        break;
+    }
+  }.bind(this));
+
   this._keyDownHandler = this._keyDownEvent.bind(this);
 }
 module.exports = Month;
@@ -108,6 +154,20 @@ Month.prototype = {
     navigationHandler.start();
   },
 
+  _goToCurrentDay: function() {
+    var date = new Date();
+    this.controller.move(date);
+    this.controller.selectedDay = date;
+    var evt = new CustomEvent('h5os-date-changed', {
+      detail: {
+        toDate: date
+      },
+      bubbles: true,
+      cancelable: false
+    });
+    document.dispatchEvent(evt);
+  },
+
   _postMonthChanged: function(delta) {
     var item = navigationHandler.getCurItem();
     var currentDate = dateFromId(item.dataset.date);
@@ -143,10 +203,6 @@ Month.prototype = {
     if (this.app.softKey === undefined) {
       debug('_keyDownEvent, ' + evt.target.id + ': ' + evt.key);
       switch(evt.key) {
-        case 'Enter':
-        case 'Accept':
-          router.go('/day/');
-          break;
         case 'BrowserBack':
           window.close();
           break;
@@ -173,6 +229,15 @@ Month.prototype = {
             this._postMonthChanged(7);
             postMonthChanged = true;
           }
+          break;
+        case 'AcaSoftLeft':
+          this._goToAddEvent();
+          break;
+        case 'Enter':
+          debug('View Event List.');
+          break;
+        case 'AcaSoftRight':
+          this.optionMenu.open();
           break;
       }
     } else {
