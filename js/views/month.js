@@ -19,6 +19,7 @@ function Month() {
   View.apply(this, arguments);
   this.frames = new Map();
   window.addEventListener('localized', this);
+  this._keyDownHandler = this._keyDownEvent.bind(this);
 }
 module.exports = Month;
 
@@ -52,7 +53,7 @@ Month.prototype = {
     if (this.currentFrame) {
       this.currentFrame.activate();
     }
-    window.addEventListener('keydown', this._keyDownEvent.bind(this), false);
+    this.element.addEventListener('keydown', this._keyDownHandler);
   },
 
   _onswipe: function(data) {
@@ -138,6 +139,7 @@ Month.prototype = {
   },
 
   _keyDownEvent: function(evt) {
+    var postMonthChanged = false;
     if (this.app.softKey === undefined) {
       debug('_keyDownEvent, ' + evt.target.id + ': ' + evt.key);
       switch(evt.key) {
@@ -151,21 +153,25 @@ Month.prototype = {
         case 'ArrowLeft':
           if (evt.target.style.getPropertyValue('--pre-month-1')) {
             this._postMonthChanged(1);
+            postMonthChanged = true;
           }
           break;
         case 'ArrowRight':
           if (evt.target.style.getPropertyValue('--next-month-1')) {
             this._postMonthChanged(-1);
+            postMonthChanged = true;
           }
           break;
         case 'ArrowDown':
           if (evt.target.style.getPropertyValue('--next-month-7')) {
             this._postMonthChanged(-7);
+            postMonthChanged = true;
           }
           break;
         case 'ArrowUp':
           if (evt.target.style.getPropertyValue('--pre-month-7')) {
             this._postMonthChanged(7);
+            postMonthChanged = true;
           }
           break;
       }
@@ -178,6 +184,10 @@ Month.prototype = {
           break;
       }
     }
+    if (!postMonthChanged) {
+      navigationHandler.handleKeyEvent(evt);
+    }
+    evt.stopPropagation();
   },
 
   handleEvent: function(e, target) {
@@ -276,6 +286,7 @@ Month.prototype = {
     if (this.currentFrame) {
       this.currentFrame.deactivate();
     }
+    this.element.removeEventListener('keydown', this._keyDownHandler);
   },
 
   onfirstseen: function() {
