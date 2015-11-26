@@ -11,15 +11,17 @@ define(function(require, exports, module) {
         scrollVar = NavigationMap.scrollVar;
       }
     },
+
     getCurItem: function _getCurItem() {
       return NavigationMap.getCurItem();
+    },
+
+    handleKeyEvent: function _handleKeydown(evt) {
+      handleKeydown(evt);
     }
   }
   module.exports = NavigationHandler;
 
-  window.addEventListener('keydown', function(evt) {
-    handleKeydown(evt);
-  });
   var scrollVar = {
     block: 'start',
     behavior: 'smooth'
