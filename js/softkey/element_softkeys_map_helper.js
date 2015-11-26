@@ -15,6 +15,13 @@
         'sk-advs-allday-alarm': {
           keys: {lsk: 'back', dpe: 'select'}
         }
+      },
+      attributes: {
+        'role': {
+          'gridcell': {
+            keys: {lsk: 'add-event', dpe: 'view', rsk: 'option'}
+          }
+        }
       }
     }
   };
