@@ -345,3 +345,10 @@ html[dir="rtl"] #advanced-settings-view .account-list li {
 html[dir="rtl"] #advanced-settings-view .account-list .error a {
   background-position: right;
 }
+
+#h5-option-menu-border {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  z-index: 1000;
+}
