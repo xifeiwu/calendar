@@ -196,9 +196,6 @@
     });
 
     register(document.body, {
-      lsk: {
-        name: 'back'
-      }
     });
     focusParentLi();
   })();
