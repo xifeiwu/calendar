@@ -40,6 +40,8 @@
     "accessibility_helper": "git@git.acadine.com:shared/accessibility_helper#~0.0.1",
     "performance_testing_helper": "git@git.acadine.com:shared/performance_testing_helper.git#~0.0.1",
     "navigation_manager": "git@git.acadine.com:shared/navigation_manager.git#~0.0.20",
-    "soft_keys_helper": "git@git.acadine.com:shared/soft_keys_helper.git#~0.2.0"
+    "soft_keys_helper": "git@git.acadine.com:shared/soft_keys_helper.git#~0.2.0",
+    "gaia-component": "git@git.acadine.com:gaia-components/gaia-component.git#~0.0.2",
+    "h5-header": "git@git.acadine.com:gaia-components/h5-header.git#~0.0.1"
   }
 }
