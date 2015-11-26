@@ -2,13 +2,17 @@
  *     #time-views if they already have ids?
  */
 #time-views #month-view {
-  background-color: #F8F8F8;
+  background-color: var(--color-gs85);
   height: auto;
 }
 
 #time-views #month-day-agenda {
-  background-color: #F8F8F8;
+  background-color: var(--color-gs90) !important;
   flex: 1;
+}
+
+#time-header {
+  background-color: var(--color-gs85) !important;
 }
 
 section.month {
@@ -37,7 +41,7 @@ section.month > ol
 section.month li {
   -moz-user-select: none;
   font-size: 1.4rem;
-  line-height: 120%;
+  line-height: 100%;
   -moz-margin-end: 0.1rem;
   width: 4.4rem;
 }
@@ -59,12 +63,13 @@ section.month li {
 }
 
 #month-days li {
-  color: #657073;
-  font-size: 1.4rem;
-  height: 2rem;
-  padding: 0.185rem 0;
+  color: var(--color-gs65);
+  font-size: 1.6rem;
+  height: 2.6rem;
+  padding: 0.3rem 0;
   text-align: center;
   text-transform: uppercase;
+  width: 4.4rem;
 }
 
 #month-days > ol {
@@ -91,34 +96,44 @@ section.month ol:last-child {
 }
 
 section.month > ol > li {
-  background-color: white;
+  background-color: transparent;
   height: 100%;
   position: relative;
   text-align: center;
+  color: var(--color-gs00);
+  font-size: 2.1rem;
+  width: 4.4rem;
 }
 
 section.month .present {
-  border: 0.1rem solid #F97C17;
+  color: var(--highlight-color);
+}
+
+section.month :focus {
+  color: var(--color-gs00);
+  outline: none;
 }
 
 section.month .selected {
   color: white;
-  background-color: #00A8C9;
+  background-color: #ae0188;
 }
 
 section.month .other-month {
-  color: #BDBDBD;
+  color: var(--color-gs80);
+  font-size: 1.8rem;
 }
+
 
 section.month .day {
   display: block;
   font-size: 1.8rem;
-  line-height: 4.4rem;
+  line-height: 4rem;
 }
 
 section.month .busy-indicator {
   bottom: 0.4rem;
-  color: #CBCBCB;
+  color: var(--color-gs00);
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -148,7 +163,6 @@ section.month .icon-calendar-dot:before {
  * =============== */
 
 #month-day-agenda {
-  margin-bottom: 4.5rem;
   overflow-x: hidden;
   overflow-y: auto;
   position: absolute;
@@ -156,14 +170,11 @@ section.month .icon-calendar-dot:before {
 }
 
 #event-list-date {
-  border-bottom: 0.1rem solid #0AC;
-  color: #0AC;
+  color: var(--color-gs65);
   font-size: 1.6rem;
   height: 3rem;
   line-height: 3rem;
   margin: 0 1.5rem;
-  padding: 0 1.5rem;
-  text-transform: uppercase;
 }
 
 #empty-message {
@@ -370,4 +381,8 @@ html[dir="rtl"] #month-day-agenda .has-alarms .icon-calendar-alarm {
 html[dir="rtl"] #month-day-agenda .details,
 html[dir="rtl"] #event-list-date {
   text-align: right;
+}
+
+ul#view-selector {
+  display:none !important;
 }

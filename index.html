@@ -44,12 +44,14 @@
 <!-- <script defer src="/shared/performance_testing_helper/performance_testing_helper.js"></script> -->
 
 <!-- Web Components -->
+<script defer src="shared/gaia-component/gaia-component.js"></script>
 <script defer src="shared/component_utils/component_utils.js"></script>
 <script defer src="shared/gaia_subheader/script.js"></script>
 <script defer src="shared/config/config.js"></script>
 <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/theme.css" />
 <script defer src="shared/gaia-header/dist/gaia-header.js"></script>
 <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/gaia-theme/style.css" />
+<script defer src="shared/h5-header/h5-header.js"></script>
 <!-- Icons are lazy loaded by gaia-header -->
 <!-- <link rel="stylesheet" type="text/css" href="shared/gaia-icons/gaia-icons.css" /> -->
 
@@ -77,12 +79,9 @@
 <section is="settings" id="settings" role="region"></section>
 
 <section id="time-views" role="region">
-  <gaia-header id="time-header" action="menu">
+  <h5-header id="time-header">
     <h1 id="current-month-year" aria-labelledby="current-time-indicator"></h1>
-    <a href="/event/add/" data-icon="add">
-      <span data-l10n-id="new-event"></span>
-    </a>
-  </gaia-header>
+  </h5-header>
 
   <div id="progress-indicator">
     <div id="throbber"></div>
