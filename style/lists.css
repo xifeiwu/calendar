@@ -1,0 +1,499 @@
+/**
+ * List View
+ */
+
+*[hidden] {
+  display: none !important;
+}
+
+:focus,
+:active {
+  outline: 0 none;
+}
+
+h5-tabs-view,
+h5-tabs-view > ul {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/************************************
+ * Indicator for the end of a list
+ */
+
+h5-tabs-view > ul:after,
+body > section > div:after {
+  content: "";
+  display: block;
+  width: 60%;
+  height: 0;
+  border-top: 2px solid #aaa;
+  margin: 0.5rem auto;
+}
+
+/************************************
+ * UL + LI
+ */
+
+ul {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+ul li {
+  position: relative;
+  min-height: 8.2rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+ul li.component-container {
+  padding: 0;
+  height: auto;
+  min-height: 0;
+}
+
+ul li[focus] {
+  background-color: var(--highlight-color);
+}
+
+ul li[hidden] {
+  display: none;
+}
+
+ul li[disabled]:not(.component-container) > * {
+  opacity: 0.3 !important;
+}
+
+ul li[focus]:not([not-apply-color]) * {
+  color: var(--white-color) !important;
+}
+
+ul li[focus][pressing] {
+  background: linear-gradient(
+    90deg,
+    var(--highlight-color, #ff6114) 0%,
+    var(--press-color, #ae0188) 50%,
+    var(--highlight-color, #ff6114) 100%
+  );
+  background-size: 400% 100%;
+  animation: h5-pressing 350ms cubic-bezier(0.3, 0, 0, 1);
+}
+
+ul li[is="h5-one-line-li"] {
+  padding: 0;
+  display: inherit;
+}
+
+ul li[is="h5-one-line-li"] > span {
+  padding: 0;
+  display: inherit;
+  /*line-height: inherit;*/
+  color: inherit;
+}
+
+@keyframes h5-pressing {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/************************************
+ * Menu Item
+ */
+
+ul li > .menu-item {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+/************************************
+ * SPAN + SMALL
+ */
+
+ul li > span,
+ul li > small,
+ul li > .explanation,
+ul li > .menu-item > span,
+ul li > .menu-item > small,
+ul li > .menu-item > .explanation {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+ul li > span,
+ul li > .menu-item > span {
+  display: block;
+  font-size: 2.1rem;
+  line-height: 3rem;
+  color: var(--primary-info-color);
+}
+
+ul li > small,
+ul li > .menu-item > small {
+  display: block;
+  font-size: 1.6rem;
+  color: var(--secondary-info-color);
+}
+
+ul li > .explanation,
+ul li > .menu-item > .explanation {
+  display: block;
+  font-size: 1.6rem;
+  overflow: visible;
+  white-space: normal;
+  color: var(--secondary-info-color);
+}
+
+ul li > *:first-child ~ span,
+ul li > *:first-child ~ span + small,
+ul li > *:first-child ~ span + .explanation,
+ul li > .menu-item > *:first-child ~ span,
+ul li > .menu-item > *:first-child ~ span + small,
+ul li > .menu-item > *:first-child ~ span + .explanation {
+  padding-right: 5.4rem !important;
+}
+
+/************************************
+ * Paragraph
+ */
+
+ul li > h2 {
+  font-size: 2.1rem;
+  font-weight: 500;
+  padding: 0;
+  margin: 0;
+  min-height: 3rem;
+  color: var(--primary-info-color);
+  padding: 0 1rem 2rem;
+}
+
+ul li > p {
+  font-size: 2.1rem;
+  font-weight: 400;
+  padding: 1rem;
+  margin: 0;
+  color: var(--primary-info-color);
+}
+
+/************************************
+ * Component
+ */
+
+ul li h5-radio,
+ul li h5-switch,
+ul li h5-checkbox {
+  position: absolute !important;
+  top: 1.9rem;
+  right: 1rem;
+  left: auto;
+  z-index: 2;
+  overflow: visible;
+  width: 4.4rem;
+  height: 4.4rem;
+  font-size: 4.4rem;
+  line-height: 4.4rem;
+}
+
+ul li h5-slider {
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+ul li.hint h5-radio,
+ul li.hint h5-switch,
+ul li.hint h5-checkbox {
+  top: 0.6rem;
+}
+
+ul > li > progress {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+ul li progress:first-child ~ span {
+  padding-right: 1rem !important;
+}
+
+/* color previews */
+ul li > label > .color-preview:before {
+  height: 1.4rem;
+  width: 1.4rem;
+  content: "";
+  top: 3.4rem;
+  left: 2.5rem;
+  position: absolute;
+}
+
+ul li > label > .warning-counter:before {
+  background-color: orange;
+}
+
+ul li > label > .error-counter:before {
+  background-color: red;
+}
+
+ul li > label > .security-counter:before {
+  background-color: black;
+}
+
+ul li > label > .reflow-counter:before {
+  background-color: purple;
+}
+
+ul li > label > .jank-monitor:before {
+  background-color: cornflowerblue;
+}
+
+ul li > label > .fps-monitor:before {
+  background-color: fuchsia;
+}
+
+ul li > label > .ttl-monitor:before {
+  background-color: darkgreen;
+}
+
+ul li > label > .uss-monitor:before {
+  background-color: dimgrey;
+}
+
+ul li > label > .memory-monitor:before {
+  background-color: lightslategrey;
+}
+
+ul li > label > .memory-item:before {
+  background-color: lightslategrey;
+}
+
+/******************************************************************************
+ * Select
+ */
+
+select,
+.select {
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  font-style: normal;
+  font-family: inherit;
+  font-size: 2.1rem;
+  color: var(--highlight-color);
+  padding: 0.5rem 0 0.3rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  border: 0;
+  border-bottom: 0.1rem solid var(--secondary-info-color);
+  background: transparent;
+  border-radius: 0;
+  margin: 0;
+}
+
+select {
+  margin-left: -0.5rem;
+  width: calc(100% + 0.5rem);
+}
+
+li[focus] select,
+li[focus].select {
+  border-bottom: 0.1rem solid var(--white-color);
+}
+
+/******************************************************************************
+ * Input
+ */
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+input[type="search"],
+input[type="url"],
+input[type="number"],
+textarea {
+  font-family: sans-serif;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 4rem;
+  line-height: 4rem;
+  resize: none;
+  padding: 0 1.5rem;
+  font-size: 1.6rem;
+  border: 0.1rem solid #c7c7c7;
+  border-radius: 0;
+  box-shadow: none; /* override the box-shadow from the system (performance issue) */
+  margin: 0 0 1rem 0;
+  unicode-bidi: -moz-plaintext;
+  background: var(--highlight-color);
+}
+
+input[type="date"],
+input[type="time"],
+input[type="datetime"],
+input[type="datetime-local"] {
+  box-sizing: border-box;
+  border-radius: 0;
+  background: transparent;
+  position: absolute;
+  z-index: -1;
+}
+
+/******************************************************************************
+ * Boolean buttons
+ */
+
+gaia-button {
+  --button-color: #333;
+  min-height: 4rem;
+  box-shadow: none !important;
+  text-align: center;
+}
+
+ul li gaia-button,
+form > menu > gaia-button {
+  border-radius: 0 !important;
+  border: 0.1rem solid #C7C7C7;
+  padding: 0 1.2rem;
+  text-align: left;
+}
+
+form > menu > gaia-button {
+  margin-top: 1rem !important;
+}
+
+/******************************************************************************
+ * Selector
+ */
+
+ul li.pack-select {
+  padding: 1.4rem 2rem 1.2rem;
+}
+
+ul li.pack-select > .menu-item {
+  padding: 0;
+}
+
+ul li.pack-select > .menu-item > span {
+  padding: 0;
+}
+
+ul li.pack-select > .menu-item > small {
+  padding: 0;
+  line-height: 2rem;
+}
+
+/******************************************************************************
+ * Progress, Meter
+ */
+
+ul > li progress[value] {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  height: 1.4rem;
+  background: transparent;
+  z-index: 0;
+}
+
+ul > li progress[value]::-moz-progress-bar {
+  background: var(--highlight-color);
+}
+
+ul > li[focus] progress[value]::-moz-progress-bar {
+  background: var(--white-color);
+}
+
+ul > li .fake-background-progress {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: calc(100% - 4rem);
+  height: 1.4rem;
+  margin: 1rem;
+  background: var(--secondary-info-color);
+  opacity: 0.5;
+}
+
+ul > li[focus] .fake-background-progress {
+  background: var(--white-color);
+}
+
+/******************************************************************************
+ * Definition lists
+ */
+
+dl > * {
+  font-size: 1.7rem;
+}
+
+dl dt {
+  -moz-padding-start: 3rem;
+  font-weight: 500;
+  border-bottom: 0.1rem solid black;
+}
+
+dl dd {
+  margin: 0;
+  padding: 1rem 3rem;
+  border-bottom: 0.1rem solid #e6e6e3; /* same as "ul li" */
+}
+
+/******************************************************************************
+ * Right-To-Left layout
+ */
+
+html[dir="rtl"] ul li > a span:nth-of-type(2):not(.button) {
+  left: 1.5rem;
+  right: unset;
+}
+
+html[dir="rtl"] ul li > label.pack-radio > small {
+  left: 6.1rem;
+  right: unset;
+}
+
+html[dir="rtl"] ul li > label.pack-checkbox > small,
+html[dir="rtl"] ul li > label.pack-switch > small {
+  left: 9rem;
+  right: unset;
+}
+
+html[dir="rtl"] ul li > label.pack-radio > h5-radio,
+html[dir="rtl"] ul li > label.pack-switch > h5-switch,
+html[dir="rtl"] ul li > label.pack-checkbox > h5-checkbox {
+  left: 1.5rem;
+  right: auto;
+}
+
+html[dir="rtl"] ul li.pack-split:after {
+  left: 7.5rem;
+  right: unset;
+}
+
+html[dir="rtl"] ul li.sound-setting > label input[type="range"] {
+  left: unset;
+  right: 1.5rem;
+}
+
+html[dir="rtl"] ul li .info-item .info-item-content {
+  text-align: left;
+}

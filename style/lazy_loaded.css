@@ -4,8 +4,6 @@
  * these dependencies will be inlined during the build stage to improve
  * performance, that way we load a single CSS file.
  */
-@import url("forms.css");
-@import url("../shared/buttons/buttons.css");
 @import url("../shared/confirm/confirm.css");
 @import url("../shared/input_areas/input_areas.css");
 @import url("../shared/progress_activity/progress_activity.css");

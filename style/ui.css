@@ -180,36 +180,10 @@ body[data-path="/day/"] #view-selector > .day > a:active {
 }
 
 #advanced-settings-view section.content {
-  height: calc(100% - 5rem);
+  background-color: var(--color-gs90) !important;
+  top: 6.2rem;
+  height: calc(100% - 6.2rem);
   overflow-y: scroll;
-}
-
-#advanced-settings-view .create-account-item {
-  text-align: center;
-}
-
-#advanced-settings-view button {
-  margin: 1.1rem auto;
-  width: calc(100% - 3rem);
-}
-
-#advanced-settings-view .settings-list label {
-  height: auto;
-  margin: 0 1.5rem;
-  padding: 0.5rem 0 1.5rem;
-  line-height: 100%;
-}
-
-#advanced-settings-view .settings-list label span {
-  display: block;
-  margin-bottom: 0;
-  font-size: 1.9rem;
-  line-height: 3.3rem;
-  text-align: start;
-}
-
-#advanced-settings-view .settings-list label span:first-child {
-  -moz-padding-start: 1.5rem;
 }
 
 #advanced-settings-view .settings-list label,
@@ -219,6 +193,11 @@ body[data-path="/day/"] #view-selector > .day > a:active {
   white-space: nowrap;
   text-overflow: ellipsis;
   width: calc(100% - 3rem);
+}
+
+#advanced-settings-view .settings-list span {
+  margin: 0;
+  padding: 0;
 }
 
 /* For the account listing, want the final child to still have

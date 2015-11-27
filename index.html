@@ -21,6 +21,7 @@
 <link rel="stylesheet" type="text/css" href="/shared/input_areas/input_areas.css">
 -->
 <link rel="stylesheet" type="text/css" href="/style/base.css">
+<link rel="stylesheet" type="text/css" href="/style/lists.css">
 
 <!-- localization -->
 <meta name="defaultLanguage" content="en-US">
@@ -50,6 +51,7 @@
 <script defer src="shared/gaia_subheader/script.js"></script>
 <script defer src="shared/config/config.js"></script>
 <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/theme.css" />
+<script defer src="shared/h5-separator/h5-separator.js"></script>
 <script defer src="shared/gaia-header/dist/gaia-header.js"></script>
 <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/gaia-theme/style.css" />
 <script defer src="shared/h5-header/h5-header.js"></script>
@@ -116,7 +118,8 @@
 </section>
 
 <section is="create-account" class="fullscreen-view theme-settings" id="create-account-view" role="region"></section>
-<section is="advanced-settings" class="fullscreen-view in-progress theme-settings" role="region" id="advanced-settings-view"></section>
+<section is="advanced-settings" class="fullscreen-view in-progress theme-calendar" role="region" id="advanced-settings-view"
+  nav-scope nav-loop nav-ignore tabIndex="0"></section>
 <section is="modify-event" class="fullscreen-view" id="modify-event-view" role="region"></section>
 <section is="show-event" class="fullscreen-view" id="event-view" role="region"></section>
 <section is="oauth" class="fullscreen-view skin-dark" id="oauth2" role="region"></section>

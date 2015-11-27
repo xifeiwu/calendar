@@ -6,7 +6,13 @@
     'li': {
       keys: {},
       classes: {
+        'sk-advs-setup-calendar': {
+          keys: {lsk: 'back', dpe: 'select'}
+        },
         'sk-advs-sync-frequency': {
+          keys: {lsk: 'back', dpe: 'select'}
+        },
+        'sk-advs-setting-default': {
           keys: {lsk: 'back', dpe: 'select'}
         },
         'sk-advs-event-alarm': {
