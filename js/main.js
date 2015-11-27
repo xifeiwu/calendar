@@ -45,6 +45,7 @@ require.config({
     'views/day': 'lazy_loaded',
     'views/modify_account': 'lazy_loaded',
     'views/modify_event': 'lazy_loaded',
+    'views/event_list': 'lazy_loaded',
     'views/settings': 'lazy_loaded',
     'views/view_event': 'lazy_loaded'
   }
