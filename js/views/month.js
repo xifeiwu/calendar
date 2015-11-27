@@ -27,7 +27,7 @@ function Month() {
   var items = [];
   keys.forEach(function(name) {
     items.push({
-      title: navigator.mozL10n.get(name),
+      title: _(name),
       key: name
     });
   });
@@ -62,8 +62,37 @@ function Month() {
       case 'month-view-settings':
         router.go('/advanced-settings/');
         break;
+      case 'month-view-sync-calendar':
+        console.log('month-view-sync-calendar click');
+        break;
     }
   }.bind(this));
+
+  var _observeSyncFreq = function(syncFreq) {
+    var keys = ['month-view-current-date', 'month-view-go-to-date',
+      'month-view-calendars-to-display', 'month-view-settings'];
+    if (syncFreq == null) {
+      keys.push('month-view-sync-calendar');
+    }
+    var items = [];
+    keys.forEach(function(name) {
+      items.push({
+        title: _(name),
+        key: name
+      });
+    });
+    this.optionMenu.setOptions({
+      items: items
+    });
+  }.bind(this);
+
+  var setting = this.app.store('Setting');
+  setting.on('syncFrequencyChange', _observeSyncFreq);
+  setting.getValue('syncFrequency', function(err, value) {
+    if (!err) {
+      _observeSyncFreq(value);
+    }
+  });
 
   this._keyDownHandler = this._keyDownEvent.bind(this);
 }
