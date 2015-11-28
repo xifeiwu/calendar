@@ -47,7 +47,8 @@ require.config({
     'views/modify_event': 'lazy_loaded',
     'views/event_list': 'lazy_loaded',
     'views/settings': 'lazy_loaded',
-    'views/view_event': 'lazy_loaded'
+    'views/view_event': 'lazy_loaded',
+    'views/event_detail': 'lazy_loaded'
   }
 });
 
