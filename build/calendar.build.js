@@ -41,6 +41,7 @@
         'views/modify_account',
         'views/modify_event',
         'views/event_list',
+        'views/event_detail',
         'views/settings',
         'views/view_event'
       ],
