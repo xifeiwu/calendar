@@ -46,6 +46,7 @@
 
 <!-- Web Components -->
 <script defer src="shared/gaia-component/gaia-component.js"></script>
+<script defer src="shared/evt/index.js"></script>
 <script defer src="shared/h5-one-line-li/h5-one-line-li.js"></script>
 <script defer src="shared/component_utils/component_utils.js"></script>
 <script defer src="shared/gaia_subheader/script.js"></script>
@@ -55,6 +56,10 @@
 <script defer src="shared/gaia-header/dist/gaia-header.js"></script>
 <link rel="stylesheet" type="text/css" href="app://theme.gaiamobile.org/shared/gaia-theme/style.css" />
 <script defer src="shared/h5-header/h5-header.js"></script>
+<link rel="stylesheet" href="shared/h5-icons/h5-icons.css">
+<script defer src="shared/h5-checkbox/h5-checkbox.js"></script>
+<script defer src="shared/h5-input-wrapper/h5-input-wrapper.js"></script>
+<script defer src="shared/h5-two-line-li/h5-two-line-li.js"></script>
 <!-- Icons are lazy loaded by gaia-header -->
 <!-- <link rel="stylesheet" type="text/css" href="shared/gaia-icons/gaia-icons.css" /> -->
 
@@ -122,7 +127,8 @@
 <section is="create-account" class="fullscreen-view theme-settings" id="create-account-view" role="region"></section>
 <section is="advanced-settings" class="fullscreen-view in-progress theme-calendar" role="region" id="advanced-settings-view"
   nav-scope nav-loop nav-ignore tabIndex="0"></section>
-<section is="modify-event" class="fullscreen-view" id="modify-event-view" role="region"></section>
+<section is="modify-event" class="fullscreen-view in-progress theme-calendar" id="modify-event-view" role="region"
+  nav-scope nav-loop nav-ignore tabIndex="0"></section>
 <section is="event-list" class="fullscreen-view theme-calendar" id="event-list-view" role="region"
   nav-scope nav-loop nav-ignore tabIndex="0"></section>
 <section is="show-event" class="fullscreen-view" id="event-view" role="region"></section>

@@ -11,8 +11,8 @@
   height: -moz-calc(100% - 5rem);
 }
 
-#modify-event-view form ol {
-  margin: 1rem 1.5rem 0 1.5rem;
+#modify-event-view form ul {
+  margin: 0;
   overflow: hidden;
 }
 
@@ -24,22 +24,21 @@
   font-size: 1.6rem;
 }
 
-#modify-event-view form ol li {
-  margin: 0 0 0.5rem;
+#modify-event-view form ul li {
+  margin: 0;
+  padding: 0;
 }
 
 #modify-event-view li.end-date,
 #modify-event-view li.start-date {
   -moz-box-sizing: border-box;
-  float: left;
-  width: 60%;
-  -moz-padding-end: 0.5rem;
+  width: 100%;
+  -moz-padding-end: 0;
 }
 
 #modify-event-view li.end-time,
 #modify-event-view li.start-time {
-  text-align: center;
-  width: calc(40% - 1px);
+  width: 100%;
   float: left
 }
 
@@ -58,7 +57,7 @@
 #modify-event-view li.allday {
   padding: 0;
   -moz-padding-start: 1.5rem;
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 1.9rem;
   line-height: 4rem;
   font-weight: normal;
@@ -87,7 +86,7 @@
 
 #modify-event-view.allday .start-time,
 #modify-event-view.allday .end-time {
-  visibility: hidden;
+  display: none;
 }
 
 #modify-event-view.update .calendar-id {
@@ -167,4 +166,35 @@ html[dir="rtl"] #modify-event-view li.start-time {
 html[dir="rtl"] #modify-event-view li.allday > label > span:after {
   left: 0;
   right: auto;
+}
+
+gaia-header#modify-event-header {
+  display: none !important;
+}
+
+#all-day-event-checkbox-label {
+  margin-left: 5rem;
+  font-size: 2.1rem;
+  color: var(--color-gs00);
+}
+
+h5-check-box[focused] {
+  background-color: var(--highlight-color);
+}
+
+.calendar-modify-event-temp {
+  padding: 1.4rem 2rem 1.2rem !important;
+}
+
+.modify-event-wrapper-span {
+  color: var(--highlight-color);
+}
+
+.inner[focused] .input-container span,
+.inner[editing] .input-container span {
+  color: var(--white-color);
+}
+
+.repeat-style {
+  padding: 1.4rem 2rem 1.2rem !important;
 }

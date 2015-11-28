@@ -52,6 +52,7 @@ ul li {
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
+  background-color: var(--color-gs90);
 }
 
 ul li.component-container {
@@ -202,8 +203,8 @@ ul li h5-switch,
 ul li h5-checkbox {
   position: absolute !important;
   top: 1.9rem;
-  right: 1rem;
-  left: auto;
+  right: auto;
+  left: 1rem;
   z-index: 2;
   overflow: visible;
   width: 4.4rem;

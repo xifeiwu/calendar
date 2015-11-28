@@ -44,6 +44,9 @@
     "gaia-component": "git@git.acadine.com:gaia-components/gaia-component.git#~0.0.2",
     "h5-header": "git@git.acadine.com:gaia-components/h5-header.git#~0.0.1",
     "h5-option-menu": "git@git.acadine.com:gaia-components/h5-option-menu.git#~0.3.4",
-    "h5-separator": "git@git.acadine.com:gaia-components/h5-separator.git"
+    "h5-separator": "git@git.acadine.com:gaia-components/h5-separator.git",
+    "h5-checkbox": "git@git.acadine.com:gaia-components/h5-checkbox.git#~0.0.9",
+    "h5-input-wrapper": "git@git.acadine.com:gaia-components/h5-input-wrapper.git#~0.0.2",
+    "h5-two-line-li": "git@git.acadine.com:gaia-components/h5-two-line-li.git#~0.0.4"
   }
 }

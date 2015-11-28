@@ -331,3 +331,13 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   width: 100%;
   z-index: 1000;
 }
+
+.p-sec {
+  font-size: 1.6rem;
+  font-weight: 400;
+}
+
+.p-pri {
+  font-size: 2.1rem;
+  font-weight: 400;
+}

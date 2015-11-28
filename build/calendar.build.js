@@ -72,6 +72,9 @@
     },
     {
       name: 'ext/ical'
+    },
+    {
+      name: '../shared/evt/index'
     }
   ],
 

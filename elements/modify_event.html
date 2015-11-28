@@ -9,75 +9,117 @@
       </button>
     </gaia-header>
 
+    <h5-header>
+      <h1 data-l10n-id="new-event-header" class="save-text"></h1>
+      <h1 data-l10n-id="edit-event-header" class="done-text"></h1>
+    </h5-header>
+
     <form>
-      <ol>
-        <li class="title">
-          <input type="text" name="title" data-l10n-id="event-title" x-inputmode="latin-prose" placeholder="Title" dir="auto" />
+      <ul class="link-list" role="presentation">
+        <li class="title component-container" tabindex="0" nav-scope>
+          <h5-input-wrapper>
+            <label data-l10n-id="title">Title</label>
+            <input type="text" name="title" data-l10n-id="input-field"  x-inputmode="latin-prose" placeholder="Input field" dir="auto"/>
+          </h5-input-wrapper>
         </li>
 
-        <li class="location">
-          <input type="text" name="location" data-l10n-id="event-location" x-inputmode="latin-prose" placeholder="Where?" dir="auto" />
+        <li class="location component-container" tabindex="0" nav-scope>
+          <h5-input-wrapper>
+            <label data-l10n-id="location">Location</label>
+            <input type="text" name="location"  data-l10n-id="input-field" x-inputmode="latin-prose" placeholder="Input field" dir="auto"/>
+          </h5-input-wrapper>
         </li>
 
         <li class="allday">
-          <label class="pack-switch">
-            <input name="allday" type="checkbox" />
-            <span data-l10n-id="event-is-allday">All Day Event?</span>
+          <label class="menu-item">
+            <h5-checkbox name="allday" check></h5-checkbox>
+            <label id="all-day-event-checkbox-label"  data-l10n-id="event-is-allday">All-day event</label>
           </label>
         </li>
 
-        <li class="start-date">
-          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="start-date">
-            <input name="startDate" data-l10n-id="event-start-date" placeholder="Date" type="date" class="hidden-input" aria-hidden="true"/>
-            <span class="datetime" id="start-date-locale" data-type="date"></span>
-          </span>
+        <li class="start-date component-container" tabindex="0" nav-scope>
+          <h5-input-wrapper>
+            <label data-l10n-id="start-date">Start date</label>
+            <input name="startDate" data-l10n-id="event-start-date" placeholder="Date" type="date"
+                   class="hidden-input" aria-hidden="true" />
+            <span class="datetime modify-event-wrapper-span" id="start-date-locale" data-type="date"></span>
+          </h5-input-wrapper>
         </li>
 
-        <li class="start-time">
-          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="start-time">
-            <input type="time" data-l10n-id="event-start-time" placeholder="Start Time" name="startTime" class="hidden-input" aria-hidden="true"/>
-            <span class="datetime" id="start-time-locale" data-type="time"></span>
-          </span>
+        <li class="start-time component-container" tabindex="0" nav-scope>
+          <h5-input-wrapper>
+            <label data-l10n-id="start-time">Start time</label>
+            <input type="time" data-l10n-id="event-start-time" placeholder="Start Time" name="startTime"
+                   class="hidden-input" aria-hidden="true" />
+            <span class="datetime modify-event-wrapper-span" id="start-time-locale" data-type="time"></span>
+          </h5-input-wrapper>
         </li>
 
-        <li class="end-date">
-          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="end-date">
-            <input name="endDate" data-l10n-id="event-end-date" placeholder="Date" type="date" class="hidden-input" aria-hidden="true"/>
-            <span class="datetime" id="end-date-locale" data-type="date"></span>
-          </span>
+        <li class="end-date component-container" tabindex="0" nav-scope>
+          <h5-input-wrapper>
+            <label data-l10n-id="end-date">End date</label>
+            <input name="endDate" data-l10n-id="event-end-date" placeholder="Date" type="date"
+                   class="hidden-input" aria-hidden="true"/>
+            <span class="datetime modify-event-wrapper-span" id="end-date-locale" data-type="date"></span>
+          </h5-input-wrapper>
         </li>
 
-        <li class="end-time">
-          <span class="button icon icon-dialog" role="combobox" aria-autocomplete="none" data-l10n-id="end-time">
-            <input type="time" data-l10n-id="event-end-time" placeholder="End Time" name="endTime" class="hidden-input" aria-hidden="true"/>
-            <span class="datetime" id="end-time-locale" data-type="time"></span>
-          </span>
+        <li class="end-time component-container" tabindex="0" nav-scope>
+          <h5-input-wrapper>
+            <label data-l10n-id="end-time">End time</label>
+            <input type="time" data-l10n-id="event-end-time" placeholder="End Time" name="endTime"
+                   class="hidden-input" aria-hidden="true"/>
+            <span class="datetime modify-event-wrapper-span" id="end-time-locale" data-type="time"></span>
+          </h5-input-wrapper>
         </li>
 
-        <li class="current-calendar">
-          <span class="button icon icon-dialog" aria-disabled="true">
-            <input name="currentCalendar" />
-          </span>
-        </li>
-
-        <li class="calendar-id">
-          <span class="button icon icon-dialog">
-            <select name="calendarId" class="loading">
+        <li class="pack-select sk-advs-sync-frequency repeat-style" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="repeat">Repeat</small>
+            <select id="repeat-select" nav-scope nav-ignore>
+              <option data-l10n-id="never" value="never">Never</option>
+              <option data-l10n-id="every-day" value="every-day">Every day</option>
+              <option data-l10n-id="every-week" value="every-week">Every week</option>
+              <option data-l10n-id="every-2-weeks" value="every-2-weeks">Every 2 weeks</option>
+              <option data-l10n-id="every-month" value="every-month">Every month</option>
+              <option data-l10n-id="every-year" value="every-year">Every year</option>
             </select>
-          </span>
+          </a>
         </li>
 
-        <li>
-          <h3 data-l10n-id="remind-me" role="heading" aria-level="2">Remind me</h3>
-          <div class="alarms">
-          </div>
+        <li class="notes component-container sk-modify-event-note" tabindex="0" nav-scope>
+          <h5-input-wrapper class="sk-modify-event-title">
+            <label data-l10n-id="note">Note</label>
+            <div contentEditable name="description" placeholder="Note"></div>
+          </h5-input-wrapper>
+        </li>
+      </ul>
+
+      <ul>
+        <li class="pack-select sk-modify-event-current-calendar current-calendar" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="calendar">Calendar</small>
+            <select name="currentCalendar" nav-scope nav-ignore>
+            </select>
+          </a>
         </li>
 
-        <li class="notes">
-          <textarea name="description" data-l10n-id="event-description" x-inputmode="latin-prose" placeholder="Notes" dir="auto"></textarea>
+        <li class="pack-select sk-modify-event-calendar-id calendar-id" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="calendar">Calendar</small>
+            <select name="calendarId" class="loading" nav-scope nav-ignore>
+            </select>
+          </a>
         </li>
 
-      </ol>
+        <li class="pack-select" role="presentation" tabindex="0">
+          <a class="menu-item" nav-scope nav-ignore>
+            <small data-l10n-id="alert" role="heading" aria-level="2">Alert</small>
+            <div class="alarms"></div>
+          </a>
+        </li>
+      </ul>
+
       <div class="delete">
         <a role="button" data-l10n-id="event-delete" class="danger delete-record bb-button">
           Delete Event
