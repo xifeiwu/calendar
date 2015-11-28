@@ -264,6 +264,7 @@ Month.prototype = {
           break;
         case 'Enter':
           debug('View Event List.');
+          router.go('/event/list/');
           break;
         case 'AcaSoftRight':
           this.optionMenu.open();

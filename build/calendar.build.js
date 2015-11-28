@@ -40,6 +40,7 @@
         'views/day',
         'views/modify_account',
         'views/modify_event',
+        'views/event_list',
         'views/settings',
         'views/view_event'
       ],
