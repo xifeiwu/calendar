@@ -43,7 +43,8 @@
         'views/event_list',
         'views/event_detail',
         'views/settings',
-        'views/view_event'
+        'views/view_event',
+        'views/setup_calendar'
       ],
       exclude: ['bundle']
     },
