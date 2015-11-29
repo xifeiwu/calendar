@@ -17,14 +17,14 @@
     <form>
       <ul class="link-list" role="presentation">
         <li class="title component-container" tabindex="0" nav-scope>
-          <h5-input-wrapper>
+          <h5-input-wrapper class="sk-modify-event-title">
             <label data-l10n-id="title">Title</label>
             <input type="text" name="title" data-l10n-id="input-field"  x-inputmode="latin-prose" placeholder="Input field" dir="auto"/>
           </h5-input-wrapper>
         </li>
 
         <li class="location component-container" tabindex="0" nav-scope>
-          <h5-input-wrapper>
+          <h5-input-wrapper class="sk-modify-event-location">
             <label data-l10n-id="location">Location</label>
             <input type="text" name="location"  data-l10n-id="input-field" x-inputmode="latin-prose" placeholder="Input field" dir="auto"/>
           </h5-input-wrapper>
@@ -32,13 +32,13 @@
 
         <li class="allday">
           <label class="menu-item">
-            <h5-checkbox name="allday" check></h5-checkbox>
+            <h5-checkbox class="sk-modify-event-all-day" name="allday" check></h5-checkbox>
             <label id="all-day-event-checkbox-label"  data-l10n-id="event-is-allday">All-day event</label>
           </label>
         </li>
 
         <li class="start-date component-container" tabindex="0" nav-scope>
-          <h5-input-wrapper>
+          <h5-input-wrapper class="sk-modify-event-start-date">
             <label data-l10n-id="start-date">Start date</label>
             <input name="startDate" data-l10n-id="event-start-date" placeholder="Date" type="date"
                    class="hidden-input" aria-hidden="true" />
@@ -47,7 +47,7 @@
         </li>
 
         <li class="start-time component-container" tabindex="0" nav-scope>
-          <h5-input-wrapper>
+          <h5-input-wrapper class="sk-modify-event-start-time">
             <label data-l10n-id="start-time">Start time</label>
             <input type="time" data-l10n-id="event-start-time" placeholder="Start Time" name="startTime"
                    class="hidden-input" aria-hidden="true" />
@@ -56,7 +56,7 @@
         </li>
 
         <li class="end-date component-container" tabindex="0" nav-scope>
-          <h5-input-wrapper>
+          <h5-input-wrapper class="sk-modify-event-end-date">
             <label data-l10n-id="end-date">End date</label>
             <input name="endDate" data-l10n-id="event-end-date" placeholder="Date" type="date"
                    class="hidden-input" aria-hidden="true"/>
@@ -65,7 +65,7 @@
         </li>
 
         <li class="end-time component-container" tabindex="0" nav-scope>
-          <h5-input-wrapper>
+          <h5-input-wrapper class="sk-modify-event-end-time">
             <label data-l10n-id="end-time">End time</label>
             <input type="time" data-l10n-id="event-end-time" placeholder="End Time" name="endTime"
                    class="hidden-input" aria-hidden="true"/>
@@ -73,7 +73,7 @@
           </h5-input-wrapper>
         </li>
 
-        <li class="pack-select sk-advs-sync-frequency repeat-style" role="presentation" tabindex="0">
+        <li class="pack-select sk-modify-event-repeat repeat-style" role="presentation" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="repeat">Repeat</small>
             <select id="repeat-select" nav-scope nav-ignore>
@@ -87,15 +87,6 @@
           </a>
         </li>
 
-        <li class="notes component-container sk-modify-event-note" tabindex="0" nav-scope>
-          <h5-input-wrapper class="sk-modify-event-title">
-            <label data-l10n-id="note">Note</label>
-            <div contentEditable name="description" placeholder="Note"></div>
-          </h5-input-wrapper>
-        </li>
-      </ul>
-
-      <ul>
         <li class="pack-select sk-modify-event-current-calendar current-calendar" role="presentation" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="calendar">Calendar</small>
@@ -112,11 +103,18 @@
           </a>
         </li>
 
-        <li class="pack-select" role="presentation" tabindex="0">
+        <li class="pack-select sk-modify-event-remind-me" role="presentation" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="alert" role="heading" aria-level="2">Alert</small>
             <div class="alarms"></div>
           </a>
+        </li>
+
+        <li class="notes component-container sk-modify-event-note" tabindex="0" nav-scope>
+          <h5-input-wrapper class="sk-modify-event-title">
+            <label data-l10n-id="note">Note</label>
+            <div contentEditable name="description" placeholder="Note"></div>
+          </h5-input-wrapper>
         </li>
       </ul>
 

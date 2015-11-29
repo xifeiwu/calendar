@@ -20,6 +20,21 @@
         },
         'sk-advs-allday-alarm': {
           keys: {lsk: 'back', dpe: 'select'}
+        },
+        'sk-modify-event-calendar-id': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-current-calendar': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-remind-me': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-note': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-repeat': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
         }
       },
       attributes: {
@@ -27,6 +42,36 @@
           'gridcell': {
             keys: {lsk: 'add-event', dpe: 'view', rsk: 'option'}
           }
+        }
+      }
+    },
+    'h5-input-wrapper': {
+      keys: {dpe: 'select'},
+      classes: {
+        'sk-modify-event-title': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-location': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-start-date': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-start-time': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-end-date': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-event-end-time': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        }
+      }
+    },
+    'h5-checkbox': {
+      classes: {
+        'sk-modify-event-all-day': {
+          keys: {lsk: 'cancel', rsk: 'save'}
         }
       }
     }
