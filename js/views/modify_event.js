@@ -839,6 +839,11 @@ ModifyEvent.prototype = {
     this.form.reset();
   },
 
+  onactive: function() {
+    EventBase.prototype.onactive.apply(this, arguments);
+    this.element.focus();
+  },
+
   oninactive: function() {
     EventBase.prototype.oninactive.apply(this, arguments);
     this.reset();
