@@ -41,7 +41,7 @@ var EventsListItem = create({
       </div>`;
 
     var content = `<ul><li tabindex="0" nav-scope>
-      <a href="/event/show/${busytimeId}/" class="event"
+      <a href="/event/show/${busytimeId}/" class="event sk-events-list-item"
       role="option" aria-describedby="${busytimeId}-icon-calendar-alarm">
       ${indicator}
       ${eventTime}

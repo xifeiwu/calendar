@@ -74,6 +74,20 @@
           keys: {lsk: 'cancel', rsk: 'save'}
         }
       }
+    },
+    'a': {
+      classes: {
+        'sk-events-list-item': {
+          keys: {lsk: 'back', dpe: 'view', rsk: 'option'}
+        }
+      }
+    },
+    'section': {
+      classes: {
+        'sk-events-list-view': {
+          keys: {lsk: 'back'}
+        }
+      }
     }
   };
 
