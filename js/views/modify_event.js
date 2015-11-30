@@ -10,6 +10,7 @@ var dateFormat = require('date_format');
 var getTimeL10nLabel = require('calc').getTimeL10nLabel;
 var nextTick = require('next_tick');
 var router = require('router');
+var debug = require('debug')('modify_event');
 
 require('dom!modify-event-view');
 
@@ -17,6 +18,7 @@ function ModifyEvent(options) {
   this.deleteRecord = this.deleteRecord.bind(this);
   this._toggleAllDay = this._toggleAllDay.bind(this);
   EventBase.apply(this, arguments);
+  this._keyDownHandler = this._keyDownEvent.bind(this);
 }
 module.exports = ModifyEvent;
 
@@ -49,6 +51,7 @@ ModifyEvent.prototype = {
   uiSelector: '[name="%"]',
 
   _duration: 0, // The duration between start and end dates.
+  _saveEnable: false,
 
   _initEvents: function() {
     EventBase.prototype._initEvents.apply(this, arguments);
@@ -68,6 +71,15 @@ ModifyEvent.prototype = {
     allday.addEventListener('change', this._toggleAllDay);
 
     this.alarmList.addEventListener('change', this._changeAlarm.bind(this));
+
+    this.getEl('title').addEventListener('keydown', function() {
+      var content = this.getEl('title').value.trim();
+      if (content.length) {
+        this._saveEnable = true;
+      } else {
+        this._saveEnable = false;
+      }
+    }.bind(this));
   },
 
   /**
@@ -293,13 +305,10 @@ ModifyEvent.prototype = {
    * @param {Boolean} boolean true/false.
    */
   _markReadonly: function(boolean) {
-    var i = 0;
-    var fields = this.form.querySelectorAll('[name]');
-    var len = fields.length;
-
-    for (; i < len; i++) {
-      fields[i].readOnly = boolean;
-    }
+    ['title', 'location', 'startDate', 'startTime', 'endDate', 'endTime',
+     'repeat', 'calendarId', 'alarm[]', 'description'].forEach(function(key) {
+      this.getEl(key).readOnly = boolean;
+    }.bind(this));
   },
 
   queryAlarms: function() {
@@ -502,8 +511,9 @@ ModifyEvent.prototype = {
     var fields = {
       title: this.getEl('title').value,
       location: this.getEl('location').value,
-      description: this.getEl('description').value,
-      calendarId: this.getEl('calendarId').value
+      repeat: this.getEl('repeat').value,
+      calendarId: this.getEl('calendarId').value,
+      description: this.getEl('description').innerHTML
     };
 
     var startTime;
@@ -558,10 +568,12 @@ ModifyEvent.prototype = {
 
   enablePrimary: function() {
     this.primaryButton.removeAttribute('aria-disabled');
+    this._saveEnable = true;
   },
 
   disablePrimary: function() {
     this.primaryButton.setAttribute('aria-disabled', 'true');
+    this._saveEnable = false;
   },
 
   /**
@@ -839,13 +851,31 @@ ModifyEvent.prototype = {
     this.form.reset();
   },
 
+  _keyDownEvent: function(evt) {
+    switch(evt.key) {
+      case 'AcaSoftLeft':
+        this.cancel();
+        break;
+      case 'Enter':
+        debug('Enter.');
+        break;
+      case 'AcaSoftRight':
+        if (this._saveEnable) {
+          this.primary();
+        }
+        break;
+    }
+  },
+
   onactive: function() {
     EventBase.prototype.onactive.apply(this, arguments);
+    this.element.addEventListener('keydown', this._keyDownHandler);
     this.element.focus();
   },
 
   oninactive: function() {
     EventBase.prototype.oninactive.apply(this, arguments);
+    this.element.removeEventListener('keydown', this._keyDownHandler);
     this.reset();
   }
 };

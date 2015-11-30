@@ -282,6 +282,8 @@ Month.prototype = {
     if (!postMonthChanged) {
       navigationHandler.handleKeyEvent(evt);
     }
+    var date = dateFromId(navigationHandler.getCurItem().dataset.date);
+    this.controller.selectedDay = date;
     evt.stopPropagation();
   },
 
