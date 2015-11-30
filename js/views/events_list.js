@@ -27,6 +27,10 @@ EventsList.prototype = {
     events: '#events-list'
   },
 
+  get rootElement() {
+    return this._findElement('element');
+  },
+
   get currentDate() {
     return this._findElement('currentDate');
   },
@@ -38,6 +42,7 @@ EventsList.prototype = {
   onactive: function() {
     View.prototype.onactive.call(this);
     this.initCurrentDate(this.controller.selectedDay);
+    this.rootElement.focus();
   },
 
   oninactive: function() {

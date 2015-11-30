@@ -40,7 +40,8 @@ var EventsListItem = create({
         <h5 role="presentation">${title}</h5>
       </div>`;
 
-    var content = `<ul><li><a href="/event/show/${busytimeId}/" class="event"
+    var content = `<ul><li tabindex="0" nav-scope>
+      <a href="/event/show/${busytimeId}/" class="event"
       role="option" aria-describedby="${busytimeId}-icon-calendar-alarm">
       ${indicator}
       ${eventTime}
