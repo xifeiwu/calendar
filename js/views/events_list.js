@@ -7,6 +7,7 @@ var dayObserver = require('day_observer');
 var createDay = require('calc').createDay;
 var isAllDay = require('calc').isAllDay;
 var template = require('templates/events_list_item');
+var router = require('router');
 
 require('dom!events-list-view');
 
@@ -42,6 +43,8 @@ EventsList.prototype = {
   onactive: function() {
     View.prototype.onactive.call(this);
     this.initCurrentDate(this.controller.selectedDay);
+    this._keyDownHandler = this.handleKeyDownEvent.bind(this);
+    window.addEventListener('keydown', this._keyDownHandler, false);
     this.rootElement.focus();
   },
 
@@ -51,6 +54,22 @@ EventsList.prototype = {
       dayObserver.off(this.date, this._render);
     }
     this.date = null;
+    window.removeEventListener('keydown', this._keyDownHandler);
+  },
+
+  handleKeyDownEvent: function(evt) {
+    switch (evt.key) {
+      case 'Enter':
+      case 'Accept':
+        // TODO: navi to /event/detail/{id}
+        break;
+      case 'AcaSoftLeft':
+        router.go('/month/');
+        break;
+      case 'AcaSoftRight':
+        // TODO: open option menu
+        break;
+    }
   },
 
   initCurrentDate: function(date) {
