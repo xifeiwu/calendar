@@ -8,6 +8,7 @@ var createDay = require('calc').createDay;
 var isAllDay = require('calc').isAllDay;
 var template = require('templates/events_list_item');
 var router = require('router');
+var H5OptionMenu = require('shared/h5-option-menu/dist/amd/script');
 
 require('dom!events-list-view');
 
@@ -46,6 +47,39 @@ EventsList.prototype = {
     this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
     this.rootElement.focus();
+
+    this.optionMenu = new H5OptionMenu();
+    this.optionMenu.setOptions({
+      items: [
+        {
+          title: navigator.mozL10n.get('edit'),
+          key: 'edit'
+        },
+        {
+          title: navigator.mozL10n.get('delete'),
+          key: 'delete'
+        }
+      ]
+    });
+
+    this.optionMenu.on('h5options:closed', function() {
+      this.rootElement.focus();
+    }.bind(this));
+
+    this.optionMenu.on('h5options:opened', function() {
+    }.bind(this));
+
+    this.optionMenu.on('h5options:selected', function(e) {
+      var optionKey = e.detail.key;
+      switch(optionKey) {
+        case 'edit':
+          break;
+        case 'delete':
+          break;
+      }
+    }.bind(this));
+
+    this.rootElement.appendChild(this.optionMenu);
   },
 
   oninactive: function() {
@@ -55,6 +89,7 @@ EventsList.prototype = {
     }
     this.date = null;
     window.removeEventListener('keydown', this._keyDownHandler);
+    this.rootElement.removeChild(this.optionMenu);
   },
 
   handleKeyDownEvent: function(evt) {
@@ -68,6 +103,7 @@ EventsList.prototype = {
         break;
       case 'AcaSoftRight':
         // TODO: open option menu
+        this.optionMenu.open();
         break;
     }
   },
