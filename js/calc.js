@@ -274,7 +274,7 @@ exports.getDayId = function(date) {
     'd',
     date.getFullYear(),
     date.getMonth(),
-    date.getDate()
+    date.getUTCDate()
   ].join('-');
 };
 
