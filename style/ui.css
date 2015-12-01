@@ -332,6 +332,12 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   z-index: 1000;
 }
 
+#date-picker {
+  position: absolute;
+  bottom: 0px;
+  width: 0px;
+  height: 0px;
+}
 .p-sec {
   font-size: 1.6rem;
   font-weight: 400;

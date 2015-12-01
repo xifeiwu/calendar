@@ -11,6 +11,7 @@ var performance = require('performance');
 var router = require('router');
 var debug = require('debug')('month');
 var navigationHandler = require('navigation_handler');
+var InputParser = require('shared/input_parser/input_parser');
 require('shared/h5-option-menu/dist/amd/script');
 var _ = navigator.mozL10n.get;
 
@@ -21,6 +22,13 @@ function Month() {
   View.apply(this, arguments);
   this.frames = new Map();
   window.addEventListener('localized', this);
+  this.datePicker = document.getElementById('date-picker');
+  this.datePicker.addEventListener('input', function(evt) {
+    this._goToDay(new Date(evt.target.value));
+  }.bind(this));
+  this.datePicker.addEventListener('blur', function(evt) {
+    navigationHandler.getCurItem().focus();
+  }.bind(this));
 
   var keys = ['month-view-current-date', 'month-view-go-to-date',
     'month-view-calendars-to-display', 'month-view-settings'];
@@ -38,8 +46,10 @@ function Month() {
   });
 
   this.optionMenu.on('h5options:closed', function() {
-    debug('h5options: closed');
-    navigationHandler.getCurItem().focus();
+    debug('h5options:closed.');
+    if (this.optionMenu.contains(document.activeElement)) {
+      navigationHandler.getCurItem().focus();
+    }
   }.bind(this));
 
   this.optionMenu.on('h5options:opened', function() {
@@ -51,10 +61,12 @@ function Month() {
     debug('h5options:selected, key is ' + optionKey);
     switch(optionKey) {
       case 'month-view-current-date':
-        this._goToCurrentDay();
+        this._goToDay(new Date());
         break;
       case 'month-view-go-to-date':
-        router.go('/switchto-date/');
+        this.datePicker.value =
+          InputParser.exportDate(this.controller.selectedDay);
+        this.datePicker.focus();
         break;
       case 'month-view-calendars-to-display':
         router.go('/settings/');
@@ -183,8 +195,7 @@ Month.prototype = {
     navigationHandler.start();
   },
 
-  _goToCurrentDay: function() {
-    var date = new Date();
+  _goToDay: function(date) {
     this.controller.move(date);
     this.controller.selectedDay = date;
     var evt = new CustomEvent('h5os-date-changed', {

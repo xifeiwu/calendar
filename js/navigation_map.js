@@ -603,7 +603,7 @@ define(function(require, exports, module) {
       var curControl = getCurControl();
       var index = 0;
       var target = 'd-' + curDate.getFullYear() + '-' + curDate.getMonth() + 
-                    '-' + curDate.getDate();
+                    '-' + curDate.getUTCDate();
       if (curControl.elements &&curControl.elements.length>0) {
         var items = curControl.elements;
         for (var i = 0;i < items.length; i++) {
