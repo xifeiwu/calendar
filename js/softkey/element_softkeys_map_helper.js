@@ -35,6 +35,9 @@
         },
         'sk-modify-event-repeat': {
           keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-events-list-item': {
+          keys: {lsk: 'back', dpe: 'view', rsk: 'option'}
         }
       },
       attributes: {
@@ -72,13 +75,6 @@
       classes: {
         'sk-modify-event-all-day': {
           keys: {lsk: 'cancel', rsk: 'save'}
-        }
-      }
-    },
-    'a': {
-      classes: {
-        'sk-events-list-item': {
-          keys: {lsk: 'back', dpe: 'view', rsk: 'option'}
         }
       }
     },
