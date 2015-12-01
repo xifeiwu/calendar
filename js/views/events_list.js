@@ -16,6 +16,7 @@ function EventsList(options) {
   View.apply(this, arguments);
   this._render = this._render.bind(this);
   this.controller = this.app.timeController;
+  this.selectedEvent = null;
 }
 module.exports = EventsList;
 
@@ -63,7 +64,8 @@ EventsList.prototype = {
     });
 
     this.optionMenu.on('h5options:closed', function() {
-      this.rootElement.focus();
+      this.selectedEvent.focus();
+      this.selectedEvent = null;
     }.bind(this));
 
     this.optionMenu.on('h5options:opened', function() {
@@ -71,8 +73,17 @@ EventsList.prototype = {
 
     this.optionMenu.on('h5options:selected', function(e) {
       var optionKey = e.detail.key;
+      var busytimeId = '';
+      if (this.selectedEvent) {
+        busytimeId = this.selectedEvent.getAttribute('busytimeId');
+      }
       switch(optionKey) {
         case 'edit':
+          if (busytimeId) {
+            router.go('/event/edit/' + busytimeId);
+          } else {
+            console.log('Illegal busytimeId!');            
+          }
           break;
         case 'delete':
           break;
@@ -90,6 +101,7 @@ EventsList.prototype = {
     this.date = null;
     window.removeEventListener('keydown', this._keyDownHandler);
     this.rootElement.removeChild(this.optionMenu);
+    this.selectedEvent = null;
   },
 
   handleKeyDownEvent: function(evt) {
@@ -103,6 +115,7 @@ EventsList.prototype = {
         break;
       case 'AcaSoftRight':
         // TODO: open option menu
+        this.selectedEvent = document.activeElement;
         this.optionMenu.open();
         break;
     }

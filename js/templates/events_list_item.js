@@ -40,13 +40,12 @@ var EventsListItem = create({
         <h5 role="presentation">${title}</h5>
       </div>`;
 
-    var content = `<ul><li tabindex="0" nav-scope>
-      <a href="/event/show/${busytimeId}/" class="event sk-events-list-item"
-      role="option" aria-describedby="${busytimeId}-icon-calendar-alarm">
-      ${indicator}
-      ${eventTime}
-      ${eventDetails}
-      </a></li></ul>`;
+    var content = `
+      <li tabindex="0" class="sk-events-list-item" busytimeId="${busytimeId}">
+        <span class="event">
+          ${indicator} ${eventTime} ${eventDetails}
+        </span>
+      </li>`;
     return content;
   }
 });
