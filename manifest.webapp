@@ -41,11 +41,7 @@
   },
   "default_locale": "en-US",
   "icons": {
-    "84": "/style/icons/calendar_84.png",
-    "126": "/style/icons/calendar_126.png",
-    "142": "/style/icons/calendar_142.png",
-    "189": "/style/icons/calendar_189.png",
-    "284": "/style/icons/calendar_284.png"
+    "90": "/style/icons/calendar_90.png"
   },
   "orientation": "default"
 }
