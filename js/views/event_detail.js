@@ -27,6 +27,10 @@ EventDetail.prototype = {
     description: '#event-detail-description'
   },
 
+  get rootElement() {
+    return this._findElement('element');
+  },
+
   get title() {
     return this._findElement('title');
   },
@@ -94,7 +98,9 @@ EventDetail.prototype = {
       this.alarms.innerHTML = alarmContent;
     }
 
-    this.description = model.description;
+    this.description.textContent = model.description;
+
+    this.rootElement.focus();
   },
 
   /**
