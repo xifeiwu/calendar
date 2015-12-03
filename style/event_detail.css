@@ -91,3 +91,10 @@ li.current-calendar div.indicator{
   top: 50%;
   color: var(--color-gs00);
 }
+
+#event-detail-dialog {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  z-index: 1000;
+}

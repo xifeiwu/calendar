@@ -19,6 +19,7 @@ function EventBase(options) {
 
   this.cancel = this.cancel.bind(this);
   this.primary = this.primary.bind(this);
+  this.busytimeId = null;
   this._initEvents();
 }
 module.exports = EventBase;
@@ -200,6 +201,7 @@ EventBase.prototype = {
 
     classList.add(this.LOADING);
 
+    this.busytimeId = id;
     dayObserver.findAssociated(id).then(record => {
       if (token === self._changeToken) {
         self.useModel(
@@ -268,6 +270,7 @@ EventBase.prototype = {
 
   oninactive: function() {
     View.prototype.oninactive.apply(this, arguments);
+    this.busytimeId = null;
   },
 
   /**

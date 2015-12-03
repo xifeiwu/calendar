@@ -5,11 +5,19 @@ var EventBase = require('./event_base');
 var DurationTime = require('templates/duration_time');
 var Local = require('provider/local');
 var alarmTemplate = require('templates/alarm');
+var router = require('router');
+var dayObserver = require('day_observer');
+var providerFactory = require('provider/provider_factory');
+var Event = require('models/event');
+require('shared/h5-dialog/dist/amd/script');
 
 require('dom!event-detail-view');
 
 function EventDetail(options) {
   EventBase.apply(this, arguments);
+  this.store = this.app.store('Event');
+  this.changeToken = 0;
+  this.isDialogOpened = false;
 }
 module.exports = EventDetail;
 
@@ -24,7 +32,8 @@ EventDetail.prototype = {
     durationTime: '#event-detail-duration-time',
     currentCalendar: '#event-detail-current-calendar',
     alarms: '#event-detail-alarms',
-    description: '#event-detail-description'
+    description: '#event-detail-description',
+    h5Dialog: '#event-detail-dialog'
   },
 
   get rootElement() {
@@ -55,8 +64,47 @@ EventDetail.prototype = {
     return this._findElement('description');
   },
 
+  get h5Dialog() {
+    return this._findElement('h5Dialog');
+  },
+
   _initEvents: function() {
     // This method would be called by EventBase.
+    this.h5Dialog.on('h5dialog:opened', function() {
+      this.isDialogOpened = true;
+    }.bind(this));
+    this.h5Dialog.on('h5dialog:closed', function() {
+      this.h5Dialog.removeAttribute('tabindex');
+      this.isDialogOpened = false;
+      this.rootElement.focus();
+    }.bind(this));
+    this.h5Dialog.addEventListener('blur', function(evt) {
+      this.h5Dialog.close();
+    }.bind(this));
+  },
+
+  openConfirmDialog: function() {
+    this.h5Dialog.setAttribute('tabindex', '0');
+    SoftkeyHandler.register(this.h5Dialog, {
+      lsk: {
+        name: 'cancel',
+        action: () => {
+          this.h5Dialog.close();
+        }
+      },
+      dpe: {},
+      rsk: {
+        name: 'delete',
+        action: () => {
+          this.h5Dialog.close();
+          this.deleteEvent();
+        }
+      }
+    });
+    this.h5Dialog.open({
+      message: navigator.mozL10n.get('delete-event-confirmation'),
+      dialogType: 'confirm'
+    });
   },
 
   /**
@@ -101,6 +149,71 @@ EventDetail.prototype = {
     this.description.textContent = model.description;
 
     this.rootElement.focus();
+    SoftkeyHandler.register(this.rootElement, {
+      lsk: {
+        name: 'back',
+        action: () => {
+          this.cancel();
+        }
+      },
+      dpe: {
+        name: 'edit',
+        action: () => {
+          if (this.busytimeId) {
+            router.go('/event/edit/' + this.busytimeId);
+          }
+        }
+      },
+      rsk: {
+        name: 'delete',
+        action: () => {
+          this.openConfirmDialog();
+        }
+      }
+    });
+  },
+
+  deleteEvent: function() {
+    var self = this;
+    var id = this.busytimeId;
+    var token = ++this.changeToken;
+
+    dayObserver.findAssociated(id).then(record => {
+      if (token === self.changeToken) {
+        var event = new Event(record.event);
+        var changeToken = ++self.changeToken;
+        self.store.ownersOf(event, function (err, owners) {
+          if (err) {
+            console.error('fetch Owners ' + err);
+            return;
+          }
+          self.originalCalendar = owners.calendar;
+          self.provider = providerFactory.get(owners.account.providerType);
+          self.provider.eventCapabilities(event, function (err, caps) {
+            if (self.changeToken !== changeToken) {
+              console.error('token are not matched.');
+              return;
+            }
+            if (err) {
+              console.error('Failed to fetch events capabilities: ' + err);
+              return;
+            }
+            if (caps.canDelete) {
+              self.provider.deleteEvent(event.data, function(err) {
+                if (err) {
+                  console.error('provider.deleteEvent: ' + err);
+                } else {
+                  console.log('Delete success: ' + JSON.stringify(event.data));
+                }
+                self.cancel();
+              });
+            }
+          });
+        });
+      }
+    }).catch(() => {
+      console.error('Error deleting records for id: ', id);
+    });
   },
 
   /**
