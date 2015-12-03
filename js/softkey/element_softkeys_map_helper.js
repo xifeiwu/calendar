@@ -77,13 +77,6 @@
           keys: {lsk: 'cancel', rsk: 'save'}
         }
       }
-    },
-    'section': {
-      classes: {
-        'sk-events-list-view': {
-          keys: {lsk: 'back'}
-        }
-      }
     }
   };
 
