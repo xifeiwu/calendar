@@ -1,0 +1,93 @@
+#event-detail {
+  background-color: var(--background);
+}
+
+#event-detail ul li {
+  padding: 0;
+}
+
+#event-detail ul {
+  padding: 0;
+}
+
+.event-detail-label {
+  float: left;
+  color: var(--highlight-color);
+}
+
+.event-detail-location-div {
+  float: left;
+  height: 8.2rem;
+  position: absolute;
+  left: 15%;
+  top: 40%;
+  color: var(--color-gs00);
+}
+
+.event-detail-time-div {
+  float: left;
+  height: 8.2rem;
+  position: absolute;
+  left: 15%;
+  color: var(--color-gs00);
+}
+
+.event-detail-time-div-top {
+  top: -20%;
+  position: absolute;
+  width: 30rem;
+}
+
+.event-detail-time-div-bot {
+  top: 5%;
+  position: absolute;
+  width: 30rem;
+}
+
+li.current-calendar div.indicator{
+  float: left;
+  height: 8.2rem;
+  background-color: red;
+}
+
+.event-detail-current-calendar-div {
+  float: left;
+  height: 8.2rem;
+  padding-left: 1rem;
+}
+
+.event-detail-current-calendar-div-top {
+  position: absolute;
+  top: 10%;
+  color: var(--color-gs65);
+}
+
+.event-detail-current-calendar-div-bot {
+  position: absolute;
+  top: 50%;
+  color: var(--color-gs00);
+}
+
+.event-detail-alarms-div-top {
+  position: absolute;
+  top: 10%;
+  color: var(--color-gs65);
+}
+
+.event-detail-alarms-div-bot {
+  position: absolute;
+  top: 50%;
+  color: var(--color-gs00);
+}
+
+.event-detail-description-div-top {
+  position: absolute;
+  top: 10%;
+  color: var(--color-gs65);
+}
+
+.event-detail-description-div-bot {
+  position: absolute;
+  top: 50%;
+  color: var(--color-gs00);
+}

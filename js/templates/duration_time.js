@@ -34,6 +34,33 @@ module.exports = create({
       endTime: formatTime(endDate),
       endDate: formatDate(endDate)
     });
+  },
+
+  durationTimeEventDetail: function() {
+    var format = '';
+    var startDate = this.arg('startDate');
+    var endDate = this.arg('endDate');
+    var isAllDay = this.arg('isAllDay');
+
+    if (isAllDay) {
+      // Use the last second of previous day as the base for endDate
+      // (e.g., 1991-09-14T23:59:59 insteads of 1991-09-15T00:00:00).
+      endDate = new Date(endDate - 1000);
+      format = Calc.isSameDate(startDate, endDate) ?
+        'one-all-day-duration-event-detail' :
+        'multiple-all-day-duration-event-detail';
+    } else {
+      format = Calc.isSameDate(startDate, endDate) ?
+        'one-day-duration-event-detail' :
+        'multiple-day-duration-event-detail';
+    }
+
+    return l10n.get(format, {
+      startTime: formatTimeEventDetail(startDate),
+      startDate: formatDateEventDetail(startDate),
+      endTime: formatTimeEventDetail(endDate),
+      endDate: formatDateEventDetail(endDate)
+    });
   }
 });
 
@@ -45,6 +72,20 @@ function formatDate(date) {
 }
 
 function formatTime(time) {
+  return DateSpan.time.render({
+    time: time,
+    format: 'shortTimeFormat'
+  });
+}
+
+function formatDateEventDetail(date) {
+  return dateFormat.localeFormat(
+    date,
+    l10n.get('events-detail-duration-format')
+  );
+}
+
+function formatTimeEventDetail(time) {
   return DateSpan.time.render({
     time: time,
     format: 'shortTimeFormat'

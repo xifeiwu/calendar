@@ -231,7 +231,15 @@ EventsList.prototype = {
     switch (evt.key) {
       case 'Enter':
       case 'Accept':
-        // TODO: navi to /event/detail/{id}
+        if (!this.isDialogOpened) {
+          var eventElement = document.activeElement;
+          if (!!eventElement && eventElement.hasAttribute('busytimeId')) {
+            this.busytimeId = eventElement.getAttribute('busytimeId');
+            router.go('/event/detail/' + this.busytimeId);
+          } else {
+            this.busytimeId = null;
+          }
+        }
         break;
       case 'AcaSoftLeft':
         if (!this.isDialogOpened) {
