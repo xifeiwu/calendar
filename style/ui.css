@@ -179,7 +179,7 @@ body[data-path="/day/"] #view-selector > .day > a:active {
   }
 }
 
-#advanced-settings-view section.content {
+#advanced-settings-view div.content {
   background-color: var(--background);
   top: 6.2rem;
   height: calc(100% - 6.2rem);
