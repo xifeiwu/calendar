@@ -341,9 +341,9 @@ module.exports = {
       defaultStrict: true,
       defaultDirection: {
         up: true,
-        right: true,
+        right: false,
         down: true,
-        left: true
+        left: false
       }
     });
 
