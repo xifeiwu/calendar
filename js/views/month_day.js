@@ -71,7 +71,7 @@ MonthDay.prototype = {
   },
 
   _updateBusyCount: function(data) {
-    var count = Math.min(3, data.amount);
+    var count = Math.min(1, data.amount);
     var holder = this.element.querySelector('.busy-indicator');
 
     if (count > 0) {
