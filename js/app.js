@@ -310,6 +310,55 @@ module.exports = {
   },
 
   /**
+   * Adjust scroll offset in order to display entire element on screen. If the
+   * element is too small like h5-switch, we needs to scroll based on its'
+   * parent element
+   */
+  adjustScroll: function as_adjustScroll(newFocusElem) {
+
+    var elem = newFocusElem;
+    var stopElements = ['BODY', 'SECTION', 'H5-TABS-VIEW'];
+    if (!elem.hasAttribute('nav-scope')) {
+      while (elem && elem.tagName !== 'LI') {
+        elem = elem.parentElement;
+      }
+      elem = elem || newFocusElem;
+      var viewContainer = elem;
+      if (!viewContainer.parentElement) {
+        return;
+      }
+      while (stopElements.indexOf(viewContainer.parentElement.tagName) < 0) {
+        viewContainer = viewContainer.parentElement;
+      }
+
+      var rect = elem.getBoundingClientRect();
+      var containerRect = viewContainer.getBoundingClientRect();
+      if (rect.top < containerRect.top + 30) {
+        // 30 padding for separator
+        viewContainer.scrollTop -= (containerRect.top - rect.top + 30);
+      } else if (rect.bottom > containerRect.bottom) {
+        viewContainer.scrollTop += (rect.bottom - containerRect.bottom);
+      }
+
+      setTimeout(function() {
+        // XXX: Focus an element would introduce auto-scroll
+        if (document.activeElement !== newFocusElem) {
+          return;
+        }
+        var rect = elem.getBoundingClientRect();
+        var containerRect = viewContainer.getBoundingClientRect();
+        if (rect.top < containerRect.top + 30) {
+          viewContainer.scrollTop -= (containerRect.top - rect.top + 30);
+        } else if (rect.bottom > containerRect.bottom) {
+          viewContainer.scrollTop +=
+            (rect.bottom - containerRect.bottom);
+        }
+      });
+    }
+    newFocusElem.focus();
+  },
+
+  /**
    * Primary code for app can go here.
    */
   init: function() {
@@ -346,10 +395,7 @@ module.exports = {
         left: false
       }
     });
-
-    this.keyNavigation.on('focus', function(focusElement) {
-      focusElement.focus();
-    });
+    this.keyNavigation.on('focus', this.adjustScroll.bind(this));
   },
 
   _initView: function(name) {

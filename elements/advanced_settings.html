@@ -4,7 +4,7 @@
       <h1 data-l10n-id="advanced-settings-header"></h1>
     </h5-header>
 
-    <section class="content">
+    <div class="content">
       <div class="errors"></div>
 
       <h5-separator id="account-list-header" data-l10n-id="account-list-header"></h5-separator>
@@ -29,7 +29,7 @@
         <li class="pack-select sk-advs-sync-frequency" role="presentation" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="sync-frequency">Sync Calendars</small>
-            <select id="setting-sync-frequency" name="syncFrequency" nav-scope nav-ignore>
+            <select id="setting-sync-frequency" name="syncFrequency">
               <option data-l10n-id="sync-frequency-15min" value="15">Every 15 minutes</option>
               <option data-l10n-id="sync-frequency-30min" value="30">Every 30 minutes<</option>
               <option data-l10n-id="sync-frequency-manual" value="null">Manual</option>
@@ -42,7 +42,7 @@
         <li class="pack-select sk-advs-setting-default" role="presentation" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="default-calendar">default-calendar</small>
-            <select id="setting-default" name="defaultCalendar" nav-scope nav-ignore>
+            <select id="setting-default" name="defaultCalendar">
               <option data-l10n-id="default-calendar-offline-work" value="work">Offline calendar - Work</option>
               <option data-l10n-id="default-calendar-offline-home" value="30">Offline calendar - Home</option>
             </select>
@@ -56,20 +56,20 @@
         <li class = "pack-select sk-advs-allday-alarm" role="presentation" tabIndex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="allday-events">All-day Events Alert</small>
-            <label id="default-allday-alarm" nav-scope nav-ignore>
-              <span class="button" nav-scope nav-ignore></span>
+            <label id="default-allday-alarm">
+              <span class="button"></span>
             </label>
           </a>
         </li>
         <li class = "pack-select sk-advs-event-alarm" role="presentation" tabIndex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="events-alert">Events Alert<</small>
-            <label id="default-event-alarm" nav-scope nav-ignore>
-              <span class="button" nav-scope nav-ignore></span>
+            <label id="default-event-alarm">
+              <span class="button"></span>
             </label>
           </a>
         </li>
       </ul>
-    </section>
+    </div>
   </template>
 </element>
