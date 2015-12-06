@@ -870,7 +870,11 @@ ModifyEvent.prototype = {
   onactive: function() {
     EventBase.prototype.onactive.apply(this, arguments);
     this.element.addEventListener('keydown', this._keyDownHandler);
+  },
+
+  ondispatch: function() {
     this.element.focus();
+    this.element.querySelector('form ul li').focus();
   },
 
   oninactive: function() {
