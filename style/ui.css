@@ -347,3 +347,7 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   font-size: 2.1rem;
   font-weight: 400;
 }
+
+#events-list-view {
+  background-color: var(--background);
+}

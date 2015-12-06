@@ -30,7 +30,7 @@ var EventsListItem = create({
       var endTime = formatTime(this.arg('endTime'));
       eventTime = `
         <div class="event-time">
-          <div class="start-time">${startTime}</div>
+          <div class="start-time">${startTime}-</div>
           <div class="end-time">${endTime}</div>
         </div>`;
     }
