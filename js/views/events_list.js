@@ -23,6 +23,10 @@ function EventsList(options) {
   this.busytimeId = null;
   this.recordsCount = 0;
   this.changeToken = 0;
+  this.initHeader();
+  this.initOptionMenu();
+  this.initDialog();
+  this._keyDownHandler = this.handleKeyDownEvent.bind(this);
 
   // TODO:
   // After closing h5dialog by soft key(lsk or rsk), the focus should be
@@ -72,10 +76,6 @@ EventsList.prototype = {
   onactive: function() {
     View.prototype.onactive.call(this);
     this.initCurrentDate(this.controller.selectedDay);
-    this.initHeader();
-    this.initOptionMenu();
-    this.initDialog();
-    this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
   },
 
