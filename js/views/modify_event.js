@@ -72,14 +72,17 @@ ModifyEvent.prototype = {
 
     this.alarmList.addEventListener('change', this._changeAlarm.bind(this));
 
-    this.getEl('title').addEventListener('keydown', function() {
-      var content = this.getEl('title').value.trim();
-      if (content.length) {
-        this._saveEnable = true;
-      } else {
-        this._saveEnable = false;
-      }
-    }.bind(this));
+    this.getEl('title').addEventListener('keydown',
+      this._checkTitle.bind(this));
+  },
+
+  _checkTitle: function() {
+    var content = this.getEl('title').value.trim();
+    if (content.length) {
+      this._saveEnable = true;
+    } else {
+      this._saveEnable = false;
+    }
   },
 
   /**
@@ -875,6 +878,7 @@ ModifyEvent.prototype = {
   ondispatch: function() {
     this.element.focus();
     this.element.querySelector('form ul li').focus();
+    this._checkTitle();
   },
 
   oninactive: function() {
