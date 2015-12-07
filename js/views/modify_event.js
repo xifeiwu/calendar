@@ -671,6 +671,8 @@ ModifyEvent.prototype = {
     this.getEl('endTime').value = InputParser.exportTime(endDate);
     this._setupDateTimeSync('endTime', 'end-time-locale', endDate);
 
+    this.getEl('repeat').value = model.repeat;
+
     this.getEl('description').textContent = model.description;
 
     // update calendar id
