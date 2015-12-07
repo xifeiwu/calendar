@@ -198,6 +198,15 @@ Event.prototype = {
     return this.remote.location;
   },
 
+  get repeat() {
+    return this.remote.repeat || '';
+  },
+
+  set repeat(value) {
+    this.remote.repeat = value;
+    return this.remote.repeat;
+  },
+
   get alarms() {
     return this.remote.alarms || [];
   },
