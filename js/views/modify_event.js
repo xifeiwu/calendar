@@ -74,6 +74,11 @@ ModifyEvent.prototype = {
 
     this.getEl('title').addEventListener('keydown',
       this._checkTitle.bind(this));
+
+    this._setupDateTimeSync('startDate', 'start-date-locale');
+    this._setupDateTimeSync('startTime', 'start-time-locale');
+    this._setupDateTimeSync('endDate', 'end-date-locale');
+    this._setupDateTimeSync('endTime', 'end-time-locale');
   },
 
   _checkTitle: function() {
@@ -571,7 +576,6 @@ ModifyEvent.prototype = {
 
   enablePrimary: function() {
     this.primaryButton.removeAttribute('aria-disabled');
-    this._saveEnable = true;
   },
 
   disablePrimary: function() {
@@ -660,16 +664,20 @@ ModifyEvent.prototype = {
     }
 
     this.getEl('startDate').value = InputParser.exportDate(startDate);
-    this._setupDateTimeSync('startDate', 'start-date-locale', startDate);
+    var startDateLocale = document.getElementById('start-date-locale');
+    this._renderDateTimeLocale(startDateLocale, startDate);
 
     this.getEl('endDate').value = InputParser.exportDate(endDate);
-    this._setupDateTimeSync('endDate', 'end-date-locale', endDate);
+    var endDateLocale = document.getElementById('end-date-locale');
+    this._renderDateTimeLocale(endDateLocale, endDate);
 
     this.getEl('startTime').value = InputParser.exportTime(startDate);
-    this._setupDateTimeSync('startTime', 'start-time-locale', startDate);
+    var startTimeLocale = document.getElementById('start-time-locale');
+    this._renderDateTimeLocale(startTimeLocale, startDate);
 
     this.getEl('endTime').value = InputParser.exportTime(endDate);
-    this._setupDateTimeSync('endTime', 'end-time-locale', endDate);
+    var endTimeLocale = document.getElementById('end-time-locale');
+    this._renderDateTimeLocale(endTimeLocale, endDate);
 
     this.getEl('repeat').value = model.repeat;
 
@@ -696,39 +704,47 @@ ModifyEvent.prototype = {
    * date/time
    */
   _setupDateTimeSync: function(src, target, value) {
+    var srcElement = this.getEl(src);
     var targetElement = document.getElementById(target);
     if (!targetElement) {
       return;
     }
-    this._renderDateTimeLocale(targetElement, value);
 
     var type = targetElement.dataset.type;
     var callback = type === 'date' ?
       this._updateDateLocaleOnInput : this._updateTimeLocaleOnInput;
 
-    this.getEl(src)
-      .addEventListener('input', function(e) {
-        callback.call(this, targetElement, e);
+    srcElement.addEventListener('input', function(e) {
+      callback.call(this, targetElement, e);
 
-        // We only auto change the end date and end time
-        // when user changes start date or start time,
-        // or end datetime is NOT after start datetime
-        // after changing end date or end time.
-        // Otherwise, we don't auto change end date and end time.
-        if (targetElement.id === 'start-date-locale' ||
-            targetElement.id === 'start-time-locale') {
-          this._setEndDateTimeWithCurrentDuration();
-        } else if (this._getEndDateTime() <= this._getStartDateTime()) {
-          this._setEndDateTimeWithCurrentDuration();
-          this.showErrors({
-            name: type === 'date' ?
-              'start-date-after-end-date' :
-              'start-time-after-end-time'
-          });
-        }
+      // We only auto change the end date and end time
+      // when user changes start date or start time,
+      // or end datetime is NOT after start datetime
+      // after changing end date or end time.
+      // Otherwise, we don't auto change end date and end time.
+      if (targetElement.id === 'start-date-locale' ||
+          targetElement.id === 'start-time-locale') {
+        this._setEndDateTimeWithCurrentDuration();
+      } else if (this._getEndDateTime() <= this._getStartDateTime()) {
+        this._setEndDateTimeWithCurrentDuration();
+        this.showErrors({
+          name: type === 'date' ?
+            'start-date-after-end-date' :
+            'start-time-after-end-time'
+        });
+      }
+      this._duration = this._getEndDateTime() - this._getStartDateTime();
+    }.bind(this));
 
-        this._duration = this._getEndDateTime() - this._getStartDateTime();
-      }.bind(this));
+
+    srcElement.addEventListener('blur', function(e) {
+      var date = targetElement.dataset.date;
+      if (type === 'date') {
+        this.value = new Date(date).toLocaleFormat('%Y-%m-%d');
+      } else if (type === 'time') {
+        this.value = new Date(date).toLocaleFormat('%H:%M:%S');
+      }
+    });
   },
 
   _setEndDateTimeWithCurrentDuration: function() {
