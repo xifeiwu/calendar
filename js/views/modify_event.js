@@ -30,7 +30,7 @@ ModifyEvent.prototype = {
   MAX_ALARMS: 5,
 
   formats: {
-    date: 'dateTimeFormat_%x',
+    date: 'modify-event-time-format',
     time: 'shortTimeFormat'
   },
 
