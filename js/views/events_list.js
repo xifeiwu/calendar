@@ -283,6 +283,7 @@ EventsList.prototype = {
 
   _render: function(records) {
     this.recordsCount = records.basic.length;
+    this.recordsCount += records.allday.length;
     // we should always render allday events at the top
     this.events.innerHTML = records.allday.concat(records.basic)
       .map(this._renderEvent, this)
