@@ -7,6 +7,12 @@
   position: absolute;
   background-color: var(--background);
   will-change: scroll-position;
+  height: calc(100% - 6.2rem);
+  width: 100%;
+}
+
+div#events-list-agenda::after {
+  border: none;
 }
 
 #empty-message {
