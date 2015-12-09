@@ -1,0 +1,50 @@
+.setup-calendar-section {
+  background-color: var(--color-gs90);
+  height: 100%;
+}
+
+div.setup-div::after {
+  border: none;
+}
+
+li.setup-li {
+  min-height: 0;
+}
+
+#setup-calendar {
+  background-color: var(--color-gs90);
+  height: 100%;
+}
+
+.setup-ul {
+  margin-top: 1rem;
+}
+
+ul.setup-ul li {
+  padding: 0;
+}
+
+div.on-off-line-calendar {
+  height: 8.2rem;
+}
+
+div.indicator {
+  float: left;
+  width: 0.4rem;
+  height: 8.2rem;
+  background-color: red;
+}
+
+div.setup-calendar-id {
+  float:left;
+  width:auto;
+}
+
+p.setup-calendar-p {
+  font-size: 2.1rem;
+  position: absolute;
+  left: 15%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  color: var(--color-gs00);
+}

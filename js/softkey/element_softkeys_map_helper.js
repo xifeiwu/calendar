@@ -38,6 +38,12 @@
         },
         'sk-events-list-item': {
           keys: {lsk: 'back', dpe: 'view', rsk: 'option'}
+        },
+        'sk-add-account': {
+          keys: {lsk: 'back', dpe: 'select'}
+        },
+        'sk-account': {
+          keys: {lsk: 'back', rsk: 'remove'}
         }
       },
       attributes: {
@@ -67,6 +73,15 @@
           keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
         },
         'sk-modify-event-end-time': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-account-username': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-account-password': {
+          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
+        },
+        'sk-modify-account-url': {
           keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
         }
       }

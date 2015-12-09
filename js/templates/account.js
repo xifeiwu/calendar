@@ -17,12 +17,10 @@ module.exports = create({
     var id = this.h('id');
     var preset = this.h('preset');
     var user = this.h('user');
-
-    return `<li id="account-${id}" role="presentation">
-        <a href="/update-account/${id}" role="option" dir="auto">
-          <span class="preset" data-l10n-id="preset-${preset}"></span>
-          <span class="user">${user}</span>
-        </a>
+    return `<li id="account-${id}" role="presentation" 
+      tabindex="0" class="sk-account">
+      <span class="preset" data-l10n-id="preset-${preset}"></span>
+      <span class="user">${user}</span>
       </li>`;
   }
 });

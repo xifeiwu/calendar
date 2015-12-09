@@ -1,10 +1,12 @@
 <element name="modify-account" extends="section">
   <template>
-    <gaia-header id="modify-account-header" action="back">
+    <gaia-header id="modify-account-header" action="back" hidden>
       <h1 data-l10n-id="account-header"></h1>
       <button class="save" data-l10n-id="save">Save</button>
     </gaia-header>
-
+    <h5-header>
+      <h1 data-l10n-id="account-header"></h1>
+    </h5-header>
     <section class="during-progress" aria-live="assertive" aria-atomic="true">
       <div>
         <progress class="small" data-l10n-id="during-progress-loading"></progress>
@@ -12,21 +14,27 @@
       </div>
     </section>
 
-    <form class="modify-account-form">
+    <form class="modify-account-form" onsubmit="false">
       <fieldset>
         <ol role="presentation">
-          <li class="user" role="presentation">
-            <input name="user" data-l10n-id="field-user" x-inputmode="verbatim" placeholder="Username" />
+          <li class="user" id="users" role="presentation" tabindex="0" nav-scope>
+            <h5-input-wrapper class="sk-modify-account-username">
+              <label data-l10n-id="field-user">username</label>
+              <input name="user" placeholder="Username" />
+            </h5-input-wrapper>
           </li>
-          <li class="password" role="presentation">
-            <input name="password" data-l10n-id="field-password" placeholder="Password" type="password" />
-          </li>
-          <li class="full-url" role="presentation">
-            <input name="fullUrl"
-              type="url"
-              data-l10n-id="field-full-url"
-              placeholder="URL" />
 
+          <li class="password" role="presentation" tabindex="0" nav-scope>
+            <h5-input-wrapper class="sk-modify-account-password">
+              <label data-l10n-id="field-password">password</label>
+              <input name="password" data-l10n-id="field-password" placeholder="Password" type="password" />
+            </h5-input-wrapper>
+          </li>
+          <li class="full-url" role="presentation" tabindex="0" nav-scope>
+            <h5-input-wrapper class="sk-modify-account-url">
+              <label data-l10n-id="field-full-url">URL</label>
+              <input name="fullUrl" type="url" data-l10n-id="field-full-url" placeholder="URL" />
+            </h5-input-wrapper>
           </li>
           <li class="sync-errors" role="presentation">
             <p data-l10n-id="modify-account-unable-to-sync">>uNaBle to SynC</p>

@@ -67,6 +67,10 @@ ModifyAccount.prototype = {
     return DEFAULT_AUTH_TYPE;
   },
 
+  get rootElement() {
+    return this._findElement('element');
+  },
+
   get oauth2Window() {
     return this._findElement('oauth2Window');
   },
@@ -102,9 +106,7 @@ ModifyAccount.prototype = {
   get fields() {
     if (!this._fields) {
       var result = this._fields = {};
-      var elements = this.element.querySelectorAll(
-        this.selectors.fields
-      );
+      var elements = this.element.querySelectorAll(this.selectors.fields);
 
       var i = 0;
       var len = elements.length;
@@ -196,11 +198,9 @@ ModifyAccount.prototype = {
   },
 
   save: function(options, e) {
-
     if (e) {
       e.preventDefault();
     }
-
     var list = this.element.classList;
     var self = this;
 
@@ -351,8 +351,8 @@ ModifyAccount.prototype = {
         'text' : usernameType;
 
     this.header.runFontFitSoon();
- },
-
+  },
+  
   destroy: function() {
     var list = this.element.classList;
 
@@ -392,6 +392,7 @@ ModifyAccount.prototype = {
     this.completeUrl = '/settings/';
 
     var self = this;
+
     function displayModel(err, model) {
       self.preset = Presets[model.preset];
 
@@ -420,9 +421,31 @@ ModifyAccount.prototype = {
     }
   },
 
+  onactive: function() {
+    View.prototype.onactive.apply(this, arguments);
+    this._keyDownHandler = this.handleKeyDownEvent.bind(this);
+    window.addEventListener('keydown', this._keyDownHandler, false);
+    this.rootElement.focus();
+  },
+
+  handleKeyDownEvent: function(evt) {
+    switch (evt.key) {
+      case 'Enter':
+        break;
+      case 'Accept':
+        break;
+      case 'AcaSoftLeft':
+        router.go('/setup-calendar/');
+        break;
+      case 'AcaSoftRight':
+        break;
+    }
+  },
+
+
   oninactive: function() {
     View.prototype.oninactive.apply(this, arguments);
-
+    window.removeEventListener('keydown', this._keyDownHandler);
     if (this._oauthDialog) {
       this._oauthDialog.close();
       this._oauthDialog = null;

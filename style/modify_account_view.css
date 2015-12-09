@@ -52,12 +52,10 @@
 }
 
 #modify-account-view form ol {
-  margin-top: 1.5rem;
 }
 
 #modify-account-view form li {
   margin: 0;
-  padding: 0 1.5rem 1rem;
 }
 
 #modify-account-view form li,
@@ -133,3 +131,11 @@
   height: 100%;
   width: 100%;
 }
+
+#add-account-option-menu {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  z-index: 1000;
+}
+
