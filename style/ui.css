@@ -351,3 +351,7 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
 #events-list-view {
   background-color: var(--background);
 }
+
+div[contenteditable] {
+  line-height: 2.1rem;
+}

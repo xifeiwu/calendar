@@ -113,6 +113,24 @@ ul li[is="h5-one-line-li"] > span {
  * Menu Item
  */
 
+.menu-item {
+  position: static;
+}
+
+.menu-item[data-icon] {
+  padding-left: 4.4rem;
+}
+
+.menu-item::before {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  text-align: center;
+  line-height: 0;
+  font-size: 4.4rem !important;
+  color: var(--highlight-color);
+}
+
 ul li > .menu-item {
   width: 100%;
   box-sizing: border-box;
