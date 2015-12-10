@@ -54,7 +54,10 @@ ModifyAccount.prototype = {
     status: '#modify-account-view section[role="status"]',
     errors: '#modify-account-view .errors',
     oauth2Window: '#oauth2',
-    oauth2SignIn: '#modify-account-view .force-oauth2'
+    oauth2SignIn: '#modify-account-view .force-oauth2',
+    username: '#modify-account-view .sk-modify-account-username',
+    password: '#modify-account-view .sk-modify-account-password',
+    url: '#modify-account-view .sk-modify-account-url'
   },
 
   progressClass: 'in-progress',
@@ -102,6 +105,18 @@ ModifyAccount.prototype = {
 
   get form() {
     return this._findElement('form');
+  },
+
+  get username() {
+    return this._findElement('username');
+  },
+
+  get password() {
+    return this._findElement('password');
+  },
+
+  get url() {
+    return this._findElement('url');
   },
 
   get fields() {
@@ -423,8 +438,24 @@ ModifyAccount.prototype = {
   },
 
   initHeader: function() {
-    SoftkeyHandler.register(this.setupCalendar, {
-      dpe: {
+    SoftkeyHandler.register(this.username, {
+      rsk: {
+        name: 'save',
+        action: () => {
+          this.save();
+        }
+      }
+    });
+    SoftkeyHandler.register(this.password, {
+      rsk: {
+        name: 'save',
+        action: () => {
+          this.save();
+        }
+      }
+    });
+    SoftkeyHandler.register(this.url, {
+      rsk: {
         name: 'save',
         action: () => {
           self.save();

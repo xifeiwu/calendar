@@ -141,6 +141,7 @@ SetupCalendar.prototype = {
 
     this.optionMenu.on('h5options:closed', function() {
       console.log('h5options:closed.');
+      this.rootElement.focus();
     }.bind(this));
 
     this.optionMenu.on('h5options:opened', function() {
@@ -218,7 +219,9 @@ SetupCalendar.prototype = {
       for (var id in accounts) {
         self._addAccount(id, accounts[id]);
       }
-      self.render();
+      if (self.onrender) {
+        self.onrender();
+      }
     }
 
     var accounts = this.app.store('Account');

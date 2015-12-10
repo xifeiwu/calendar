@@ -28,7 +28,6 @@ body > section > div:after {
   display: block;
   width: 60%;
   height: 0;
-  border-top: 2px solid #aaa;
   margin: 0.5rem auto;
 }
 
