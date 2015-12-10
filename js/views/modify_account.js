@@ -33,6 +33,7 @@ function ModifyAccount(options) {
 
   // bound so we can add remove listeners
   this._boundSaveUpdateModel = this.save.bind(this, { updateModel: true });
+  this.initHeader();
 }
 module.exports = ModifyAccount;
 
@@ -352,7 +353,7 @@ ModifyAccount.prototype = {
 
     this.header.runFontFitSoon();
   },
-  
+
   destroy: function() {
     var list = this.element.classList;
 
@@ -419,6 +420,17 @@ ModifyAccount.prototype = {
     } else if (params.preset) {
       displayModel(null, this._createModel(params.preset));
     }
+  },
+
+  initHeader: function() {
+    SoftkeyHandler.register(this.setupCalendar, {
+      dpe: {
+        name: 'save',
+        action: () => {
+          self.save();
+        }
+      }
+    });
   },
 
   onactive: function() {
