@@ -76,6 +76,7 @@ function Month() {
         break;
       case 'month-view-sync-calendar':
         console.log('month-view-sync-calendar click');
+        this.app.syncController.all();
         break;
     }
   }.bind(this));
