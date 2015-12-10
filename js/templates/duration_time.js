@@ -51,7 +51,7 @@ module.exports = create({
         'multiple-all-day-duration-event-detail';
     } else {
       format = Calc.isSameDate(startDate, endDate) ?
-        'one-day-duration-event-detail' :
+        'one-day-duration-event-detail-to' :
         'multiple-day-duration-event-detail';
     }
 
