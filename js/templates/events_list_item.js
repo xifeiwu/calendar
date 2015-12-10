@@ -26,11 +26,11 @@ var EventsListItem = create({
           <div class="all-day" data-l10n-id="hour-allday">All Day</div>
         </div>`;
     } else {
-      var startTime = formatTime(this.arg('startTime'));
+      var startTime = formatTimeTo(this.arg('startTime'));
       var endTime = formatTime(this.arg('endTime'));
       eventTime = `
         <div class="event-time">
-          <div class="start-time">${startTime}-</div>
+          <div class="start-time">${startTime}</div>
           <div class="end-time">${endTime}</div>
         </div>`;
     }
@@ -56,6 +56,13 @@ function formatTime(time) {
   return DateSpan.time.render({
     time: time,
     format: 'shortTimeFormat'
+  });
+}
+
+function formatTimeTo(time) {
+  return DateSpan.time.render({
+    time: time,
+    format: 'shortTimeFormatTo'
   });
 }
 
