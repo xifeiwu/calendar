@@ -48,6 +48,7 @@
     "h5-checkbox": "git@git.acadine.com:gaia-components/h5-checkbox.git#~0.0.9",
     "h5-input-wrapper": "git@git.acadine.com:gaia-components/h5-input-wrapper.git#~0.0.2",
     "h5-two-line-li": "git@git.acadine.com:gaia-components/h5-two-line-li.git#~0.0.4",
-    "h5-dialog": "git@git.acadine.com:gaia-components/h5-dialog.git"
+    "h5-dialog": "git@git.acadine.com:gaia-components/h5-dialog.git#~0.0.5",
+    "h5-list-button": "git@git.acadine.com:gaia-components/h5-list-button.git#~0.0.2"
   }
 }
