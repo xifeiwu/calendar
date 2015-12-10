@@ -1,26 +1,44 @@
-<element name="setup-calendar" extends="section">
+<element name="setup-calendar" extends="section" class="setup-calendar-section">
   <template>
     <h5-header id="setup-calendar-header">
       <h1 data-l10n-id="setup-calendar-header">Setup Calendar</h1>
     </h5-header>
 
-    <h5-separator data-l10n-id="calendar-online"></h5-separator>
+    <div>
+      <h5-separator data-l10n-id="calendar-local"></h5-separator>
+ 
+      <ul class="setup-ul" role="presentation">
+        <li role="presentation" tabindex="0">
+          <div class="on-off-line-calendar">
+            <div class="indicator"></div>
+              <div class="setup-calendar-id">
+                <p class="setup-calendar-p" data-l10n-id="home"></p>
+              </div>
+            </div>
+        </li>
+      </ul>
 
-    <ul class="account-list link-list" aria-labelledby="account-list-header" role="listbox">
-    </ul>
+      <ul>
+        <li class="component-container">
+          <h5-list-button class="sk-add-new" icon="add-s" data-l10n-id="setup-add-new"></h5-list-button>
+        </li>
+      </ul>
+      
+      <h5-separator data-l10n-id="calendar-online"></h5-separator>
 
-    <ul role="presentation">
-      <li class="pack-select create-account-item sk-add-account" role="presentation" tabindex="0">
-        <span class="add-account" data-l10n-id="setup-add-account">
-          Add Account
-        </span>
-      </li>
-    </ul>
+      <ul class="account-list link-list" aria-labelledby="account-list-header" role="listbox">
+      </ul>
 
-    <h5-option-menu id="add-account-option-menu"></h5-option-menu>
+      <ul role="presentation">
+        <li class="component-container" role="presentation">
+          <h5-list-button class="sk-add-account" icon="add-s" data-l10n-id="setup-add-account"></h5-list-button>
+        </li>
+      </ul>
 
-    <section class="content">
-    </section>
+      <h5-option-menu id="add-account-option-menu"></h5-option-menu>
 
+      <section class="content">
+      </section>
+    </div>
   </template>
 </element>

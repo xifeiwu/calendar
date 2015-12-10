@@ -39,9 +39,6 @@
         'sk-events-list-item': {
           keys: {lsk: 'back', dpe: 'view', rsk: 'option'}
         },
-        'sk-add-account': {
-          keys: {lsk: 'back', dpe: 'select'}
-        },
         'sk-account': {
           keys: {lsk: 'back', rsk: 'remove'}
         }
@@ -90,6 +87,16 @@
       classes: {
         'sk-modify-event-all-day': {
           keys: {lsk: 'cancel', rsk: 'save'}
+        }
+      }
+    },
+    'h5-list-button': {
+      classes: {
+        'sk-add-new': {
+          keys: {lsk: 'back', dpe: 'select'}
+        },
+        'sk-add-account': {
+          keys: {lsk: 'back', dpe: 'select'}
         }
       }
     }
