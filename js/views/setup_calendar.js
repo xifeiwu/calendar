@@ -108,9 +108,10 @@ SetupCalendar.prototype = {
       }
     });
     SoftkeyHandler.register(this.deleteAccount, {
-      dpe: {
-        name: 'select',
+      rsk: {
+        name: 'remove',
         action: () => {
+          var eventElement = document.activeElement;
           var accountId = eventElement.getAttribute('id');
           var length = accountId.indexOf(ACCOUNT_PREFIX) +
                        ACCOUNT_PREFIX.length;
