@@ -116,10 +116,9 @@ div#events-list-agenda::after {
   flex-direction: column;
   height: 8.2rem;
   justify-content: center;
-  left: 8rem;
-  position: absolute;
   top: 0;
   width: 22.5rem;
+  padding-left: 1.2rem;
 }
 
 #events-list-agenda .event-details > h5 {
