@@ -47,6 +47,7 @@ require.config({
     'views/modify_event': 'lazy_loaded',
     'views/events_list': 'lazy_loaded',
     'views/settings': 'lazy_loaded',
+    'views/calendar_chooser': 'lazy_loaded',
     'views/view_event': 'lazy_loaded',
     'views/event_detail': 'lazy_loaded',
     'views/setup_calendar': 'lazy_loaded'

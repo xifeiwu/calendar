@@ -13,6 +13,7 @@ var debug = require('debug')('month');
 var navigationHandler = require('navigation_handler');
 var InputParser = require('shared/input_parser/input_parser');
 require('shared/h5-option-menu/dist/amd/script');
+var CalendarChooser = require('views/calendar_chooser');
 var _ = navigator.mozL10n.get;
 
 // minimum difference between X and Y axis to be considered an horizontal swipe
@@ -69,7 +70,7 @@ function Month() {
         this.datePicker.focus();
         break;
       case 'month-view-calendars-to-display':
-        router.go('/settings/');
+        this.calendarChooser.show();
         break;
       case 'month-view-settings':
         router.go('/advanced-settings/');
@@ -80,6 +81,11 @@ function Month() {
         break;
     }
   }.bind(this));
+
+  this.calendarChooser = new CalendarChooser({ app: this.app });
+  this.calendarChooser.event.on('hide', function() {
+    navigationHandler.getCurItem().focus();
+  });
 
   var _observeSyncFreq = function(syncFreq) {
     var keys = ['month-view-current-date', 'month-view-go-to-date',
