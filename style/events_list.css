@@ -100,8 +100,7 @@ div#events-list-agenda::after {
 
 #events-list-agenda .event-time .all-day {
   white-space: normal;
-  line-height: 3;
-  width: 7rem;
+  line-height: 3rem;
 }
 
 #events-list-agenda .start-time,
