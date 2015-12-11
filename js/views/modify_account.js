@@ -34,6 +34,8 @@ function ModifyAccount(options) {
   // bound so we can add remove listeners
   this._boundSaveUpdateModel = this.save.bind(this, { updateModel: true });
   this.initHeader();
+
+  this.cachedDocKeypressHandler = null;
 }
 module.exports = ModifyAccount;
 
@@ -442,7 +444,9 @@ ModifyAccount.prototype = {
       rsk: {
         name: 'save',
         action: () => {
-          this.save();
+          this.save({
+            updateModel: true
+          });
         }
       }
     });
@@ -450,7 +454,9 @@ ModifyAccount.prototype = {
       rsk: {
         name: 'save',
         action: () => {
-          this.save();
+          this.save({
+            updateModel: true
+          });
         }
       }
     });
@@ -458,7 +464,9 @@ ModifyAccount.prototype = {
       rsk: {
         name: 'save',
         action: () => {
-          self.save();
+          this.save({
+            updateModel: true
+          });
         }
       }
     });
@@ -468,6 +476,19 @@ ModifyAccount.prototype = {
     View.prototype.onactive.apply(this, arguments);
     this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
+
+    this.cachedDocKeypressHandler = document.onkeypress;
+    // Workaround: This page was designed for touch devices, the form in
+    // this page would be submitted automatically while received keydown
+    // event. So 'enter' key should be consumed and stop it continuately
+    // passing to the form.
+    document.onkeypress = function(evt) {
+      if (evt.keyCode === 13 &&
+          evt.target.tagName ==='INPUT') {
+        return false;
+      }
+    };
+
     this.rootElement.focus();
   },
 
@@ -489,6 +510,7 @@ ModifyAccount.prototype = {
   oninactive: function() {
     View.prototype.oninactive.apply(this, arguments);
     window.removeEventListener('keydown', this._keyDownHandler);
+    document.onkeypress = this.cachedDocKeypressHandler;
     if (this._oauthDialog) {
       this._oauthDialog.close();
       this._oauthDialog = null;
