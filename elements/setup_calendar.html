@@ -7,20 +7,12 @@
     <div>
       <h5-separator data-l10n-id="calendar-local"></h5-separator>
  
-      <ul class="setup-ul" role="presentation">
-        <li role="presentation" tabindex="0">
-          <div class="on-off-line-calendar">
-            <div class="indicator"></div>
-              <div class="setup-calendar-id">
-                <p class="setup-calendar-p" data-l10n-id="home"></p>
-              </div>
-            </div>
-        </li>
+      <ul class="setup-ul local-calendars" role="presentation">
       </ul>
 
       <ul>
         <li class="component-container">
-          <h5-list-button class="sk-add-new" icon="add-s" data-l10n-id="setup-add-new"></h5-list-button>
+          <h5-list-button class="add-local-calendar" icon="add-s" data-l10n-id="setup-add-new"></h5-list-button>
         </li>
       </ul>
       
@@ -40,5 +32,10 @@
       <section class="content">
       </section>
     </div>
+
+    <section class="h5-dialog-container" nav-scope nav-ignore>
+      <h5-dialog></h5-dialog>
+    </section>
+
   </template>
 </element>

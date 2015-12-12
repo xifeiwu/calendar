@@ -92,9 +92,6 @@
     },
     'h5-list-button': {
       classes: {
-        'sk-add-new': {
-          keys: {lsk: 'back', dpe: 'select'}
-        },
         'sk-add-account': {
           keys: {lsk: 'back', dpe: 'select'}
         }
