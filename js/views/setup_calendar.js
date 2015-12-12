@@ -1,3 +1,4 @@
+/* global SoftkeyHandler KeyEvent */
 define(function(require, exports, module) {
 'use strict';
 
@@ -5,8 +6,12 @@ var View = require('view');
 var providerFactory = require('provider/provider_factory');
 var router = require('router');
 var template = require('templates/account');
+var debug = require('debug')('setup_calendar');
+var Local = require('provider/local');
+var _ = navigator.mozL10n.get;
 require('dom!setup-calendar-view');
 require('shared/h5-option-menu/dist/amd/script');
+require('shared/h5-dialog/dist/amd/script');
 
 var ACCOUNT_PREFIX = 'account-';
 
@@ -15,11 +20,15 @@ function SetupCalendar(options) {
   this._initEvents();
   this.initOptionMenu();
   this.initHeader();
+  this.localCalendarList = {};
 }
 module.exports = SetupCalendar;
 
 SetupCalendar.prototype = {
   __proto__: View.prototype,
+
+  localCalendarList: null,
+  localAccountId: '',
 
   selectors: {
     element: '#setup-calendar-view',
@@ -27,6 +36,9 @@ SetupCalendar.prototype = {
     accountList: '#setup-calendar-view .account-list',
     createAccount: '#setup-calendar-view .sk-add-account',
     optionMenu: '#add-account-option-menu',
+    addLocalCalendar: '#setup-calendar-view .add-local-calendar',
+    h5Dialog: '#setup-calendar-view .h5-dialog-container h5-dialog',
+    localCalendars: '#setup-calendar-view .local-calendars',
     deleteAccount: '.sk-account'
   },
 
@@ -50,6 +62,18 @@ SetupCalendar.prototype = {
     return this._findElement('deleteAccount');
   },
 
+  get addLocalCalendar() {
+    return this._findElement('addLocalCalendar');
+  },
+
+  get h5Dialog() {
+    return this._findElement('h5Dialog');
+  },
+
+  get localCalendars() {
+    return this._findElement('localCalendars');
+  },
+
   _formatModel: function(model) {
     // XXX: Here for l10n
     return {
@@ -70,6 +94,42 @@ SetupCalendar.prototype = {
     account.on('add', this._addAccount.bind(this));
     account.on('update', this._updateAccount.bind(this));
     account.on('preRemove', this._removeAccount.bind(this));
+
+    SoftkeyHandler.register(this.addLocalCalendar, {
+      lsk: {
+        name: 'back',
+      },
+      dpe: {
+        name: 'select',
+        action: () => {
+          this._popUpDialog();
+        }
+      }
+    });
+
+    /**
+     * When the dialogTextInput get focus, the owner of softkey is
+     * Input Method, so we have to listen the keydown event,
+     * and do something we need.
+     * dpe key is used to get the value in dialogTextInput, as the evt.key
+     * passed to dialogTextInput is undefined, evt.keyCode is used.
+     * lsk is used to cancel the operation of input, if we do not stop
+     * keydown propagation, the key down event will be passed to the current
+     * page, it is not we want. The evt.keyCode passed to dialogTextInput
+     * is 0, which is no correct, so evt.key is used.
+    */
+    this.h5Dialog.dialogTextInput.addEventListener('keydown', (evt) => {
+      if (evt.keyCode === KeyEvent.DOM_VK_RETURN) {
+          this._saveCalendar(this.h5Dialog.dialogTextInput.value);
+          evt.stopPropagation();
+          evt.preventDefault();
+      }
+      if (evt.key === 'AcaSoftLeft') {
+          this._closeDialog();
+          evt.stopPropagation();
+          evt.preventDefault();
+      }
+    });
   },
 
   onactive: function() {
@@ -96,6 +156,122 @@ SetupCalendar.prototype = {
       case 'AcaSoftRight':
         break;
       }
+  },
+
+  _popUpDialog: function() {
+    this.h5Dialog.open({
+      header: _('new-calendar'),
+      dialogType: 'prompt'
+    });
+  },
+
+  _closeDialog: function() {
+    if (this.h5Dialog && this.h5Dialog.classList.contains('opened')) {
+      this.h5Dialog.close();
+      this.rootElement.focus();
+    }
+  },
+
+  _getLocalAccountId: function() {
+    return new Promise((resolve, reject) => {
+      if (this.localAccountId.length) {
+        resolve();
+      } else {
+        var accountStore = this.app.store('Account');
+        accountStore.all().then((accounts) => {
+          for (var key in accounts) {
+            if (accounts[key].preset === 'local') {
+              this.localAccountId = key;
+              break;
+            }
+          }
+          resolve();
+        });
+      }
+    });
+  },
+
+  _saveCalendar: function(name) {
+    function persist(err, id, model) {
+      if (err) {
+        console.error('Cannot save calendar', err);
+      }
+      this._closeDialog();
+    }
+
+    this._getLocalAccountId().then(() => {
+      var calendarStore = this.app.store('Calendar');
+      var calendar = {
+        _id: name,
+        accountId: this.localAccountId,
+        remote: Local.defaultCalendar()
+      };
+      calendar.remote.name = name;
+      calendarStore.persist(calendar, persist.bind(this));
+    }).catch((err) => {
+      console.error('Error in _saveCalendar.', err);
+      this._closeDialog();
+    });
+  },
+
+  _getLocalCalendars: function() {
+    return new Promise((resolve, reject) => {
+      if (this.localCalendarList &&
+        Object.keys(this.localCalendarList).length) {
+        resolve();
+      } else {
+        var store = this.app.store('Calendar');
+        store.all().then((calendars) => {
+          for (var key in calendars) {
+            if (calendars[key].accountId === this.localAccountId) {
+              this.localCalendarList[key] = calendars[key];
+            }
+          }
+          this._observeLocalCalendarStore();
+          resolve();
+        });
+      }
+    });
+  },
+
+  _observeLocalCalendarStore: function() {
+    var store = this.app.store('Calendar');
+    // calendar store events
+    store.on('add', this._dbListener.bind(this, 'add'));
+    store.on('update', this._dbListener.bind(this, 'update'));
+    store.on('remove', this._dbListener.bind(this, 'remove'));
+  },
+
+  _dbListener: function(operation, id, model) {
+    if (operation === 'add' || operation === 'update') {
+      this.localCalendarList[id] = model;
+    } else if (operation === 'remove') {
+      delete this.localCalendarList[id];
+    }
+    this._updateLocalCalendarDOM();
+  },
+
+  _calendarTemplate: function(name, color){
+    var html = `
+      <li role="presentation" tabindex="0">
+        <div class="on-off-line-calendar">
+          <div class="indicator"
+            style="background-color: ${color} !important;"></div>
+            <div class="setup-calendar-id">
+              <p class="setup-calendar-p">${name}</p>
+            </div>
+          </div>
+      </li>`;
+    return html;
+  },
+
+  _updateLocalCalendarDOM: function() {
+    this.localCalendars.innerHTML = '';
+    for (var key in this.localCalendarList) {
+      var remote = this.localCalendarList[key].remote;
+      this.localCalendars.insertAdjacentHTML('beforeend',
+        this._calendarTemplate(remote.name, remote.color));
+    }
   },
 
   initHeader: function() {
@@ -227,6 +403,14 @@ SetupCalendar.prototype = {
 
     var accounts = this.app.store('Account');
     accounts.all(renderAccounts);
+
+    this._getLocalAccountId().then(() => {
+      return this._getLocalCalendars();
+    }).then(()=> {
+      return this._updateLocalCalendarDOM();
+    }).catch((error) => {
+      console.error('init local calendar list Error.', err);
+    });
   }
 };
 
