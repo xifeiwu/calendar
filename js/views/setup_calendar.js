@@ -29,6 +29,8 @@ SetupCalendar.prototype = {
 
   localCalendarList: null,
   localAccountId: '',
+  _currentDialogAction: '',
+  _currentCalendar: null,
 
   selectors: {
     element: '#setup-calendar-view',
@@ -102,7 +104,7 @@ SetupCalendar.prototype = {
       dpe: {
         name: 'select',
         action: () => {
-          this._popUpDialog();
+          this._popUpDialog('add');
         }
       }
     });
@@ -120,15 +122,38 @@ SetupCalendar.prototype = {
     */
     this.h5Dialog.dialogTextInput.addEventListener('keydown', (evt) => {
       if (evt.keyCode === KeyEvent.DOM_VK_RETURN) {
-          this._saveCalendar(this.h5Dialog.dialogTextInput.value);
-          evt.stopPropagation();
-          evt.preventDefault();
+        switch (this._currentDialogAction) {
+          case 'add':
+            this._saveCalendar(this.h5Dialog.dialogTextInput.value);
+            break;
+          case 'rename':
+            this._renameCalendar(this.h5Dialog.dialogTextInput.value);
+            break;
+        }
+        evt.stopPropagation();
+        evt.preventDefault();
       }
       if (evt.key === 'AcaSoftLeft') {
           this._closeDialog();
           evt.stopPropagation();
           evt.preventDefault();
       }
+    });
+
+    this.h5Dialog.addEventListener('keydown', (evt) => {
+      switch (evt.key) {
+        case 'AcaSoftLeft':
+          this._closeDialog();
+        break;
+        case 'AcaSoftRight':
+          if (this._currentDialogAction &&
+              this._currentDialogAction === 'delete') {
+            this._deleteCalendar();
+          }
+        break;
+      }
+      evt.stopPropagation();
+      evt.preventDefault();
     });
   },
 
@@ -158,11 +183,41 @@ SetupCalendar.prototype = {
       }
   },
 
-  _popUpDialog: function() {
-    this.h5Dialog.open({
-      header: _('new-calendar'),
-      dialogType: 'prompt'
-    });
+  _popUpDialog: function(action, element) {
+    this._currentDialogAction = action;
+    this._currentCalendar = element;
+    var name = '';
+    switch (action) {
+      case 'add':
+        this.h5Dialog.open({
+          header: _('new-calendar'),
+          dialogType: 'prompt'
+        });
+        break;
+      case 'delete':
+        name = element.querySelector('.setup-calendar-p').innerHTML;
+        SoftkeyHandler.register(this.h5Dialog, {
+          lsk: {
+            name: 'cancel'
+          },
+          rsk: {
+            name: 'delete'
+          }
+        });
+        this.h5Dialog.open({
+          message: _('delete-calendar') + name + ' ?',
+          dialogType: 'confirm'
+        });
+        break;
+      case 'rename':
+        name = element.querySelector('.setup-calendar-p').innerHTML;
+        this.h5Dialog.open({
+          header: _('rename-calendar'),
+          dialogType: 'prompt',
+          initialValue: name
+        });
+        break;
+    }
   },
 
   _closeDialog: function() {
@@ -181,7 +236,7 @@ SetupCalendar.prototype = {
         accountStore.all().then((accounts) => {
           for (var key in accounts) {
             if (accounts[key].preset === 'local') {
-              this.localAccountId = key;
+              this.localAccountId = accounts[key]._id;
               break;
             }
           }
@@ -192,11 +247,12 @@ SetupCalendar.prototype = {
   },
 
   _saveCalendar: function(name) {
+    var self = this;
     function persist(err, id, model) {
       if (err) {
         console.error('Cannot save calendar', err);
       }
-      this._closeDialog();
+      self._closeDialog();
     }
 
     this._getLocalAccountId().then(() => {
@@ -212,6 +268,28 @@ SetupCalendar.prototype = {
       console.error('Error in _saveCalendar.', err);
       this._closeDialog();
     });
+  },
+
+  _renameCalendar: function(newName) {
+    var self = this;
+    var name =
+      this._currentCalendar.querySelector('.setup-calendar-p').innerHTML;
+    var store = this.app.store('Calendar');
+    function onRemove(err, id) {
+      self._saveCalendar(newName);
+    }
+    store.remove(name, onRemove);
+  },
+
+  _deleteCalendar: function() {
+    var self = this;
+    var name =
+      this._currentCalendar.querySelector('.setup-calendar-p').innerHTML;
+    function onRemove(err, id) {
+      self._closeDialog();
+    }
+    var store = this.app.store('Calendar');
+    store.remove(name, onRemove);
   },
 
   _getLocalCalendars: function() {
@@ -272,6 +350,26 @@ SetupCalendar.prototype = {
       this.localCalendars.insertAdjacentHTML('beforeend',
         this._calendarTemplate(remote.name, remote.color));
     }
+    var elements = this.localCalendars.querySelectorAll('li[tabindex="0"]');
+    Array.prototype.slice.call(elements).forEach((element) => {
+      SoftkeyHandler.register(element, {
+        lsk: {
+          name: 'cancel',
+        },
+        dpe: {
+          name: 'rename',
+          action: () => {
+            this._popUpDialog('rename', element);
+          }
+        },
+        rsk: {
+          name: 'delete',
+          action: () => {
+            this._popUpDialog('delete', element);
+          }
+        }
+      });
+    });
   },
 
   initHeader: function() {
@@ -409,7 +507,7 @@ SetupCalendar.prototype = {
     }).then(()=> {
       return this._updateLocalCalendarDOM();
     }).catch((error) => {
-      console.error('init local calendar list Error.', err);
+      console.error('init local calendar list Error.', error);
     });
   }
 };
