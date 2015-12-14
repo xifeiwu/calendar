@@ -149,6 +149,8 @@ EventDetail.prototype = {
     this.description.textContent = model.description;
 
     this.rootElement.focus();
+    this.rootElement.spatialNavigator.focus(location);
+
     SoftkeyHandler.register(this.rootElement, {
       lsk: {
         name: 'back',
