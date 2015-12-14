@@ -894,8 +894,9 @@ ModifyEvent.prototype = {
   },
 
   ondispatch: function() {
+    var firstEle = this.element.querySelector('form ul .title');
     this.element.focus();
-    this.element.querySelector('form ul li').focus();
+    this.element.spatialNavigator.focus(firstEle);
     this._checkTitle();
   },
 
