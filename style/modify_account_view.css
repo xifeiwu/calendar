@@ -139,3 +139,11 @@
   z-index: 1000;
 }
 
+#modify-account-view {
+  height: 100%;
+  background-color: var(--background);
+}
+
+#modify-account-view fieldset{
+  margin: 0;
+}
