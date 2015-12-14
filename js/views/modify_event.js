@@ -516,8 +516,15 @@ ModifyEvent.prototype = {
       location: this.getEl('location').value,
       repeat: this.getEl('repeat').value,
       calendarId: this.getEl('calendarId').value,
-      description: this.getEl('description').innerHTML
+      description: this.getEl('description').innerHTML,
+      recurrenceId: ''
     };
+
+    if (fields.repeat !== 'never') {
+      fields.isRecurring = true;
+    } else {
+      fields.isRecurring = false;
+    }
 
     var startTime;
     var endTime;

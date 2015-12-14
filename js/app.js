@@ -9,6 +9,7 @@ var Db = require('db');
 var ErrorController = require('controllers/error');
 var PendingManager = require('pending_manager');
 var RecurringEventsController = require('controllers/recurring_events');
+var DeleteController = require('controllers/delete');
 var router = require('router');
 var ServiceController = require('controllers/service');
 var SyncController = require('controllers/sync');
@@ -218,6 +219,8 @@ module.exports = {
     this.observePendingObject(recurringEventsController);
     recurringEventsController.observe();
     this.recurringEventsController = recurringEventsController;
+
+    this.deleteController = new DeleteController(this);
 
     // turn on the auto queue this means that when
     // alarms are added to the database we manage them

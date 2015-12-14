@@ -1,9 +1,8 @@
+/* global SoftkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
 var View = require('view');
-var providerFactory = require('provider/provider_factory');
-var Event = require('models/event');
 var dateFormat = require('date_format');
 var dayObserver = require('day_observer');
 var createDay = require('calc').createDay;
@@ -19,10 +18,10 @@ function EventsList(options) {
   View.apply(this, arguments);
   this._render = this._render.bind(this);
   this.controller = this.app.timeController;
+  this.deleteController = this.app.deleteController;
   this.store = this.app.store('Event');
   this.busytimeId = null;
   this.recordsCount = 0;
-  this.changeToken = 0;
   this.initHeader();
   this.initOptionMenu();
   this.initDialog();
@@ -189,45 +188,21 @@ EventsList.prototype = {
     }
   },
 
+  /*
+   * TODO: this method is the same as in event detail, they should be move to
+   * a common class.
+   */
   deleteEvent: function() {
-    var self = this;
-    var id = this.busytimeId;
-    var token = ++this.changeToken;
-
-    dayObserver.findAssociated(id).then(record => {
-      if (token === self.changeToken) {
-        var event = new Event(record.event);
-        var changeToken = ++self.changeToken;
-        self.store.ownersOf(event, function (err, owners) {
-          if (err) {
-            console.error('fetch Owners ' + err);
-            return;
-          }
-          self.originalCalendar = owners.calendar;
-          self.provider = providerFactory.get(owners.account.providerType);
-          self.provider.eventCapabilities(event, function (err, caps) {
-            if (self.changeToken !== changeToken) {
-              console.error('token are not matched.');
-              return;
-            }
-            if (err) {
-              console.error('Failed to fetch events capabilities: ' + err);
-              return;
-            }
-            if (caps.canDelete) {
-              self.provider.deleteEvent(event.data, function(err) {
-                if (err) {
-                  console.error('provider.deleteEvent: ' + err);
-                  return;
-                }
-                console.log('Delete success: ' + JSON.stringify(event.data));
-              });
-            }
-          });
-        });
-      }
+    dayObserver.findAssociated(this.busytimeId).then(record => {
+      this.deleteController.deleteEvent(record.event, function(err, evt) {
+        if (err) {
+          console.error('Delete failed: ' + JSON.stringify(evt));
+        } else {
+          console.error('Delete successfully: ' + JSON.stringify(evt));
+        }
+      });
     }).catch(() => {
-      console.error('Error deleting records for id: ', id);
+      console.error('Error deleting records for id: ', this.busytimeId);
     });
   },
 
