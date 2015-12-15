@@ -41,7 +41,10 @@ SetupCalendar.prototype = {
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',
     h5Dialog: '#setup-calendar-view .h5-dialog-container h5-dialog',
     localCalendars: '#setup-calendar-view .local-calendars',
-    deleteAccount: '.sk-account'
+    deleteAccount: '.sk-account',
+    errors: '#setup-calendar-view .errors',
+    status: '#setup-calendar-view section[role="status"]',
+    notices: '#setup-calendar-view .notices'
   },
 
   get rootElement() {
@@ -381,19 +384,6 @@ SetupCalendar.prototype = {
         }
       }
     });
-    SoftkeyHandler.register(this.deleteAccount, {
-      rsk: {
-        name: 'remove',
-        action: () => {
-          var eventElement = document.activeElement;
-          var accountId = eventElement.getAttribute('id');
-          var length = accountId.indexOf(ACCOUNT_PREFIX) +
-                       ACCOUNT_PREFIX.length;
-          var id = accountId.substring(length);
-          this._deleteRecord(id);
-        }
-      }
-    });
   },
 
   initOptionMenu: function() {
@@ -442,6 +432,21 @@ SetupCalendar.prototype = {
     if (model.error) {
       this.accountList.children[idx].classList.add('error');
     }
+
+    SoftkeyHandler.register(this.deleteAccount, {
+      rsk: {
+        name: 'remove',
+        action: () => {
+          var eventElement = document.activeElement;
+          var accountId = eventElement.getAttribute('id');
+          var length = accountId.indexOf(ACCOUNT_PREFIX) +
+                       ACCOUNT_PREFIX.length;
+          var id = accountId.substring(length);
+          this._deleteRecord(id);
+          this.showNotices([{name: 'remove-account'}]);
+        }
+      }
+    });
   },
 
   _updateAccount: function(id, model) {
