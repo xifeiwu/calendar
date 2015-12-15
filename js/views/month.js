@@ -203,11 +203,13 @@ Month.prototype = {
   },
 
   _goToDay: function(date) {
-    this.controller.move(date);
-    this.controller.selectedDay = date;
+    var milliSeconds = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
+    var localDate = new Date(milliSeconds);
+    this.controller.move(localDate);
+    this.controller.selectedDay = localDate;
     var evt = new CustomEvent('h5os-date-changed', {
       detail: {
-        toDate: date
+        toDate: localDate
       },
       bubbles: true,
       cancelable: false
@@ -221,6 +223,7 @@ Month.prototype = {
     var nextDate  = this._getDay(currentDate, delta);
 
     this.controller.move(nextDate);
+    this.controller.selectedDay = nextDate;
     var evt = new CustomEvent('h5os-date-changed', {
       detail: {
         toDate: nextDate
