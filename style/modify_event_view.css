@@ -41,10 +41,6 @@
   float: left
 }
 
-#modify-event-view li.notes  {
-  height: 10rem;
-}
-
 #modify-event-view li.notes textarea {
   padding: 1rem 1.5rem;
   height: 100%;
@@ -196,4 +192,8 @@ h5-check-box[focused] {
 
 .repeat-style {
   padding: 1.4rem 2rem 1.2rem !important;
+}
+
+#modify-event-view li.notes h5-input-wrapper [contentEditable] {
+  line-height: 2.1rem !important;
 }
