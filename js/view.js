@@ -39,6 +39,7 @@ function View(options) {
   }
 
   this.hideErrors = this.hideErrors.bind(this);
+  this.hideNotices = this.hideNotices.bind(this);
 }
 module.exports = View;
 
@@ -48,6 +49,7 @@ View.prototype = {
   seen: false,
   activeClass: View.ACTIVE,
   errorVisible: false,
+  noticeVisible: false,
 
   get element() {
     return this._findElement('element');
@@ -59,6 +61,10 @@ View.prototype = {
 
   get errors() {
     return this._findElement('errors');
+  },
+
+  get notices() {
+    return this._findElement('notices');
   },
 
   /**
@@ -208,15 +214,48 @@ View.prototype = {
     this.status.addEventListener('animationend', this.hideErrors);
   },
 
+  showNotices: function(list) {
+    var _ = navigator.mozL10n.get;
+    var notices = '';
+
+    if (!Array.isArray(list)) {
+      list = [list];
+    }
+
+    var i = 0;
+    var len = list.length;
+
+    for (; i < len; i++) {
+      var name = list[i].l10nID || list[i].name;
+      notices += _('notice-' + name);
+    }
+
+    this.notices.textContent = notices;
+    this.noticeVisible = true;
+    this.status.classList.add(this.activeClass);
+
+    this.status.addEventListener('animationend', this.hideNotices);
+  },
+
   hideErrors: function() {
     this.status.classList.remove(this.activeClass);
     this.status.removeEventListener('animationend', this.hideErrors);
     this.errorVisible = false;
   },
 
+  hideNotices: function() {
+    this.status.classList.remove(this.activeClass);
+    this.status.removeEventListener('animationend', this.hideNotices);
+    this.noticeVisible = false;
+  },
+
   onactive: function() {
     if (this.errorVisible) {
       this.hideErrors();
+    }
+
+    if (this.noticeVisible) {
+      this.hideNotices();
     }
 
     // seen can be set to anything other than false to override this behaviour
