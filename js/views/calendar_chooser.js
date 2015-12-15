@@ -125,7 +125,7 @@ CalendarChooser.prototype = {
       this.checkBoxs.forEach(function(checkbox) {
         SoftkeyHandler.register(checkbox, {
           lsk: {
-            name: 'back',
+            name: 'cancel',
             action: () => {
               self.hide();
             }
