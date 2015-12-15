@@ -681,7 +681,7 @@ ModifyEvent.prototype = {
 
     this.getEl('repeat').value = model.repeat;
 
-    this.getEl('description').textContent = model.description;
+    this.getEl('description').innerText = model.description;
 
     // update calendar id
     this.getEl('calendarId').value = model.calendarId;
