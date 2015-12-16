@@ -116,7 +116,6 @@ section.month :focus {
 
 section.month .selected {
   color: white;
-  background-color: #ae0188;
 }
 
 section.month .other-month {
