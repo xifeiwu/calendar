@@ -105,7 +105,11 @@ EventsList.prototype = {
     });
 
     this.optionMenu.on('h5options:closed', function() {
-      this.optionMenu.removeAttribute('tabindex');
+      var dialogStatus = this.h5Dialog.getAttribute('tabindex');
+      if (dialogStatus == '0') {
+        return;
+      }
+      this.findAndFocus();
     }.bind(this));
 
     this.optionMenu.on('h5options:opened', function() {
