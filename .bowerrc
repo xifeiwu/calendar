@@ -2,6 +2,6 @@
   "directory" : "shared",
   "json"      : "bower.json",
   "searchpath"  : "",
-  "shorthand_resolver" : "git@git.acadine.com:{{owner}}/{{package}}.git",
+  "shorthand-resolver" : "git@git.acadine.com:{{owner}}/{{package}}.git",
   "interactive": true
 }
