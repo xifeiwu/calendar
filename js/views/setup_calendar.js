@@ -127,10 +127,10 @@ SetupCalendar.prototype = {
       if (evt.keyCode === KeyEvent.DOM_VK_RETURN) {
         switch (this._currentDialogAction) {
           case 'add':
-            this._saveCalendar(this.h5Dialog.dialogTextInput.value);
+            this._saveCalendar(this.h5Dialog.dialogTextInput.value.trim());
             break;
           case 'rename':
-            this._renameCalendar(this.h5Dialog.dialogTextInput.value);
+            this._renameCalendar(this.h5Dialog.dialogTextInput.value.trim());
             break;
         }
         evt.stopPropagation();
@@ -250,6 +250,9 @@ SetupCalendar.prototype = {
   },
 
   _saveCalendar: function(name) {
+    if (name.length === 0) {
+      return;
+    }
     var self = this;
     function persist(err, id, model) {
       if (err) {
@@ -274,6 +277,9 @@ SetupCalendar.prototype = {
   },
 
   _renameCalendar: function(newName) {
+    if (newName.length === 0) {
+      return;
+    }
     var self = this;
     var name =
       this._currentCalendar.querySelector('.setup-calendar-p').innerHTML;
