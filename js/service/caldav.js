@@ -318,6 +318,16 @@ Service.prototype = {
       }
     });
 
+    var attendees = event.attendees;
+    var i = 0;
+    var len = attendees.length;
+    var resultAttendees = new Array();
+
+    for (; i < len; i++) {
+      var value = attendees[i].getFirstValue();
+      resultAttendees.push(value)
+    }
+
     var result = {
       alarms: resultAlarms,
       syncToken: etag,
@@ -330,6 +340,8 @@ Service.prototype = {
       location: event.location,
       start: this.formatICALTime(event.startDate),
       end: this.formatICALTime(event.endDate),
+      organizer: event.organizer,
+      attendees: resultAttendees,
       exceptions: exceptions
     };
 
