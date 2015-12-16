@@ -146,7 +146,7 @@ EventDetail.prototype = {
       this.alarms.innerHTML = alarmContent;
     }
 
-    this.description.textContent = model.description;
+    this.description.innerHTML = model.description;
 
     this.rootElement.focus();
     this.rootElement.spatialNavigator.focus(location);

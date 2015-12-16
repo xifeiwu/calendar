@@ -95,7 +95,7 @@ li.current-calendar div.indicator{
 
 .event-detail-alarms-div-top {
   position: absolute;
-  top: 10%;
+  top: 25%;
   color: var(--color-gs65);
 }
 
@@ -106,14 +106,11 @@ li.current-calendar div.indicator{
 }
 
 .event-detail-description-div-top {
-  position: absolute;
-  top: 10%;
+  padding-top: 1rem;
   color: var(--color-gs65);
 }
 
 .event-detail-description-div-bot {
-  position: absolute;
-  top: 50%;
   color: var(--color-gs00);
 }
 
@@ -122,4 +119,12 @@ li.current-calendar div.indicator{
   bottom: 0px;
   width: 100%;
   z-index: 1000;
+}
+
+#event-detail-view #event-detail-description {
+  line-height: 2.1rem;
+}
+
+#event-detail-view li.description {
+  padding-left: 1.4rem;
 }
