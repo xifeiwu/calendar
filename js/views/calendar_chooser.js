@@ -129,10 +129,20 @@ CalendarChooser.prototype = {
             action: () => {
               self.hide();
             }
+          },
+          rsk: {
+            name: 'ok',
+            action: () => {
+              self._onSelectCalendar();
+            }
           }
         });
       });
     }
+  },
+
+  _onSelectCalendar: function() {
+    this.hide();
   },
 
   _observeAccountStore: function() {
