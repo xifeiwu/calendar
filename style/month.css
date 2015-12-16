@@ -182,22 +182,31 @@ section.month .icon-calendar-dot:before {
 }
 
 #empty-message.active {
-  align-items: center;
-  color: #B8B8B8;
-  display: flex;
-  font-size: 2rem;
+  color: var(--color-gs00);
+  display: block;
+  font-size: 2.1rem;
   height: calc(100% - 3rem);
   justify-content: center;
   position: relative;
   width: 100%;
 }
 
+#empty-message.active span{
+  position: absolute;
+  top: 50%;
+  left: 1.4rem;
+  transform: translatey(-80%);
+}
+
+#month-day-agenda #event-list {
+  height: 100%;
+}
+
 #month-day-agenda .event {
   display: block;
-  height: 6rem;
+  height: 100%;
   margin: 0;
   position: relative;
-  padding: 0 1.5rem;
 }
 
 #month-day-agenda .event:active,
@@ -265,42 +274,41 @@ section.month .icon-calendar-dot:before {
 }
 
 #month-day-agenda .event-time {
-  color: #657073;
+  color: var(--color-gs65);
   display: flex;
-  flex-direction: column;
-  float: left;
-  font-size: 1.5rem;
-  height: 6rem;
+  flex-direction: row;
+  float: right;
+  font-size: 1.6rem;
   justify-content: center;
+  margin-top: -2.7rem;
 }
 
 #month-day-agenda .event-time .all-day {
   white-space: normal;
   line-height: 1.4;
-  width: 7rem;
 }
 
 #month-day-agenda .start-time,
 #month-day-agenda .end-time {
   height: 2.5rem;
   line-height: 2.5rem;
+  white-space: pre-wrap;
 }
 
 #month-day-agenda .event-details {
   align-items: center;
   display: flex;
   flex-direction: column;
-  height: 6rem;
   justify-content: center;
-  left: 11.5rem;
   position: absolute;
-  top: 0;
+  top: 40%;
+  transform: translatey(-80%);
   width: 17rem;
 }
 
 #month-day-agenda .event-details > h5 {
-  color: #252525;
-  font-size: 1.9rem;
+  color: var(--color-gs00);
+  font-size: 2.1rem;
   font-weight: normal;
   height: 2.5rem;
   line-height: 2.5rem;

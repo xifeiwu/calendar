@@ -81,10 +81,12 @@ MonthDayAgenda.prototype = {
   },
 
   _render: function(records) {
-    // we should always render allday events at the top
-    this.events.innerHTML = records.allday.concat(records.basic)
-      .map(this._renderEvent, this)
-      .join('');
+    // we should always render allday events at the top 
+    // and display the first one
+    var eventToDisplay = records.allday.concat(records.basic)
+      .map(this._renderEvent, this);
+
+    this.events.innerHTML = eventToDisplay[0];
 
     this.emptyMessage.classList.toggle('active', records.amount === 0);
 
