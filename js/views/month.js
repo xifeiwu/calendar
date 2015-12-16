@@ -25,7 +25,7 @@ function Month() {
   window.addEventListener('localized', this);
   this.datePicker = document.getElementById('date-picker');
   this.datePicker.addEventListener('input', function(evt) {
-    this._goToDay(new Date(evt.target.value));
+    this._goToDay('selected-day', new Date(evt.target.value));
   }.bind(this));
   this.datePicker.addEventListener('blur', function(evt) {
     navigationHandler.getCurItem().focus();
@@ -62,7 +62,7 @@ function Month() {
     debug('h5options:selected, key is ' + optionKey);
     switch(optionKey) {
       case 'month-view-current-date':
-        this._goToDay(new Date());
+        this._goToDay('current-day');
         break;
       case 'month-view-go-to-date':
         this.datePicker.value =
@@ -202,19 +202,29 @@ Month.prototype = {
     navigationHandler.start();
   },
 
-  _goToDay: function(date) {
-    var milliSeconds = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
-    var localDate = new Date(milliSeconds);
-    this.controller.move(localDate);
-    this.controller.selectedDay = localDate;
-    var evt = new CustomEvent('h5os-date-changed', {
-      detail: {
-        toDate: localDate
-      },
-      bubbles: true,
-      cancelable: false
-    });
-    document.dispatchEvent(evt);
+  _goToDay: function(type, date) {
+    var newDate = null;
+    switch (type) {
+      case 'current-day':
+        newDate = new Date();
+        break;
+      case 'selected-day':
+        newDate = new Date(date.getTime() +
+          date.getTimezoneOffset() * 60 * 1000);
+        break;
+    }
+    if (newDate) {
+      this.controller.move(newDate);
+      this.controller.selectedDay = newDate;
+      var evt = new CustomEvent('h5os-date-changed', {
+        detail: {
+          toDate: newDate
+        },
+        bubbles: true,
+        cancelable: false
+      });
+      document.dispatchEvent(evt);
+    }
   },
 
   _postMonthChanged: function(delta) {
