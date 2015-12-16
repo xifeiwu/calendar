@@ -27,7 +27,7 @@ ModifyEvent.prototype = {
 
   ERROR_PREFIX: 'event-error-',
 
-  MAX_ALARMS: 5,
+  MAX_ALARMS: 1,
 
   formats: {
     date: 'modify-event-time-format',
@@ -144,11 +144,6 @@ ModifyEvent.prototype = {
    */
   _changeAlarm: function(e) {
     var template = AlarmTemplate;
-    if (e.target.value == 'none') {
-      var parent = e.target.parentNode;
-      parent.parentNode.removeChild(parent);
-      return;
-    }
 
     // Append a new alarm select only if we don't have an empty one or if we
     // didn't reach the maximum number of alarms
@@ -824,16 +819,6 @@ ModifyEvent.prototype = {
     function next(err, value) {
       //jshint -W040
       if (!this.isSaved() && !alarmMap[value] && !this.event.alarms.length) {
-        alarms.push({
-          layout: layout,
-          trigger: value
-        });
-      }
-
-      // Bug_898242 to show an event when default is 'none',
-      // we check if the event is not saved, if so, we push
-      // the default alarm on to the list.
-      if ((value === 'none' && this.isSaved()) || value !== 'none') {
         alarms.push({
           layout: layout
         });
