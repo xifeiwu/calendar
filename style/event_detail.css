@@ -128,3 +128,33 @@ li.current-calendar div.indicator{
 #event-detail-view li.description {
   padding-left: 1.4rem;
 }
+
+#event-detail-view.invitation .detail-invitation-from,
+#event-detail-view.invitation .detail-invitees {
+  display: none;
+}
+
+.event-detail-invitation-div-top {
+  position: absolute;
+  top: 25%;
+  color: var(--color-gs65);
+}
+
+.event-detail-invitation-div-bot {
+  position: absolute;
+  top: 50%;
+  color: var(--color-gs00);
+}
+
+.event-detail-invitees-div-top {
+  padding-top: 1rem;
+  color: var(--color-gs65);
+}
+
+.event-detail-invitees-div-bot {
+  color: var(--color-gs00);
+}
+
+#event-detail-invitees {
+  line-height: 2.1rem;
+}

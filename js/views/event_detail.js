@@ -24,6 +24,8 @@ module.exports = EventDetail;
 EventDetail.prototype = {
   __proto__: EventBase.prototype,
 
+  INVITATION: 'invitation',
+
   selectors: {
     element: '#event-detail-view',
     header: '#event-detail-header',
@@ -33,7 +35,9 @@ EventDetail.prototype = {
     currentCalendar: '#event-detail-current-calendar',
     alarms: '#event-detail-alarms',
     description: '#event-detail-description',
-    h5Dialog: '#event-detail-dialog'
+    h5Dialog: '#event-detail-dialog',
+    invitationFrom:'#event-detail-invitation-from',
+    invitees:'#event-detail-invitees'
   },
 
   get rootElement() {
@@ -66,6 +70,14 @@ EventDetail.prototype = {
 
   get h5Dialog() {
     return this._findElement('h5Dialog');
+  },
+
+  get invitationFrom() {
+    return this._findElement('invitationFrom');
+  },
+
+  get invitees() {
+    return this._findElement('invitees');
   },
 
   _initEvents: function() {
@@ -112,10 +124,25 @@ EventDetail.prototype = {
    */
   _updateUI: function() {
     var model = this.event;
-  
     this.title.textContent = model.title;
-
     this.location.textContent = model.location;
+
+    if (model.remote.attendees && model.remote.attendees.length > 0) {
+      var organizer = model.remote.organizer;
+      organizer = organizer.replace('mailto:','');
+      this.invitationFrom.textContent = organizer;
+      var attendeesStr = '';
+      for (var attendee in model.remote.attendees) {
+        var attedeeMail = model.remote.attendees[attendee];
+        attedeeMail = attedeeMail.replace('mailto:','');
+        attendeesStr += attedeeMail;
+        attendeesStr += '<br >';
+      }
+      this.invitees.innerHTML = attendeesStr;
+      this.element.classList.remove(this.INVITATION);
+    } else {
+      this.element.classList.add(this.INVITATION);
+    }
 
     var dateSrc = model;
     if (model.remote.isRecurring && this.busytime) {
@@ -151,7 +178,29 @@ EventDetail.prototype = {
     this.rootElement.focus();
     this.rootElement.spatialNavigator.focus(location);
 
-    SoftkeyHandler.register(this.rootElement, {
+    if (model.remote.attendees && model.remote.attendees.length > 0) {
+      SoftkeyHandler.register(this.rootElement, {
+      lsk: {
+        name: 'back',
+        action: () => {
+          this.cancel();
+        }
+      },
+      dpe: {
+        name: '',
+        action: () => {
+          
+        }
+      },
+      rsk: {
+        name: '',
+        action: () => {
+          
+        }
+      }
+    });
+    } else {
+      SoftkeyHandler.register(this.rootElement, {
       lsk: {
         name: 'back',
         action: () => {
@@ -173,6 +222,8 @@ EventDetail.prototype = {
         }
       }
     });
+    }
+
   },
 
   deleteEvent: function() {
