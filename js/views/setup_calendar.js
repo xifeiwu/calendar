@@ -264,7 +264,6 @@ SetupCalendar.prototype = {
     this._getLocalAccountId().then(() => {
       var calendarStore = this.app.store('Calendar');
       var calendar = {
-        _id: name,
         accountId: this.localAccountId,
         remote: Local.defaultCalendar()
       };
@@ -281,24 +280,22 @@ SetupCalendar.prototype = {
       return;
     }
     var self = this;
-    var name =
-      this._currentCalendar.querySelector('.setup-calendar-p').innerHTML;
+    var id = this._currentCalendar.getAttribute('calendar-id');
     var store = this.app.store('Calendar');
     function onRemove(err, id) {
       self._saveCalendar(newName);
     }
-    store.remove(name, onRemove);
+    store.remove(id, onRemove);
   },
 
   _deleteCalendar: function() {
     var self = this;
-    var name =
-      this._currentCalendar.querySelector('.setup-calendar-p').innerHTML;
+    var id = this._currentCalendar.getAttribute('calendar-id');
     function onRemove(err, id) {
       self._closeDialog();
     }
     var store = this.app.store('Calendar');
-    store.remove(name, onRemove);
+    store.remove(id, onRemove);
   },
 
   _getLocalCalendars: function() {
@@ -338,9 +335,9 @@ SetupCalendar.prototype = {
     this._updateLocalCalendarDOM();
   },
 
-  _calendarTemplate: function(name, color){
+  _calendarTemplate: function(id, name, color){
     var html = `
-      <li role="presentation" tabindex="0">
+      <li role="presentation" tabindex="0" calendar-id=${id}>
         <div class="on-off-line-calendar">
           <div class="indicator"
             style="background-color: ${color} !important;"></div>
@@ -355,9 +352,10 @@ SetupCalendar.prototype = {
   _updateLocalCalendarDOM: function() {
     this.localCalendars.innerHTML = '';
     for (var key in this.localCalendarList) {
+      var id = this.localCalendarList[key]._id;
       var remote = this.localCalendarList[key].remote;
       this.localCalendars.insertAdjacentHTML('beforeend',
-        this._calendarTemplate(remote.name, remote.color));
+        this._calendarTemplate(id, remote.name, remote.color));
     }
     var elements = this.localCalendars.querySelectorAll('li[tabindex="0"]');
     Array.prototype.slice.call(elements).forEach((element) => {
