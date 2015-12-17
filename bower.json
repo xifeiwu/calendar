@@ -36,7 +36,7 @@
     "switches": "shared/switches#~0.0.1",
     "toolbars": "shared/toolbars#~0.0.1",
     "test_integration": "shared/test_integration#~0.0.1",
-    "accessibility_helper": "git@git.acadine.com:shared/accessibility_helper#~0.0.1",
+    "accessibility_helper": "shared/accessibility_helper#~0.0.1",
     "performance_testing_helper": "shared/performance_testing_helper#~0.0.1",
     "navigation_manager": "shared/navigation_manager#~0.0.20",
     "soft_keys_helper": "shared/soft_keys_helper#~0.2.0",
