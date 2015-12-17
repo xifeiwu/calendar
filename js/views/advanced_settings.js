@@ -4,6 +4,8 @@ define(function(require, exports, module) {
 var AlarmTemplate = require('templates/alarm');
 var View = require('view');
 var router = require('router');
+var Local = require('provider/local');
+var nextTick = require('next_tick');
 
 require('dom!advanced-settings-view');
 
@@ -23,7 +25,8 @@ AdvancedSettings.prototype = {
     syncFrequency: '#setting-sync-frequency',
     header: '#advanced-settings-header',
     standardAlarmLabel: '#default-event-alarm',
-    alldayAlarmLabel: '#default-allday-alarm'
+    alldayAlarmLabel: '#default-allday-alarm',
+    defaultCalendar: '#advanced-settings-view select[name="defaultCalendar"]'
   },
 
   get rootElement() {
@@ -58,6 +61,10 @@ AdvancedSettings.prototype = {
     return this.alldayAlarmLabel.querySelector('select');
   },
 
+  get defaultCalendar() {
+    return this._findElement('defaultCalendar');
+  },
+
   _formatModel: function(model) {
     // XXX: Here for l10n
     return {
@@ -78,6 +85,12 @@ AdvancedSettings.prototype = {
 
     this.standardAlarmLabel.addEventListener('change', this);
     this.alldayAlarmLabel.addEventListener('change', this);
+
+    var calendars = this.app.store('Calendar');
+    calendars.on('add', this._addCalendarId.bind(this));
+    calendars.on('preRemove', this._removeCalendarId.bind(this));
+    calendars.on('remove', this._removeCalendarId.bind(this));
+    calendars.on('update', this._updateCalendarId.bind(this));
   },
 
   handleSettingDbChange: function(type, value) {
@@ -205,7 +218,128 @@ AdvancedSettings.prototype = {
     settings.getValue('syncFrequency', renderSyncFrequency);
     settings.getValue('standardAlarmDefault', renderAlarmDefault('standard'));
     settings.getValue('alldayAlarmDefault', renderAlarmDefault('allday'));
-  }
+
+    this._initCalendarList();
+  },
+
+  _initCalendarList: function() {
+    var calendarStore = this.app.store('Calendar');
+    calendarStore.all((err, calendars) => {
+      if (err) {
+        return console.error('Could not build list of calendars');
+      }
+
+      var pending = 0;
+      var self = this;
+
+      function next() {
+        if (!--pending) {
+          if (self.onafteronfirstseen) {
+            self.onafteronfirstseen();
+          }
+        }
+      }
+
+      for (var id in calendars) {
+        pending++;
+        this._addCalendarId(id, calendars[id], next);
+      }
+
+    });
+  },
+
+  /**
+   * Updates a calendar id option.
+   *
+   * @param {String} id calendar id.
+   * @param {Calendar.Model.Calendar} calendar model.
+   */
+  _updateCalendarId: function(id, calendar) {
+    var option = this.defaultCalendar.querySelector('[value="' + id + '"]');
+
+    var store = this.app.store('Calendar');
+
+    store.providerFor(calendar, (err, provider) => {
+      var caps = provider.calendarCapabilities(
+        calendar
+      );
+
+      if (!caps.canCreateEvent) {
+        this._removeCalendarId(id);
+        return;
+      }
+
+      if (option) {
+        option.text = calendar.remote.name;
+      }
+
+
+      if (this.oncalendarupdate) {
+        this.oncalendarupdate(calendar);
+      }
+    });
+  },
+
+  /**
+   * Add a single calendar id.
+   *
+   * @param {String} id calendar id.
+   * @param {Calendar.Model.Calendar} calendar calendar to add.
+   * @param {callback} callback of _addCalendarId.
+   */
+  _addCalendarId: function(id, calendar, callback) {
+    var store = this.app.store('Calendar');
+    store.providerFor(calendar, (err, provider) => {
+      var caps = provider.calendarCapabilities(
+        calendar
+      );
+
+      if (!caps.canCreateEvent) {
+        if (callback) {
+          nextTick(callback);
+        }
+        return;
+      }
+
+      var option;
+
+      option = document.createElement('option');
+
+      if (id === Local.calendarId) {
+        option.text = navigator.mozL10n.get('calendar-local');
+        option.setAttribute('data-l10n-id', 'calendar-local');
+      } else {
+        option.text = calendar.remote.name;
+      }
+
+      option.value = id;
+      this.defaultCalendar.add(option);
+
+      if (callback) {
+        nextTick(callback);
+      }
+
+      if (this.onaddcalendar) {
+        this.onaddcalendar(calendar);
+      }
+    });
+  },
+
+  /**
+   * Remove a single calendar id.
+   *
+   * @param {String} id to remove.
+   */
+  _removeCalendarId: function(id) {
+    var option = this.defaultCalendar.querySelector('[value="' + id + '"]');
+    if (option) {
+      this.defaultCalendar.removeChild(option);
+    }
+
+    if (this.onremovecalendar) {
+      this.onremovecalendar(id);
+    }
+  },
 
 };
 
