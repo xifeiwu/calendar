@@ -820,6 +820,13 @@ ModifyEvent.prototype = {
       //jshint -W040
       if (!this.isSaved() && !alarmMap[value] && !this.event.alarms.length) {
         alarms.push({
+          layout: layout,
+          trigger: value
+        });
+      }
+
+      if ((alarms.length === 0 && this.isSaved())) {
+        alarms.push({
           layout: layout
         });
       }
