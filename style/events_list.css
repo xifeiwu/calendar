@@ -121,13 +121,6 @@ div#events-list-agenda::after {
   width: 100%;
 }
 
-#events-list-option-menu {
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-  z-index: 1000;
-}
-
 #events-list-dialog {
   position: absolute;
   bottom: 0px;

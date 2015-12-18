@@ -9,7 +9,7 @@ var createDay = require('calc').createDay;
 var isAllDay = require('calc').isAllDay;
 var template = require('templates/events_list_item');
 var router = require('router');
-require('shared/h5-option-menu/dist/amd/script');
+var _ = navigator.mozL10n.get;
 require('shared/h5-dialog/dist/amd/script');
 
 require('dom!events-list-view');
@@ -19,11 +19,11 @@ function EventsList(options) {
   this._render = this._render.bind(this);
   this.controller = this.app.timeController;
   this.deleteController = this.app.deleteController;
+  this.optionMenuController = this.app.optionMenuController;
   this.store = this.app.store('Event');
   this.busytimeId = null;
   this.recordsCount = 0;
   this.initHeader();
-  this.initOptionMenu();
   this.initDialog();
   this._keyDownHandler = this.handleKeyDownEvent.bind(this);
 
@@ -48,7 +48,6 @@ EventsList.prototype = {
     header: '#events-list-header',
     currentDate: '#events-list-header-date',
     events: '#events-list',
-    optionMenu: '#events-list-option-menu',
     h5Dialog: '#events-list-dialog'
   },
 
@@ -62,10 +61,6 @@ EventsList.prototype = {
 
   get events() {
     return this._findElement('events');
-  },
-
-  get optionMenu() {
-    return this._findElement('optionMenu');
   },
 
   get h5Dialog() {
@@ -87,67 +82,6 @@ EventsList.prototype = {
         }
       }
     });
-  },
-
-  initOptionMenu: function() {
-    this.optionMenu.setOptions({
-      items: [
-        {
-          title: navigator.mozL10n.get('edit'),
-          key: 'edit'
-        },
-        {
-          title: navigator.mozL10n.get('delete'),
-          key: 'delete'
-        }
-      ]
-    });
-
-    this.optionMenu.on('h5options:closed', function() {
-      var dialogStatus = this.h5Dialog.getAttribute('tabindex');
-      if (dialogStatus == '0') {
-        return;
-      }
-      this.findAndFocus();
-    }.bind(this));
-
-    this.optionMenu.on('h5options:opened', function() {
-    }.bind(this));
-
-    this.optionMenu.on('h5options:selected', function(e) {
-      if (!this.busytimeId) {
-        console.error('Illegal busytimeId!');
-        return;
-      }
-      var optionKey = e.detail.key;
-      switch(optionKey) {
-        case 'edit':
-          router.go('/event/edit/' + this.busytimeId);
-          break;
-        case 'delete':
-          this.h5Dialog.setAttribute('tabindex', '0');
-          SoftkeyHandler.register(this.h5Dialog, {
-            lsk: {
-              name: 'cancel',
-              action: () => {
-                this.h5Dialog.close();
-              }
-            },
-            rsk: {
-              name: 'delete',
-              action: () => {
-                this.h5Dialog.close();
-                this.deleteEvent();
-              }
-            }
-          });
-          this.h5Dialog.open({
-            message: navigator.mozL10n.get('delete-event-confirmation'),
-            dialogType: 'confirm'
-          });
-          break;
-      }
-    }.bind(this));
   },
 
   initDialog: function() {
@@ -230,8 +164,7 @@ EventsList.prototype = {
           var element = document.activeElement;
           if (!!element && element.hasAttribute('busytimeId')) {
             this.busytimeId = element.getAttribute('busytimeId');
-            this.optionMenu.setAttribute('tabindex', '0');
-            this.optionMenu.open();
+            this._showOptionMenu();
           } else {
             this.busytimeId = null;
           }
@@ -258,6 +191,65 @@ EventsList.prototype = {
     // locale might change while the app is still open
     this.currentDate.dataset.date = date;
     this.currentDate.dataset.l10nDateFormat = formatId;
+  },
+
+  _showOptionMenu: function() {
+    var items = [
+      {
+        title: _('edit'),
+        key: 'edit'
+      },
+      {
+        title: _('delete'),
+        key: 'delete'
+      }
+    ];
+
+    this.optionMenuController.once('closed', function() {
+      var dialogStatus = this.h5Dialog.getAttribute('tabindex');
+      if (dialogStatus == '0') {
+        return;
+      }
+      this.findAndFocus();
+    }.bind(this));
+
+    this.optionMenuController.once('selected', function(optionKey) {
+      if (!this.busytimeId) {
+        return console.error('Illegal busytimeId!');
+      }
+
+      switch(optionKey) {
+        case 'edit':
+          router.go('/event/edit/' + this.busytimeId);
+          break;
+        case 'delete':
+          this.h5Dialog.setAttribute('tabindex', '0');
+          SoftkeyHandler.register(this.h5Dialog, {
+            lsk: {
+              name: 'cancel',
+              action: () => {
+                this.h5Dialog.close();
+              }
+            },
+            rsk: {
+              name: 'delete',
+              action: () => {
+                this.h5Dialog.close();
+                this.deleteEvent();
+              }
+            }
+          });
+          this.h5Dialog.open({
+            message: _('delete-event-confirmation'),
+            dialogType: 'confirm'
+          });
+          break;
+      }
+    }.bind(this));
+
+    this.optionMenuController.show({
+      items: items
+    });
   },
 
   _render: function(records) {
