@@ -324,7 +324,7 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   background-position: right;
 }
 
-#h5-option-menu-border {
+#calendar-option-menu-wrapper {
   position: absolute;
   bottom: 0px;
   width: 100%;
