@@ -13,7 +13,8 @@ function CalendarChooser(options) {
   View.apply(this, arguments);
   this.calendarList = {};
   this._updateTimeouts = Object.create(null);
-  this._observeUI();
+  this._checkBoxs = [];
+  this._checkState = {};
   this.event = new Responder();
 }
 module.exports = CalendarChooser;
@@ -23,6 +24,8 @@ CalendarChooser.prototype = {
 
   calendarList: null,
   accountList: null,
+  _checkState: null,
+  _checkBoxs: null,
 
   WAIT_BEFORE_PERSIST: 600,
 
@@ -39,27 +42,6 @@ CalendarChooser.prototype = {
   get calendars() {
     return this._findElement('calendars');
   },
-
-  _observeUI: function() {
-    this.calendars.addEventListener(
-      'change', this._onCalendarDisplayToggle.bind(this)
-    );
-  },
-
-  _onCalendarDisplayToggle: function(e) {
-    var input = e.target;
-    var id = input.value;
-
-    if (this._updateTimeouts[id]) {
-      clearTimeout(this._updateTimeouts[id]);
-    }
-
-    this._updateTimeouts[id] = setTimeout(
-      this._persistCalendarDisplay.bind(this, id, !!input.checked),
-      this.WAIT_BEFORE_PERSIST
-    );
-  },
-
 
   _persistCalendarDisplay: function(id, displayed) {
     var store = this.app.store('Calendar');
@@ -127,8 +109,9 @@ CalendarChooser.prototype = {
 
     var result = this.calendars.querySelectorAll('h5-checkbox');
     if (result) {
-      this.checkBoxs = Array.prototype.slice.call(result);
-      this.checkBoxs.forEach(function(checkbox) {
+      this._checkBoxs = Array.prototype.slice.call(result);
+      this._checkBoxs.forEach((checkbox) => {
+        this._checkState[checkbox.value] = checkbox.checked;
         SoftkeyHandler.register(checkbox, {
           lsk: {
             name: 'cancel',
@@ -148,6 +131,13 @@ CalendarChooser.prototype = {
   },
 
   _onSelectCalendar: function() {
+    this._checkBoxs.forEach((checkbox) => {
+      var id = checkbox.value;
+      var state = checkbox.checked;
+      if (state !== this._checkState[id]) {
+        this._persistCalendarDisplay(id, state);
+      }
+    });
     this.hide();
   },
 
@@ -183,7 +173,6 @@ CalendarChooser.prototype = {
         }
         break;
     }
-    this.render();
   },
 
   _getAccounts: function() {
@@ -240,6 +229,7 @@ CalendarChooser.prototype = {
       View.prototype.onactive.apply(this, arguments);
       this.calendars.style.maxHeight = (document.body.clientHeight -
         this.header.getBoundingClientRect().height) + 'px';
+      this.render();
       this.calendars.focus();
     })
     .catch((err) => {
@@ -256,7 +246,5 @@ CalendarChooser.prototype = {
     View.prototype.oninactive.call(this);
   },
 };
-
-CalendarChooser.prototype.onfirstseen = CalendarChooser.prototype.render;
 
 });

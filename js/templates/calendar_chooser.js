@@ -22,7 +22,7 @@ module.exports = create({
     }
 
     return `
-      <li id="calendar-${id}" role="presentation">
+      <li role="presentation">
         <div class="on-off-line-calendar">
           <div class="indicator"
             style="background-color: ${color} !important;"></div>
