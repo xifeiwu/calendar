@@ -19,6 +19,8 @@ IcalComponent.prototype = {
 
   _store: 'icalComponents',
 
+  _dependentStores: ['icalComponents'],
+
   /** disable caching */
   _addToCache: function() {},
   _removeFromCache: function() {},

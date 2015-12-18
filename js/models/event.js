@@ -207,6 +207,24 @@ Event.prototype = {
     return this.remote.repeat;
   },
 
+  get isRecurring() {
+    return this.remote.isRecurring || false;
+  },
+
+  set isRecurring(value) {
+    this.remote.isRecurring = value;
+    return this.remote.isRecurring;
+  },
+
+  get recurrenceId() {
+    return this.remote.recurrenceId || '';
+  },
+
+  set recurrenceId(value) {
+    this.remote.recurrenceId = value;
+    return this.remote.recurrenceId;
+  },
+
   get alarms() {
     return this.remote.alarms || [];
   },

@@ -4,3 +4,4 @@ design
 api-design
 build_stage/*
 shared
+js/presets.js
