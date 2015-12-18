@@ -151,16 +151,13 @@ EventDetail.prototype = {
       DurationTime.durationTimeEventDetail.render(dateSrc);
     this.durationTime.innerHTML = durationTimeContent;
 
-    if (this.originalCalendar) {
-      var calendarId = this.originalCalendar.remote.id;
-      var isLocalCalendar = calendarId === Local.calendarId;
-      var calendarName = isLocalCalendar ?
-        navigator.mozL10n.get('calendar-local') :
-        this.originalCalendar.remote.name;
-        this.currentCalendar.textContent = calendarName;
-    } else {
-      this.currentCalendar.textContent = '';
-    }
+    this.app.store('Calendar').get(model.calendarId, (err, calendar) => {
+      if (err) {
+        this.currentCalendar.textContent = '';
+      } else {
+        this.currentCalendar.textContent = calendar.remote.name;
+      }
+    });
 
     var alarmContent = '';
     var alarms = this.event.alarms;
