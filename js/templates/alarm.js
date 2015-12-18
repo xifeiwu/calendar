@@ -23,6 +23,7 @@ var layouts = {
   allday: [
     'none',
     0 + MORNING,
+    0 - HOUR * 3,
     0 - DAY + MORNING,
     0 - DAY * 2 + MORNING,
     0 - WEEK + MORNING,
