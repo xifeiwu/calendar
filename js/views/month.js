@@ -302,10 +302,7 @@ Month.prototype = {
     });
 
     this.app.optionMenuController.once('closed', function() {
-      if (this.optionMenu.contains(document.activeElement)) {
-        navigationHandler.getCurItem().focus();
-      }
-    });
+    }.bind(this));
     this.app.optionMenuController.once('selected', function(optionKey) {
       switch(optionKey) {
         case 'month-view-current-date':

@@ -133,6 +133,7 @@
           if (handler.dpe && handler.dpe.action) {
             handler.dpe.action();
             evt.stopPropagation();
+            evt.preventDefault();
           } else if (!elem.hasAttribute('disabled') &&
                      (window.SoftKeysHelper &&
                       SoftKeysHelper.registeredKeys().dpe)) {
@@ -149,6 +150,7 @@
             } else {
               document.activeElement.click();
             }
+            evt.stopPropagation();
             evt.preventDefault();
           }
         }
