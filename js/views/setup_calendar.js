@@ -6,19 +6,17 @@ var View = require('view');
 var providerFactory = require('provider/provider_factory');
 var router = require('router');
 var template = require('templates/account');
-var debug = require('debug')('setup_calendar');
 var Local = require('provider/local');
 var _ = navigator.mozL10n.get;
 require('dom!setup-calendar-view');
-require('shared/h5-option-menu/dist/amd/script');
 require('shared/h5-dialog/dist/amd/script');
 
 var ACCOUNT_PREFIX = 'account-';
 
 function SetupCalendar(options) {
   View.apply(this, arguments);
+  this.optionMenuController = this.app.optionMenuController;
   this._initEvents();
-  this.initOptionMenu();
   this.initHeader();
   this.localCalendarList = {};
 }
@@ -37,7 +35,6 @@ SetupCalendar.prototype = {
     header: '#setup-calendar-header',
     accountList: '#setup-calendar-view .account-list',
     createAccount: '#setup-calendar-view .sk-add-account',
-    optionMenu: '#add-account-option-menu',
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',
     h5Dialog: '#setup-calendar-view .h5-dialog-container h5-dialog',
     localCalendars: '#setup-calendar-view .local-calendars',
@@ -53,10 +50,6 @@ SetupCalendar.prototype = {
 
   get createAccount() {
     return this._findElement('createAccount');
-  },
-
-  get optionMenu() {
-   return this._findElement('optionMenu');
   },
 
   get accountList() {
@@ -384,44 +377,39 @@ SetupCalendar.prototype = {
       dpe: {
         name: 'select',
         action: () => {
-          this.optionMenu.open();
+          this._showOptionMenu();
         }
       }
     });
   },
 
-  initOptionMenu: function() {
-    this.optionMenu.setOptions({
-      items: [
-        {
-          title: 'google',
-          key: 'google'
-        },
-        {
-          title: 'yahoo',
-          key: 'yahoo'
-        },
-        {
-          title: 'caldav',
-          key: 'caldav'
-        }
-      ]
-    });
+  _showOptionMenu: function() {
+    var items = [
+      {
+        title: _('preset-google'),
+        key: 'google'
+      },
+      {
+        title: _('preset-yahoo'),
+        key: 'yahoo'
+      },
+      {
+        title: _('preset-caldav'),
+        key: 'caldav'
+      }
+    ];
 
-    this.optionMenu.on('h5options:closed', function() {
-      console.log('h5options:closed.');
+    this.optionMenuController.once('closed', function() {
       this.rootElement.focus();
     }.bind(this));
 
-    this.optionMenu.on('h5options:opened', function() {
-      console.log('h5options:opened');
-    }.bind(this));
-
-    this.optionMenu.on('h5options:selected', function(e) {
-      var optionKey = e.detail.key;
-      console.log('h5options:selected, key is ' + optionKey);
+    this.optionMenuController.once('selected', function(optionKey) {
       router.go('/create-account/' + optionKey);
     }.bind(this));
+
+    this.optionMenuController.show({
+      items: items
+    });
   },
 
   _addAccount: function(id, model) {
