@@ -90,17 +90,19 @@ CalendarChooser.prototype = {
     store.get(id, fetch);
   },
 
-  _addAccountToDOM: function(name) {
+  _addAccountToDOM: function(type, account) {
+    var id = account._id;
+    var name = account.preset;
     var upperCaseName = name.toUpperCase();
     var localesName = 'preset-' + name;
     var html = `
-      <div class=${localesName}>
+      <div class=${localesName} account-id=${id}>
         <h5-separator data-l10n-id=${localesName}>
           ${upperCaseName}</h5-separator>
         <ul>
         </ul>
       </div>`;
-    this.calendars.insertAdjacentHTML('beforeend', html);
+    this.calendars.insertAdjacentHTML(type, html);
   },
 
   render: function() {
@@ -108,7 +110,11 @@ CalendarChooser.prototype = {
 
     this.calendars.innerHTML = '';
     for (var key in this.accountList) {
-      this._addAccountToDOM(this.accountList[key].preset);
+      if (this.accountList[key].preset === 'local') {
+        this._addAccountToDOM('beforeend', this.accountList[key]);
+      } else {
+        this._addAccountToDOM('afterbegin', this.accountList[key]);
+      }
     }
     forEach(this.calendarList, function(id, object) {
       var html = CalendarTemplate.item.render(object);
