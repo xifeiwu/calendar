@@ -12,7 +12,6 @@ var router = require('router');
 var debug = require('debug')('month');
 var navigationHandler = require('navigation_handler');
 var InputParser = require('shared/input_parser/input_parser');
-require('shared/h5-option-menu/dist/amd/script');
 var CalendarChooser = require('views/calendar_chooser');
 var _ = navigator.mozL10n.get;
 
@@ -31,87 +30,29 @@ function Month() {
     navigationHandler.getCurItem().focus();
   }.bind(this));
 
-  var keys = ['month-view-current-date', 'month-view-go-to-date',
-    'month-view-calendars-to-display', 'month-view-settings'];
-  var items = [];
-  keys.forEach(function(name) {
-    items.push({
-      title: _(name),
-      key: name
-    });
-  });
-
-  this.optionMenu = document.body.querySelector('h5-option-menu');
-  this.optionMenu.setOptions({
-    items: items
-  });
-
-  this.optionMenu.on('h5options:closed', function() {
-    debug('h5options:closed.');
-    if (this.optionMenu.contains(document.activeElement)) {
-      navigationHandler.getCurItem().focus();
-    }
-  }.bind(this));
-
-  this.optionMenu.on('h5options:opened', function() {
-    debug('h5options:opened');
-  }.bind(this));
-
-  this.optionMenu.on('h5options:selected', function(e) {
-    var optionKey = e.detail.key;
-    debug('h5options:selected, key is ' + optionKey);
-    switch(optionKey) {
-      case 'month-view-current-date':
-        this._goToDay('current-day');
-        break;
-      case 'month-view-go-to-date':
-        this.datePicker.value =
-          InputParser.exportDate(this.controller.selectedDay);
-        this.datePicker.focus();
-        break;
-      case 'month-view-calendars-to-display':
-        this.calendarChooser.show();
-        break;
-      case 'month-view-settings':
-        router.go('/advanced-settings/');
-        break;
-      case 'month-view-sync-calendar':
-        console.log('month-view-sync-calendar click');
-        this.app.syncController.all();
-        break;
-    }
-  }.bind(this));
-
   this.calendarChooser = new CalendarChooser({ app: this.app });
   this.calendarChooser.event.on('hide', function() {
     navigationHandler.getCurItem().focus();
   });
 
-  var _observeSyncFreq = function(syncFreq) {
-    var keys = ['month-view-current-date', 'month-view-go-to-date',
-      'month-view-calendars-to-display', 'month-view-settings'];
-    if (syncFreq == null) {
-      keys.push('month-view-sync-calendar');
-    }
-    var items = [];
-    keys.forEach(function(name) {
-      items.push({
-        title: _(name),
-        key: name
-      });
-    });
-    this.optionMenu.setOptions({
-      items: items
-    });
-  }.bind(this);
-
+  // get and observe syncFrequency to determine
+  // whether to show 'Sync Calendar' or not
+  this.needShowSyncCalendar = false;
   var setting = this.app.store('Setting');
-  setting.on('syncFrequencyChange', _observeSyncFreq);
   setting.getValue('syncFrequency', function(err, value) {
-    if (!err) {
-      _observeSyncFreq(value);
+    if (!err && (value === 0)) {
+      this.needShowSyncCalendar = true;
+    } else {
+      this.needShowSyncCalendar = false;
     }
-  });
+  }.bind(this));
+  setting.on('syncFrequencyChange', function(syncFreq) {
+    if (syncFreq === 0) {
+      this.needShowSyncCalendar = true;
+    } else {
+      this.needShowSyncCalendar = false;
+    }
+  }.bind(this));
 
   this._keyDownHandler = this._keyDownEvent.bind(this);
 }
@@ -298,7 +239,7 @@ Month.prototype = {
           router.go('/event/list/');
           break;
         case 'AcaSoftRight':
-          this.optionMenu.open();
+          this._showOptionMenu();
           break;
       }
     } else {
@@ -344,6 +285,53 @@ Month.prototype = {
         break;
     }
     this._lastTarget = target;
+  },
+
+  _showOptionMenu: function() {
+    var keys = ['month-view-current-date', 'month-view-go-to-date',
+      'month-view-calendars-to-display', 'month-view-settings'];
+    if (this.needShowSyncCalendar) {
+      keys.push('month-view-sync-calendar');
+    }
+    var items = [];
+    keys.forEach(function(name) {
+      items.push({
+        title: _(name),
+        key: name
+      });
+    });
+
+    this.app.optionMenuController.once('closed', function() {
+      if (this.optionMenu.contains(document.activeElement)) {
+        navigationHandler.getCurItem().focus();
+      }
+    });
+    this.app.optionMenuController.once('selected', function(optionKey) {
+      switch(optionKey) {
+        case 'month-view-current-date':
+          this._goToDay('current-day');
+          break;
+        case 'month-view-go-to-date':
+          this.datePicker.value =
+            InputParser.exportDate(this.controller.selectedDay);
+          this.datePicker.focus();
+          break;
+        case 'month-view-calendars-to-display':
+          this.calendarChooser.show();
+          break;
+        case 'month-view-settings':
+          router.go('/advanced-settings/');
+          break;
+        case 'month-view-sync-calendar':
+          console.log('month-view-sync-calendar click');
+          this.app.syncController.all();
+          break;
+      }
+    }.bind(this));
+
+    this.app.optionMenuController.show({
+      items: items
+    });
   },
 
   _goToAddEvent: function(date) {
