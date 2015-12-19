@@ -117,8 +117,7 @@ EventsList.prototype = {
         firstEvent.focus();
       }
     } else {
-      this.currentDate.setAttribute('tabindex', '0');
-      this.currentDate.focus();
+      router.go('/month/');
     }
   },
 
