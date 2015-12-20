@@ -127,3 +127,8 @@ div#events-list-agenda::after {
   width: 100%;
   z-index: 1000;
 }
+
+#events-list li[cachefocus] {
+  background-color: var(--highlight-color) !important;
+  color: #fff !important;
+}

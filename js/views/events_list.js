@@ -163,6 +163,7 @@ EventsList.prototype = {
         if (!this.isDialogOpened) {
           var element = document.activeElement;
           if (!!element && element.hasAttribute('busytimeId')) {
+            element.setAttribute('cacheFocus','');
             this.busytimeId = element.getAttribute('busytimeId');
             this._showOptionMenu();
           } else {
@@ -210,6 +211,7 @@ EventsList.prototype = {
       if (dialogStatus == '0') {
         return;
       }
+      this.events.querySelector('li[cacheFocus]').removeAttribute('cacheFocus');
       this.findAndFocus();
     }.bind(this));
 
