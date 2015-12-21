@@ -273,6 +273,7 @@ section[role="status"].active {
   animation-name: fade-status;
   animation-delay: 2.5s;
   animation-duration: 1.5s;
+  z-index: 1000;
 }
 
 /* Hide on initial render to prevent flashing */

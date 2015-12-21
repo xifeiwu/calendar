@@ -12,6 +12,7 @@ var RecurringEventsController = require('controllers/recurring_events');
 var DeleteController = require('controllers/delete');
 var OptionMenuController = require('controllers/option_menu');
 var DialogController = require('controllers/dialog');
+var Toast = require('controllers/toast');
 var router = require('router');
 var ServiceController = require('controllers/service');
 var SyncController = require('controllers/sync');
@@ -225,6 +226,7 @@ module.exports = {
     this.deleteController = new DeleteController(this);
 
     this.optionMenuController = new OptionMenuController(this);
+    this.toast = new Toast(this);
 
     this.dialogController = new DialogController(this);
 
