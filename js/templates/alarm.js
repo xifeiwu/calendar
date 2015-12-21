@@ -18,7 +18,8 @@ var layouts = {
     0 - MINUTE * 30,
     0 - HOUR,
     0 - HOUR * 2,
-    0 - DAY
+    0 - DAY,
+    0 - DAY * 2
   ],
   allday: [
     'none',
