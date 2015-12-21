@@ -7,6 +7,7 @@ var DurationTime = require('templates/duration_time');
 var alarmTemplate = require('templates/alarm');
 var router = require('router');
 var dayObserver = require('day_observer');
+var _ = navigator.mozL10n.get;
 
 require('dom!event-detail-view');
 
@@ -15,6 +16,7 @@ function EventDetail(options) {
   this.store = this.app.store('Event');
   this.deleteController = this.app.deleteController;
   this.dialogController = this.app.dialogController;
+  this.optionMenuController = this.app.optionMenuController;
 }
 module.exports = EventDetail;
 
@@ -75,7 +77,7 @@ EventDetail.prototype = {
   _initEvents: function() {
   },
 
-  _openConfirmDialog: function() {
+  _openConfirmDialog: function(deleteSingleOnly) {
     var option = {
       message: navigator.mozL10n.get('delete-event-confirmation'),
       dialogType: 'confirm',
@@ -91,7 +93,7 @@ EventDetail.prototype = {
           name: 'delete',
           action: () => {
             this.dialogController.close();
-            this.deleteEvent();
+            this.deleteEvent(deleteSingleOnly);
           }
         }
       }
@@ -102,9 +104,48 @@ EventDetail.prototype = {
 
     this.dialogController.once('closed', function() {
       this.rootElement.focus();
+      this.rootElement.spatialNavigator.focus(location);
     }.bind(this));
 
     this.dialogController.show(option);
+  },
+
+  _showOptionMenu: function() {
+    var items = [
+      {
+        title: _('delete-this-only'),
+        key: 'delete-this-only'
+      },
+      {
+        title: _('delete-all'),
+        key: 'delete-all'
+      }
+    ];
+
+    this.optionMenuController.once('closed', function() {
+      this.rootElement.focus();
+      this.rootElement.spatialNavigator.focus(location);
+    }.bind(this));
+
+    this.optionMenuController.once('selected', function(optionKey) {
+      if (!this.busytimeId) {
+        return console.error('Illegal busytimeId!');
+      }
+
+      switch(optionKey) {
+        case 'delete-this-only':
+          this._openConfirmDialog(true);
+          break;
+        case 'delete-all':
+          this._openConfirmDialog(false);
+          break;
+      }
+    }.bind(this));
+
+    this.optionMenuController.show({
+      header: _('repeat-event-header'),
+      items: items
+    });
   },
 
   /**
@@ -165,48 +206,42 @@ EventDetail.prototype = {
 
     if (model.remote.attendees && model.remote.attendees.length > 0) {
       SoftkeyHandler.register(this.rootElement, {
-      lsk: {
-        name: 'back',
-        action: () => {
-          this.cancel();
-        }
-      },
-      dpe: {
-        name: '',
-        action: () => {
-          
-        }
-      },
-      rsk: {
-        name: '',
-        action: () => {
-          
-        }
-      }
-    });
+        lsk: {
+          name: 'back',
+          action: () => {
+            this.cancel();
+          }
+        },
+        dpe: {},
+        rsk: {}
+      });
     } else {
       SoftkeyHandler.register(this.rootElement, {
-      lsk: {
-        name: 'back',
-        action: () => {
-          this.cancel();
-        }
-      },
-      dpe: {
-        name: 'edit',
-        action: () => {
-          if (this.busytimeId) {
-            router.go('/event/edit/' + this.busytimeId);
+        lsk: {
+          name: 'back',
+          action: () => {
+            this.cancel();
+          }
+        },
+        dpe: {
+          name: 'edit',
+          action: () => {
+            if (this.busytimeId) {
+              router.go('/event/edit/' + this.busytimeId);
+            }
+          }
+        },
+        rsk: {
+          name: 'delete',
+          action: () => {
+            if (model.remote.isRecurring) {
+              this._showOptionMenu();
+            } else {
+              this._openConfirmDialog(false);
+            }
           }
         }
-      },
-      rsk: {
-        name: 'delete',
-        action: () => {
-          this._openConfirmDialog();
-        }
-      }
-    });
+      });
     }
 
   },
@@ -215,15 +250,27 @@ EventDetail.prototype = {
    * TODO: this method is the same as in event list, they should be move to
    * a common class.
    */
-  deleteEvent: function() {
+  deleteEvent: function(deleteSingleOnly) {
     dayObserver.findAssociated(this.busytimeId).then(record => {
-      this.deleteController.deleteEvent(record.event, function(err, evt) {
-        if (err) {
-          console.error('Delete failed: ' + JSON.stringify(evt));
-        } else {
-          console.error('Delete successfully: ' + JSON.stringify(evt));
-        }
-      });
+      if (deleteSingleOnly && record.event.remote.isRecurring) {
+        this.deleteController.deleteLocalBusytime(record.event, this.busytimeId,
+          function(err, evt) {
+            if (err) {
+              console.error('Delete failed: ' + JSON.stringify(evt));
+            } else {
+              console.error('Delete successfully: ' + JSON.stringify(evt));
+            }
+          }
+        );
+      } else {
+        this.deleteController.deleteEvent(record.event, function(err, evt) {
+          if (err) {
+            console.error('Delete failed: ' + JSON.stringify(evt));
+          } else {
+            console.error('Delete successfully: ' + JSON.stringify(evt));
+          }
+        });
+      }
     }).catch(() => {
       console.error('Error deleting records for id: ', this.busytimeId);
     });
