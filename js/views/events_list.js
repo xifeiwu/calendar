@@ -1,4 +1,3 @@
-/* global SoftkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -10,7 +9,6 @@ var isAllDay = require('calc').isAllDay;
 var template = require('templates/events_list_item');
 var router = require('router');
 var _ = navigator.mozL10n.get;
-require('shared/h5-dialog/dist/amd/script');
 
 require('dom!events-list-view');
 
@@ -20,11 +18,10 @@ function EventsList(options) {
   this.controller = this.app.timeController;
   this.deleteController = this.app.deleteController;
   this.optionMenuController = this.app.optionMenuController;
+  this.dialogController = this.app.dialogController;
   this.store = this.app.store('Event');
   this.busytimeId = null;
   this.recordsCount = 0;
-  this.initHeader();
-  this.initDialog();
   this._keyDownHandler = this.handleKeyDownEvent.bind(this);
 
   // TODO:
@@ -47,8 +44,7 @@ EventsList.prototype = {
     element: '#events-list-view',
     header: '#events-list-header',
     currentDate: '#events-list-header-date',
-    events: '#events-list',
-    h5Dialog: '#events-list-dialog'
+    events: '#events-list'
   },
 
   get rootElement() {
@@ -63,39 +59,10 @@ EventsList.prototype = {
     return this._findElement('events');
   },
 
-  get h5Dialog() {
-    return this._findElement('h5Dialog');
-  },
-
   onactive: function() {
     View.prototype.onactive.call(this);
     this.initCurrentDate(this.controller.selectedDay);
     window.addEventListener('keydown', this._keyDownHandler, false);
-  },
-
-  initHeader: function() {
-    SoftkeyHandler.register(this.currentDate, {
-      lsk: {
-        name: 'back',
-        action: () => {
-          router.go('/month/');
-        }
-      }
-    });
-  },
-
-  initDialog: function() {
-    this.h5Dialog.on('h5dialog:opened', function() {
-      this.isDialogOpened = true;
-    }.bind(this));
-    this.h5Dialog.on('h5dialog:closed', function() {
-      this.h5Dialog.removeAttribute('tabindex');
-      this.findAndFocus();
-      this.isDialogOpened = false;
-    }.bind(this));
-    this.h5Dialog.addEventListener('blur', function(evt) {
-      this.h5Dialog.close();
-    }.bind(this));
   },
 
   oninactive: function() {
@@ -110,7 +77,6 @@ EventsList.prototype = {
   findAndFocus: function() {
     this.rootElement.focus();
     if (this.recordsCount > 0) {
-      this.currentDate.removeAttribute('tabindex');
       var events = this.events.querySelectorAll('li');
       if (events && events.length > 0) {
         var firstEvent = events[0];
@@ -182,10 +148,7 @@ EventsList.prototype = {
     dayObserver.on(this.date, this._render);
 
     var formatId = 'events-list-header-format';
-    var textContent = dateFormat.localeFormat(
-      date,
-      navigator.mozL10n.get(formatId)
-    );
+    var textContent = dateFormat.localeFormat(date, _(formatId));
     this.currentDate.textContent = textContent;
     // we need to set the [data-date] and [data-l10n-date-format] because
     // locale might change while the app is still open
@@ -206,10 +169,6 @@ EventsList.prototype = {
     ];
 
     this.optionMenuController.once('closed', function() {
-      var dialogStatus = this.h5Dialog.getAttribute('tabindex');
-      if (dialogStatus == '0') {
-        return;
-      }
       this.events.querySelector('li[cacheFocus]').removeAttribute('cacheFocus');
       this.findAndFocus();
     }.bind(this));
@@ -224,25 +183,25 @@ EventsList.prototype = {
           router.go('/event/edit/' + this.busytimeId);
           break;
         case 'delete':
-          this.h5Dialog.setAttribute('tabindex', '0');
-          SoftkeyHandler.register(this.h5Dialog, {
-            lsk: {
-              name: 'cancel',
-              action: () => {
-                this.h5Dialog.close();
-              }
-            },
-            rsk: {
-              name: 'delete',
-              action: () => {
-                this.h5Dialog.close();
-                this.deleteEvent();
+          this._showDialog({
+            message: _('delete-event-confirmation'),
+            dialogType: 'confirm',
+            softKeysHandler: {
+              lsk: {
+                name: 'cancel',
+                action: () => {
+                  this.dialogController.close();
+                }
+              },
+              dpe: {},
+              rsk: {
+                name: 'delete',
+                action: () => {
+                  this.dialogController.close();
+                  this.deleteEvent();
+                }
               }
             }
-          });
-          this.h5Dialog.open({
-            message: _('delete-event-confirmation'),
-            dialogType: 'confirm'
           });
           break;
       }
@@ -253,9 +212,28 @@ EventsList.prototype = {
     });
   },
 
+  _showDialog: function(options) {
+    var option = {
+      header: options.header,
+      message: options.message,
+      dialogType: options.dialogType,
+      softKeysHandler: options.softKeysHandler
+    };
+
+    this.dialogController.once('opened', function() {
+      this.isDialogOpened = true;
+    }.bind(this));
+
+    this.dialogController.once('closed', function() {
+      this.isDialogOpened = false;
+      this.findAndFocus();
+    }.bind(this));
+
+    this.dialogController.show(option);
+  },
+
   _render: function(records) {
-    this.recordsCount = records.basic.length;
-    this.recordsCount += records.allday.length;
+    this.recordsCount = records.basic.length + records.allday.length;
     // we should always render allday events at the top
     this.events.innerHTML = records.allday.concat(records.basic)
       .map(this._renderEvent, this)
