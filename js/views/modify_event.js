@@ -855,12 +855,6 @@ ModifyEvent.prototype = {
     list.remove(this.READONLY);
     list.remove(this.ALLDAY);
 
-    var allday = this.getEl('allday');
-
-    if (allday) {
-      allday.checked = false;
-    }
-
     this._returnTo = null;
     this._markReadonly(false);
     this.provider = null;

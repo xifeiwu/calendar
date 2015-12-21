@@ -106,11 +106,14 @@ li.current-calendar div.indicator{
 }
 
 .event-detail-description-div-top {
-  padding-top: 1rem;
+  position: absolute;
+  top: 25%;
   color: var(--color-gs65);
 }
 
 .event-detail-description-div-bot {
+  position: absolute;
+  top: 50%;
   color: var(--color-gs00);
 }
 

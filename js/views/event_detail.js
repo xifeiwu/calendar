@@ -192,10 +192,21 @@ EventDetail.prototype = {
     var alarmContent = '';
     var alarms = this.event.alarms;
     if (alarms) {
-      alarmContent = alarmTemplate.reminder.render({
-        alarms: alarms,
-        isAllDay: this.event.isAllDay,
-      });
+      if (alarms.length !== 0) {
+        alarmContent = alarmTemplate.reminder.render({
+          alarms: alarms,
+          isAllDay: this.event.isAllDay
+        });
+      } else {
+        alarms.push({
+          trigger: 'none'
+        });
+        alarmContent = alarmTemplate.reminder.render({
+          alarms: alarms,
+          isAllDay: this.event.isAllDay
+        });
+
+      }
       this.alarms.innerHTML = alarmContent;
     }
 

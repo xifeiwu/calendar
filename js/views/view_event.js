@@ -121,7 +121,7 @@ ViewEvent.prototype = {
 
       alarmContent = alarmTemplate.reminder.render({
         alarms: alarms,
-        isAllDay: this.event.isAllDay,
+        isAllDay: this.event.isAllDay
       });
     }
 
