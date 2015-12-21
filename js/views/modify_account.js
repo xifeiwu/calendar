@@ -476,6 +476,7 @@ ModifyAccount.prototype = {
     View.prototype.onactive.apply(this, arguments);
     this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
+    this.username.on('editstart', this.onUsernameEditStart.bind(this));
 
     this.cachedDocKeypressHandler = document.onkeypress;
     // Workaround: This page was designed for touch devices, the form in
@@ -506,6 +507,13 @@ ModifyAccount.prototype = {
     }
   },
 
+  onUsernameEditStart: function() {
+    var input = this.username.querySelector('input');
+    if (input.type === 'email') {
+      var len = input.value.indexOf('@');
+      input.setSelectionRange(len, len);
+    }
+  },
 
   oninactive: function() {
     View.prototype.oninactive.apply(this, arguments);
