@@ -4,11 +4,9 @@ define(function(require, exports, module) {
 
 var EventBase = require('./event_base');
 var DurationTime = require('templates/duration_time');
-var Local = require('provider/local');
 var alarmTemplate = require('templates/alarm');
 var router = require('router');
 var dayObserver = require('day_observer');
-require('shared/h5-dialog/dist/amd/script');
 
 require('dom!event-detail-view');
 
@@ -16,7 +14,7 @@ function EventDetail(options) {
   EventBase.apply(this, arguments);
   this.store = this.app.store('Event');
   this.deleteController = this.app.deleteController;
-  this.isDialogOpened = false;
+  this.dialogController = this.app.dialogController;
 }
 module.exports = EventDetail;
 
@@ -34,7 +32,6 @@ EventDetail.prototype = {
     currentCalendar: '#event-detail-current-calendar',
     alarms: '#event-detail-alarms',
     description: '#event-detail-description',
-    h5Dialog: '#event-detail-dialog',
     invitationFrom:'#event-detail-invitation-from',
     invitees:'#event-detail-invitees'
   },
@@ -67,10 +64,6 @@ EventDetail.prototype = {
     return this._findElement('description');
   },
 
-  get h5Dialog() {
-    return this._findElement('h5Dialog');
-  },
-
   get invitationFrom() {
     return this._findElement('invitationFrom');
   },
@@ -80,42 +73,38 @@ EventDetail.prototype = {
   },
 
   _initEvents: function() {
-    // This method would be called by EventBase.
-    this.h5Dialog.on('h5dialog:opened', function() {
-      this.isDialogOpened = true;
-    }.bind(this));
-    this.h5Dialog.on('h5dialog:closed', function() {
-      this.h5Dialog.removeAttribute('tabindex');
-      this.isDialogOpened = false;
-      this.rootElement.focus();
-    }.bind(this));
-    this.h5Dialog.addEventListener('blur', function(evt) {
-      this.h5Dialog.close();
-    }.bind(this));
   },
 
-  openConfirmDialog: function() {
-    this.h5Dialog.setAttribute('tabindex', '0');
-    SoftkeyHandler.register(this.h5Dialog, {
-      lsk: {
-        name: 'cancel',
-        action: () => {
-          this.h5Dialog.close();
-        }
-      },
-      dpe: {},
-      rsk: {
-        name: 'delete',
-        action: () => {
-          this.h5Dialog.close();
-          this.deleteEvent();
+  _openConfirmDialog: function() {
+    var option = {
+      message: navigator.mozL10n.get('delete-event-confirmation'),
+      dialogType: 'confirm',
+      softKeysHandler: {
+        lsk: {
+          name: 'cancel',
+          action: () => {
+            this.dialogController.close();
+          }
+        },
+        dpe: {},
+        rsk: {
+          name: 'delete',
+          action: () => {
+            this.dialogController.close();
+            this.deleteEvent();
+          }
         }
       }
-    });
-    this.h5Dialog.open({
-      message: navigator.mozL10n.get('delete-event-confirmation'),
-      dialogType: 'confirm'
-    });
+    };
+
+    this.dialogController.once('opened', function() {
+    }.bind(this));
+
+    this.dialogController.once('closed', function() {
+      this.rootElement.focus();
+    }.bind(this));
+
+    this.dialogController.show(option);
   },
 
   /**
@@ -214,7 +203,7 @@ EventDetail.prototype = {
       rsk: {
         name: 'delete',
         action: () => {
-          this.openConfirmDialog();
+          this._openConfirmDialog();
         }
       }
     });
