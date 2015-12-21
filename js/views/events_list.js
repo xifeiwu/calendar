@@ -22,6 +22,8 @@ function EventsList(options) {
   this.store = this.app.store('Event');
   this.busytimeId = null;
   this.recordsCount = 0;
+  // key => busytimeId, value => event
+  this.records = {};
   this._keyDownHandler = this.handleKeyDownEvent.bind(this);
 
   // TODO:
@@ -91,15 +93,27 @@ EventsList.prototype = {
    * TODO: this method is the same as in event detail, they should be move to
    * a common class.
    */
-  deleteEvent: function() {
+  deleteEvent: function(deleteSingleOnly) {
     dayObserver.findAssociated(this.busytimeId).then(record => {
-      this.deleteController.deleteEvent(record.event, function(err, evt) {
-        if (err) {
-          console.error('Delete failed: ' + JSON.stringify(evt));
-        } else {
-          console.error('Delete successfully: ' + JSON.stringify(evt));
-        }
-      });
+      if (deleteSingleOnly && record.event.remote.isRecurring) {
+        this.deleteController.deleteLocalBusytime(record.event, this.busytimeId,
+          function(err, evt) {
+            if (err) {
+              console.error('Delete failed: ' + JSON.stringify(evt));
+            } else {
+              console.error('Delete successfully: ' + JSON.stringify(evt));
+            }
+          }
+        );
+      } else {
+        this.deleteController.deleteEvent(record.event, function(err, evt) {
+          if (err) {
+            console.error('Delete failed: ' + JSON.stringify(evt));
+          } else {
+            console.error('Delete successfully: ' + JSON.stringify(evt));
+          }
+        });
+      }
     }).catch(() => {
       console.error('Error deleting records for id: ', this.busytimeId);
     });
@@ -157,15 +171,31 @@ EventsList.prototype = {
   },
 
   _showOptionMenu: function() {
+    var deleteItem = {
+      title: _('delete'),
+      key: 'delete'
+    };
+    if (this.records[this.busytimeId].remote.isRecurring) {
+      deleteItem.options = {
+        header: _('repeat-event-header'),
+        items: [
+          {
+            title: _('delete-this-only'),
+            key: 'delete-this-only'
+          },
+          {
+            title: _('delete-all'),
+            key: 'delete-all'
+          }
+        ]
+      };
+    }
     var items = [
       {
         title: _('edit'),
         key: 'edit'
       },
-      {
-        title: _('delete'),
-        key: 'delete'
-      }
+      deleteItem
     ];
 
     this.optionMenuController.once('closed', function() {
@@ -183,6 +213,7 @@ EventsList.prototype = {
           router.go('/event/edit/' + this.busytimeId);
           break;
         case 'delete':
+        case 'delete-all':
           this._showDialog({
             message: _('delete-event-confirmation'),
             dialogType: 'confirm',
@@ -198,7 +229,29 @@ EventsList.prototype = {
                 name: 'delete',
                 action: () => {
                   this.dialogController.close();
-                  this.deleteEvent();
+                  this.deleteEvent(false);
+                }
+              }
+            }
+          });
+          break;
+        case 'delete-this-only':
+          this._showDialog({
+            message: _('delete-event-confirmation'),
+            dialogType: 'confirm',
+            softKeysHandler: {
+              lsk: {
+                name: 'cancel',
+                action: () => {
+                  this.dialogController.close();
+                }
+              },
+              dpe: {},
+              rsk: {
+                name: 'delete',
+                action: () => {
+                  this.dialogController.close();
+                  this.deleteEvent(true);
                 }
               }
             }
@@ -233,6 +286,7 @@ EventsList.prototype = {
   },
 
   _render: function(records) {
+    this.records = {};
     this.recordsCount = records.basic.length + records.allday.length;
     // we should always render allday events at the top
     this.events.innerHTML = records.allday.concat(records.basic)
@@ -244,6 +298,7 @@ EventsList.prototype = {
   _renderEvent: function(record) {
     var {event, busytime} = record;
     var {startDate, endDate} = busytime;
+    this.records[busytime._id] = event;
 
     return template.event.render({
       busytimeId: busytime._id,
