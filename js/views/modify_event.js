@@ -11,6 +11,7 @@ var getTimeL10nLabel = require('calc').getTimeL10nLabel;
 var nextTick = require('next_tick');
 var router = require('router');
 var debug = require('debug')('modify_event');
+var _ = navigator.mozL10n.get;
 
 require('dom!modify-event-view');
 
@@ -430,7 +431,7 @@ ModifyEvent.prototype = {
 
           return;
         }
-
+        self.app.toast.show({message: _('toast-event-add-success')});
         router.go(self.returnTo(), state);
       });
     }
