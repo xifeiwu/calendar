@@ -331,6 +331,14 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   z-index: 1000;
 }
 
+#calendar-dialog-wrapper {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  z-index: 1000;
+}
+
 #date-picker {
   position: absolute;
   bottom: 0px;

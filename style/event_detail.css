@@ -114,13 +114,6 @@ li.current-calendar div.indicator{
   color: var(--color-gs00);
 }
 
-#event-detail-dialog {
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-  z-index: 1000;
-}
-
 #event-detail-view #event-detail-description {
   line-height: 2.1rem;
 }

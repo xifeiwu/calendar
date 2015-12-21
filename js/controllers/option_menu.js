@@ -26,20 +26,17 @@ OptionMenuController.prototype = {
     });
 
     this.optionMenu.on('h5options:closed', function() {
-        this.emit('closed');
-      }.bind(this)
-    );
+      this.emit('closed');
+    }.bind(this));
 
     this.optionMenu.on('h5options:opened', function() {
-        this.emit('opened');
-      }.bind(this)
-    );
+      this.emit('opened');
+    }.bind(this));
 
     this.optionMenu.on('h5options:selected', function(e) {
-        var optionKey = e.detail.key;
-        this.emit('selected', optionKey);
-      }.bind(this)
-    );
+      var optionKey = e.detail.key;
+      this.emit('selected', optionKey);
+    }.bind(this));
 
     this.emit('preopen');
     this.optionMenu.open();
