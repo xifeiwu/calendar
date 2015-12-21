@@ -47,6 +47,9 @@
         'role': {
           'gridcell': {
             keys: {lsk: 'add-event', dpe: 'view', rsk: 'option'}
+          },
+          'gridcell-no-events': {
+            keys: {lsk: 'add-event', rsk: 'option'}
           }
         }
       }

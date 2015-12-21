@@ -236,7 +236,10 @@ Month.prototype = {
           break;
         case 'Enter':
           debug('View Event List.');
-          router.go('/event/list/');
+          var emptyList = document.activeElement.getAttribute('role');
+          if (emptyList == 'gridcell') {
+            router.go('/event/list/');
+          }
           break;
         case 'AcaSoftRight':
           this._showOptionMenu();
