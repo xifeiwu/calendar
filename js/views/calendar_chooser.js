@@ -93,9 +93,9 @@ CalendarChooser.prototype = {
     this.calendars.innerHTML = '';
     for (var key in this.accountList) {
       if (this.accountList[key].preset === 'local') {
-        this._addAccountToDOM('beforeend', this.accountList[key]);
-      } else {
         this._addAccountToDOM('afterbegin', this.accountList[key]);
+      } else {
+        this._addAccountToDOM('beforeend', this.accountList[key]);
       }
     }
     forEach(this.calendarList, function(id, object) {
