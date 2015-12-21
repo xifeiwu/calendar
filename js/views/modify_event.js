@@ -400,7 +400,7 @@ ModifyEvent.prototype = {
 
       var moveDate = self.event.startDate;
 
-      provider[method](self.event.data, function(err) {
+      var callback = function(err) {
         list.remove(self.PROGRESS);
 
         if (err) {
@@ -420,7 +420,9 @@ ModifyEvent.prototype = {
           eventStartHour: moveDate.getHours()
         };
 
-        if (method === 'updateEvent') {
+        if (method === 'updateEvent' ||
+            method === 'updateEventAll' ||
+            method === 'updateEventThisOnly') {
           // If we edit a view our history stack looks like:
           //   /week -> /event/view -> /event/save -> /event/view
           // We need to return all the way to the top of the stack
@@ -433,7 +435,13 @@ ModifyEvent.prototype = {
         }
         self.app.toast.show({message: _('toast-event-add-success')});
         router.go(self.returnTo(), state);
-      });
+      };
+
+      if (method === 'createEvent') {
+        provider[method](self.event.data, callback);
+      } else {
+        provider[method](self.event.data, self.busytimeId, callback);
+      }
     }
   },
 
@@ -488,7 +496,13 @@ ModifyEvent.prototype = {
     this.disablePrimary();
 
     if (this.isSaved()) {
-      this._persistEvent('updateEvent', 'canUpdate');
+      if (this.editType === 'edit-all') {
+        this._persistEvent('updateEventAll', 'canUpdate');
+      } else if (this.editType === 'edit-this-only') {
+        this._persistEvent('updateEventThisOnly', 'canUpdate');
+      } else {
+        this._persistEvent('updateEvent', 'canUpdate');
+      }
     } else {
       this._persistEvent('createEvent', 'canCreate');
     }

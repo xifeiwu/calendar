@@ -285,6 +285,7 @@ EventBase.prototype = {
     this.element.classList.remove(this.LOADING);
 
     var id = data.params.id;
+    var editType = data.params.editType;
     var classList = this.element.classList;
     var last = router.last;
 
@@ -315,6 +316,7 @@ EventBase.prototype = {
       classList.add(this.UPDATE);
 
       this._loadModel(id, completeDispatch);
+      this.editType = editType;
     } else {
       classList.add(this.CREATE);
 

@@ -7,6 +7,7 @@ var mutations = require('event_mutations');
 var uuid = require('ext/uuid');
 var Calc = require('calc');
 var CaldavPullEvents = require('provider/caldav_pull_events');
+var nextTick = require('next_tick');
 
 var LOCAL_CALENDAR_ID = 'local-first';
 
@@ -215,6 +216,60 @@ Local.prototype = {
     });
 
     return update;
+  },
+
+  /**
+   * To update a recurring event
+   */
+  updateEventAll: function(event, busytime, callback) {
+    if (typeof(busytime) === 'function') {
+      callback = busytime;
+      busytime = null;
+    }
+
+    // to update a recurring event
+    // 1. delete the event
+    // 2. create a new event
+    this.deleteEvent(event, function(err) {
+      if (err) {
+        return callback(err);
+      }
+
+      // to erase it's original id, and then
+      // apply it a new id in creation
+      nextTick(function() {
+        delete event._id;
+        delete event.remote.id;
+        this.createEvent(event, callback);
+      }.bind(this));
+    }.bind(this));
+  },
+
+  /**
+   * To update a single day of a recurring event
+   */
+  updateEventThisOnly: function(event, busytime, callback) {
+    if (typeof(busytime) === 'function') {
+      callback = busytime;
+      busytime = null;
+    }
+
+    // to update a single day of a recurring event
+    // 1. delete the busytime
+    // 2. create a new event
+    this.deleteBusytime(busytime, function(err) {
+      if (err) {
+        return callback(err);
+      }
+
+      // to erase it's original id, and then
+      // apply it a new id in creation
+      nextTick(function() {
+        delete event._id;
+        delete event.remote.id;
+        this.createEvent(event, callback);
+      }.bind(this));
+    }.bind(this));
   },
 
   ensureRecurrencesExpanded: function(date, callback) {
