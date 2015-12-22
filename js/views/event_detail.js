@@ -110,15 +110,22 @@ EventDetail.prototype = {
     this.dialogController.show(option);
   },
 
-  _showOptionMenu: function() {
+  _showOptionMenu: function(method) {
+    if (method !== 'delete' && method !== 'edit') {
+      return console.error('method must be delete or edit.');
+    }
+    if (!this.busytimeId) {
+      return console.error('Illegal busytimeId!');
+    }
+
     var items = [
       {
-        title: _('delete-this-only'),
-        key: 'delete-this-only'
+        title: _(method + '-this-only'),
+        key: method + '-this-only'
       },
       {
-        title: _('delete-all'),
-        key: 'delete-all'
+        title: _(method + '-all'),
+        key: method + '-all'
       }
     ];
 
@@ -128,16 +135,18 @@ EventDetail.prototype = {
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
-      if (!this.busytimeId) {
-        return console.error('Illegal busytimeId!');
-      }
-
       switch(optionKey) {
         case 'delete-this-only':
           this._openConfirmDialog(true);
           break;
         case 'delete-all':
           this._openConfirmDialog(false);
+          break;
+        case 'edit-this-only':
+          router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
+          break;
+        case 'edit-all':
+          router.go('/event/edit/' + this.busytimeId + '/edit-all');
           break;
       }
     }.bind(this));
@@ -237,7 +246,9 @@ EventDetail.prototype = {
         dpe: {
           name: 'edit',
           action: () => {
-            if (this.busytimeId) {
+            if (model.remote.isRecurring) {
+              this._showOptionMenu('edit');
+            } else {
               router.go('/event/edit/' + this.busytimeId);
             }
           }
@@ -246,7 +257,7 @@ EventDetail.prototype = {
           name: 'delete',
           action: () => {
             if (model.remote.isRecurring) {
-              this._showOptionMenu();
+              this._showOptionMenu('delete');
             } else {
               this._openConfirmDialog(false);
             }
