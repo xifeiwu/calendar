@@ -20,6 +20,9 @@ function ModifyEvent(options) {
   this._toggleAllDay = this._toggleAllDay.bind(this);
   EventBase.apply(this, arguments);
   this._keyDownHandler = this._keyDownEvent.bind(this);
+
+  this.calendarList = null;
+  this.accountList = null;
 }
 module.exports = ModifyEvent;
 
@@ -56,13 +59,6 @@ ModifyEvent.prototype = {
 
   _initEvents: function() {
     EventBase.prototype._initEvents.apply(this, arguments);
-
-    var calendars = this.app.store('Calendar');
-
-    calendars.on('add', this._addCalendarId.bind(this));
-    calendars.on('preRemove', this._removeCalendarId.bind(this));
-    calendars.on('remove', this._removeCalendarId.bind(this));
-    calendars.on('update', this._updateCalendarId.bind(this));
 
     this.deleteButton.addEventListener('click', this.deleteRecord);
     this.form.addEventListener('click', this.focusHandler);
@@ -172,134 +168,102 @@ ModifyEvent.prototype = {
    * Build the initial list of calendar ids.
    */
   onfirstseen: function() {
-    // we need to notify users (specially automation tests) somehow that the
-    // options are still being loaded from DB, this is very important to
-    // avoid race conditions (eg.  trying to set calendar before list is
-    // built) notice that we also add the class to the markup because on some
-    // really rare occasions "onfirstseen" is called after the EventBase
-    // removed the "loading" class from the root element (seen it happen less
-    // than 1% of the time)
-    this.getEl('calendarId').classList.add(self.LOADING);
-
-    var calendarStore = this.app.store('Calendar');
-    calendarStore.all(function(err, calendars) {
-      if (err) {
-        return console.error('Could not build list of calendars');
-      }
-
-      var pending = 0;
-      var self = this;
-
-      function next() {
-        if (!--pending) {
-          self.getEl('calendarId').classList.remove(self.LOADING);
-
-          if (self.onafteronfirstseen) {
-            self.onafteronfirstseen();
-          }
-        }
-      }
-
-      for (var id in calendars) {
-        pending++;
-        this._addCalendarId(id, calendars[id], next);
-      }
-
-    }.bind(this));
+    Promise.all([this._getAccounts(), this._getCalendars()]).then(() => {
+      this._updateCalendarIdSelector();
+    })
+    .catch((err) => {
+      return console.error('Error fetching datebase.', err);
+    });
   },
 
-  /**
-   * Updates a calendar id option.
-   *
-   * @param {String} id calendar id.
-   * @param {Calendar.Model.Calendar} calendar model.
-   */
-  _updateCalendarId: function(id, calendar) {
-    var element = this.getEl('calendarId');
-    var option = element.querySelector('[value="' + id + '"]');
-    var store = this.app.store('Calendar');
-
-    store.providerFor(calendar, function(err, provider) {
-      var caps = provider.calendarCapabilities(
-        calendar
-      );
-
-      if (!caps.canCreateEvent) {
-        this._removeCalendarId(id);
-        return;
-      }
-
-      if (option) {
-        option.text = calendar.remote.name;
-      }
-
-
-      if (this.oncalendarupdate) {
-        this.oncalendarupdate(calendar);
-      }
-    }.bind(this));
+  _observeAccountStore: function() {
+    var store = this.app.store('Account');
+    // account store events
+    store.on('add', this._dbListener.bind(this, 'account', 'add'));
+    store.on('remove', this._dbListener.bind(this, 'account', 'remove'));
   },
 
-  /**
-   * Add a single calendar id.
-   *
-   * @param {String} id calendar id.
-   * @param {Calendar.Model.Calendar} calendar calendar to add.
-   */
-  _addCalendarId: function(id, calendar, callback) {
+  _observeCalendarStore: function() {
     var store = this.app.store('Calendar');
-    store.providerFor(calendar, function(err, provider) {
-      var caps = provider.calendarCapabilities(
-        calendar
-      );
+    // calendar store events
+    store.on('add', this._dbListener.bind(this, 'calendar', 'add'));
+    store.on('update', this._dbListener.bind(this, 'calendar', 'update'));
+    store.on('remove', this._dbListener.bind(this, 'calendar', 'remove'));
+  },
 
-      if (!caps.canCreateEvent) {
-        if (callback) {
-          nextTick(callback);
+  _dbListener: function(dbName, operation, id, model) {
+    switch (dbName) {
+      case 'calendar':
+        if (operation === 'add' || operation === 'update') {
+          this.calendarList[id] = model;
+        } else if (operation === 'remove') {
+          delete this.calendarList[id];
         }
-        return;
-      }
+        break;
+      case 'account':
+        if (operation === 'add') {
+          this.accountList[id] = model;
+        } else if (operation === 'remove') {
+          delete this.accountList[id];
+        }
+        break;
+    }
+    this._updateCalendarIdSelector();
+  },
 
-      var option;
-      var element = this.getEl('calendarId');
+  _getAccounts: function() {
+    return new Promise((resolve, reject) => {
+      var store = this.app.store('Account');
+      store.all().then((accounts) => {
+        this.accountList = accounts;
+        this._observeAccountStore();
+        resolve();
+      });
+    });
+  },
 
-      option = document.createElement('option');
+  _getCalendars: function() {
+    return new Promise((resolve, reject) => {
+      var store = this.app.store('Calendar');
+      store.all().then((calendars) => {
+        this.calendarList = calendars;
+        this._observeCalendarStore();
+        resolve();
+      });
+    });
+  },
 
-      if (id === Local.calendarId) {
-        option.text = navigator.mozL10n.get('calendar-local');
-        option.setAttribute('data-l10n-id', 'calendar-local');
+  _updateCalendarIdSelector: function() {
+    var calendarListNode = this.getEl('calendarId');
+    calendarListNode.innerHTML = '';
+    var key = '';
+    var groupNode = null;
+    for (key in this.accountList) {
+      var name = this.accountList[key].preset;
+      groupNode = document.createElement('optgroup');
+      groupNode.setAttribute('name', name);
+      groupNode.label = _('preset-' + name);
+      if (name === 'local') {
+        calendarListNode.insertBefore(groupNode, calendarListNode.firstChild);
       } else {
-        option.text = calendar.remote.name;
+        calendarListNode.appendChild(groupNode);
       }
-
-      option.value = id;
-      element.add(option);
-
-      if (callback) {
-        nextTick(callback);
-      }
-
-      if (this.onaddcalendar) {
-        this.onaddcalendar(calendar);
-      }
-    }.bind(this));
-  },
-
-  /**
-   * Remove a single calendar id.
-   *
-   * @param {String} id to remove.
-   */
-  _removeCalendarId: function(id) {
-    var element = this.getEl('calendarId');
-
-    var option = element.querySelector('[value="' + id + '"]');
-    if (option) {
-      element.removeChild(option);
     }
 
-    if (this.onremovecalendar) {
-      this.onremovecalendar(id);
+    var optionNode = null;
+    for (key in this.calendarList) {
+      var calendar = this.calendarList[key];
+      var accountName = this.accountList[calendar.accountId].preset;
+
+      optionNode = document.createElement('option');
+      if (calendar._id === Local.calendarId) {
+        optionNode.text = navigator.mozL10n.get('calendar-local');
+        optionNode.setAttribute('data-l10n-id', 'calendar-local');
+      } else {
+        optionNode.text = calendar.remote.name;
+      }
+      calendarListNode.querySelector('optgroup[name="' + accountName + '"]')
+        .appendChild(optionNode);
     }
   },
 
