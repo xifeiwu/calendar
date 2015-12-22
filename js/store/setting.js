@@ -23,8 +23,8 @@ Setting.prototype = {
    * Default option values.
    */
   defaults: {
-    standardAlarmDefault: -300,
-    alldayAlarmDefault: 32400,
+    standardAlarmDefault: 'none',
+    alldayAlarmDefault: 'none',
     syncFrequency: 15,
     syncAlarm: {
       alarmId: null,
