@@ -137,6 +137,7 @@ EventsList.prototype = {
         if (!this.isDialogOpened) {
           router.go('/month/');
         }
+        evt.preventDefault();
         break;
       case 'AcaSoftRight':
         if (!this.isDialogOpened) {

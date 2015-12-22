@@ -233,6 +233,7 @@ Month.prototype = {
           break;
         case 'AcaSoftLeft':
           this._goToAddEvent();
+          evt.preventDefault();
           break;
         case 'Enter':
           debug('View Event List.');
