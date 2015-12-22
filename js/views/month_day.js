@@ -73,6 +73,11 @@ MonthDay.prototype = {
   _updateBusyCount: function(data) {
     var count = Math.min(1, data.amount);
     var holder = this.element.querySelector('.busy-indicator');
+    if (data.amount === 0) {
+      this.element.setAttribute('role','gridcell-no-events');
+    } else {
+      this.element.setAttribute('role','gridcell');
+    }
 
     if (count > 0) {
       holder.setAttribute('aria-label', navigator.mozL10n.get('busy', {
