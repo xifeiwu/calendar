@@ -282,7 +282,8 @@ EventDetail.prototype = {
             } else {
               console.error('Delete successfully: ' + JSON.stringify(evt));
             }
-          }
+            router.go(this.returnTo());
+          }.bind(this)
         );
       } else {
         this.deleteController.deleteEvent(record.event, function(err, evt) {
@@ -291,7 +292,8 @@ EventDetail.prototype = {
           } else {
             console.error('Delete successfully: ' + JSON.stringify(evt));
           }
-        });
+          router.go(this.returnTo());
+        }.bind(this));
       }
     }).catch(() => {
       console.error('Error deleting records for id: ', this.busytimeId);
