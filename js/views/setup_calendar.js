@@ -140,6 +140,7 @@ SetupCalendar.prototype = {
       switch (evt.key) {
         case 'AcaSoftLeft':
           this._closeDialog();
+          evt.preventDefault();
         break;
         case 'AcaSoftRight':
           if (this._currentDialogAction &&
@@ -173,6 +174,7 @@ SetupCalendar.prototype = {
         break;
       case 'AcaSoftLeft':
         router.go('/advanced-settings/');
+        evt.preventDefault();
         break;
       case 'AcaSoftRight':
         break;

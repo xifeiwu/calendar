@@ -848,6 +848,7 @@ ModifyEvent.prototype = {
     switch(evt.key) {
       case 'AcaSoftLeft':
         this.cancel();
+        evt.preventDefault();
         break;
       case 'Enter':
         debug('Enter.');

@@ -501,6 +501,7 @@ ModifyAccount.prototype = {
         break;
       case 'AcaSoftLeft':
         router.go('/setup-calendar/');
+        evt.preventDefault();
         break;
       case 'AcaSoftRight':
         break;

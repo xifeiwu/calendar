@@ -139,6 +139,7 @@ AdvancedSettings.prototype = {
         break;
       case 'AcaSoftLeft':
         router.go('/month/');
+        evt.preventDefault();
         break;
       case 'AcaSoftRight':
         break;
