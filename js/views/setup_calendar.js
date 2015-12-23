@@ -38,7 +38,7 @@ SetupCalendar.prototype = {
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',
     h5Dialog: '#setup-calendar-view .h5-dialog-container h5-dialog',
     localCalendars: '#setup-calendar-view .local-calendars',
-    deleteAccount: '.sk-account',
+    accountItem: '.sk-account',
     errors: '#setup-calendar-view .errors',
     status: '#setup-calendar-view section[role="status"]',
     notices: '#setup-calendar-view .notices'
@@ -56,8 +56,8 @@ SetupCalendar.prototype = {
     return this._findElement('accountList');
   },
 
-  get deleteAccount() {
-    return this._findElement('deleteAccount');
+  get accountItem() {
+    return this._findElement('accountItem');
   },
 
   get addLocalCalendar() {
@@ -414,6 +414,17 @@ SetupCalendar.prototype = {
     });
   },
 
+  _parseAccountId: function() {
+    var eventElement = document.activeElement;
+    var accountId = eventElement.getAttribute('id');
+    if (accountId) {
+      return accountId.substring(accountId.indexOf(ACCOUNT_PREFIX) +
+        ACCOUNT_PREFIX.length);
+    } else {
+      return '';
+    }
+  },
+
   _addAccount: function(id, model) {
     if (!this._displayAccount(model)) {
       return;
@@ -427,16 +438,24 @@ SetupCalendar.prototype = {
       this.accountList.children[idx].classList.add('error');
     }
 
-    SoftkeyHandler.register(this.deleteAccount, {
+    // TODO:
+    // Using accountItem to indicate an account item is not
+    // a good way.
+    SoftkeyHandler.register(this.accountItem, {
+      lsk: {
+        name: 'back'
+      },
+      dpe: {
+        name: 'view',
+        action: () => {
+          var accountId = this._parseAccountId();
+          router.go('/account/detail/' + accountId);
+        }
+      },
       rsk: {
         name: 'remove',
         action: () => {
-          var eventElement = document.activeElement;
-          var accountId = eventElement.getAttribute('id');
-          var length = accountId.indexOf(ACCOUNT_PREFIX) +
-                       ACCOUNT_PREFIX.length;
-          var id = accountId.substring(length);
-          this._deleteRecord(id);
+          this._deleteRecord(this._parseAccountId());
           this.showNotices([{name: 'remove-account'}]);
         }
       }

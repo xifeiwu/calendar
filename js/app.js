@@ -190,6 +190,7 @@ module.exports = {
     router.state('/event/show/:id', 'ViewEvent');
     router.state('/event/list/', 'EventsList');
     router.state('/event/detail/:id', 'EventDetail');
+    router.modifier('/account/detail/:id', 'AccountDetail');
 
     router.modifier('/select-preset/', 'CreateAccount');
     router.modifier('/create-account/:preset', 'ModifyAccount');
