@@ -22,7 +22,7 @@ function Month() {
   View.apply(this, arguments);
   this.frames = new Map();
   window.addEventListener('localized', this);
-  this.datePicker = document.getElementById('date-picker');
+  this.datePicker = document.getElementById('month-view-date-picker');
   this.datePicker.addEventListener('input', function(evt) {
     this._goToDay('selected-day', new Date(evt.target.value));
   }.bind(this));
@@ -306,6 +306,10 @@ Month.prototype = {
     });
 
     this.app.optionMenuController.once('closed', function() {
+      if (document.activeElement.getAttribute('id') !==
+          'month-view-date-picker') {
+        navigationHandler.getCurItem().focus();
+      }
     }.bind(this));
     this.app.optionMenuController.once('selected', function(optionKey) {
       switch(optionKey) {
