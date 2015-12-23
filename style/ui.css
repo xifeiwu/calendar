@@ -340,7 +340,7 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   z-index: 1000;
 }
 
-#date-picker {
+#month-view-date-picker {
   position: absolute;
   bottom: 0px;
   width: 0px;
