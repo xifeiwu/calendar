@@ -194,9 +194,6 @@ EventDetail.prototype = {
     }
 
     var dateSrc = model;
-    if (model.remote.isRecurring && this.busytime) {
-      dateSrc = this.busytime;
-    }
     var durationTimeContent =
       DurationTime.durationTimeEventDetail.render(dateSrc);
     this.durationTime.innerHTML = durationTimeContent;
