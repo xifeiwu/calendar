@@ -229,7 +229,7 @@ EventDetail.prototype = {
         lsk: {
           name: 'back',
           action: () => {
-            this.cancel();
+            router.go('/event/list/');
           }
         },
         dpe: {},
@@ -240,7 +240,7 @@ EventDetail.prototype = {
         lsk: {
           name: 'back',
           action: () => {
-            this.cancel();
+            router.go('/event/list/');
           }
         },
         dpe: {

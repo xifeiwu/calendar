@@ -365,7 +365,7 @@ ModifyEvent.prototype = {
 
       var moveDate = self.event.startDate;
 
-      var callback = function(err) {
+      var callback = function(err, busytimeOrId) {
         list.remove(self.PROGRESS);
 
         if (err) {
@@ -388,13 +388,16 @@ ModifyEvent.prototype = {
         if (method === 'updateEvent' ||
             method === 'updateEventAll' ||
             method === 'updateEventThisOnly') {
-          // If we edit a view our history stack looks like:
-          //   /week -> /event/view -> /event/save -> /event/view
-          // We need to return all the way to the top of the stack
-          // We can remove this once we have a history stack
-          self.app.view('ViewEvent', function(view) {
-            router.go(view.returnTop(), state);
-          });
+          // As updateEvent will change busytime id, if the previous page
+          // is eventDetail. window.history.back() will go to a path that
+          // not exist. if the previous page is eventDetail, we will need
+          // to refresh the location of previous using new busytime id.
+          var pathToGo = self.returnTo();
+          if (/^\/event\/detail\//.test(pathToGo) &&
+              typeof(busytimeOrId) === 'object') {
+            pathToGo = '/event/detail/' + busytimeOrId._id;
+          }
+          router.go(pathToGo);
 
           return;
         }
