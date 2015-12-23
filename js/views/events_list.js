@@ -21,6 +21,7 @@ function EventsList(options) {
   this.dialogController = this.app.dialogController;
   this.store = this.app.store('Event');
   this.busytimeId = null;
+  this.lastFocusedEvent = null;
   this.recordsCount = 0;
   // key => busytimeId, value => event
   this.records = {};
@@ -80,9 +81,14 @@ EventsList.prototype = {
     this.rootElement.focus();
     if (this.recordsCount > 0) {
       var events = this.events.querySelectorAll('li');
+
       if (events && events.length > 0) {
-        var firstEvent = events[0];
-        firstEvent.focus();
+        if (this.lastFocusedEvent &&
+            this.events.contains(this.lastFocusedEvent)) {
+          this.lastFocusedEvent.focus();
+        } else {
+          events[0].focus();
+        }
       }
     } else {
       router.go('/month/');
@@ -145,6 +151,7 @@ EventsList.prototype = {
           if (!!element && element.hasAttribute('busytimeId')) {
             element.setAttribute('cacheFocus','');
             this.busytimeId = element.getAttribute('busytimeId');
+            this.lastFocusedEvent = element;
             this._showOptionMenu();
           } else {
             this.busytimeId = null;
