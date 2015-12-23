@@ -256,6 +256,7 @@ ModifyEvent.prototype = {
       var accountName = this.accountList[calendar.accountId].preset;
 
       optionNode = document.createElement('option');
+      optionNode.value = calendar._id;
       if (calendar._id === Local.calendarId) {
         optionNode.text = navigator.mozL10n.get('calendar-local');
         optionNode.setAttribute('data-l10n-id', 'calendar-local');
