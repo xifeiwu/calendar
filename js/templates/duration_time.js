@@ -41,6 +41,8 @@ module.exports = create({
     var startDate = this.arg('startDate');
     var endDate = this.arg('endDate');
     var isAllDay = this.arg('isAllDay');
+    var isRecurring = this.arg('isRecurring');
+    var repeat = this.arg('repeat');
 
     if (isAllDay) {
       // Use the last second of previous day as the base for endDate
@@ -55,12 +57,20 @@ module.exports = create({
         'multiple-day-duration-event-detail';
     }
 
-    return l10n.get(format, {
+    var content = l10n.get(format, {
       startTime: formatTimeEventDetail(startDate),
       startDate: formatDateEventDetail(startDate),
       endTime: formatTimeEventDetail(endDate),
       endDate: formatDateEventDetail(endDate)
     });
+
+    if (isRecurring) {
+      content += l10n.get('event-detail-repeat', {
+        repeat: l10n.get(repeat)
+      });
+    }
+
+    return content;
   }
 });
 
