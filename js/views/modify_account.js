@@ -490,7 +490,7 @@ ModifyAccount.prototype = {
       }
     };
 
-    this.rootElement.focus();
+    this.username.focus();
   },
 
   handleKeyDownEvent: function(evt) {
