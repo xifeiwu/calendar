@@ -328,8 +328,11 @@ Month.prototype = {
           router.go('/advanced-settings/');
           break;
         case 'month-view-sync-calendar':
-          console.log('month-view-sync-calendar click');
-          this.app.syncController.all();
+          if (this.app.offline()) {
+            this.app.toast.show({message: _('error-offline')});
+          } else {
+            this.app.syncController.all();
+          }
           break;
       }
     }.bind(this));
