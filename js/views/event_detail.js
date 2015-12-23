@@ -157,6 +157,17 @@ EventDetail.prototype = {
     });
   },
 
+  _resetUI: function() {
+    this.title.textContent = '';
+    this.location.textContent = '';
+    this.invitationFrom.textContent = '';
+    this.invitees.innerHTML = '';
+    this.durationTime.innerHTML = '';
+    this.currentCalendar.textContent = '';
+    this.alarms.innerHTML = '';
+    this.description.innerHTML = '';
+  },
+
   /**
    * Updates the UI to use values from the current model.
    */
@@ -318,6 +329,7 @@ EventDetail.prototype = {
 
   oninactive: function() {
     EventBase.prototype.oninactive.apply(this, arguments);
+    this._resetUI();
   }
 };
 
