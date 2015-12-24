@@ -37,13 +37,13 @@ var EventsListItem = create({
 
     var title = this.h('title');
     var eventDetails =`
-      <div class="event-details" dir="auto">
-        <h5 role="presentation">${title}</h5>
+      <div class="event-details" dir="auto" role="presentation">
+        ${title}
       </div>`;
 
     var content = `
       <li tabindex="0" class="sk-events-list-item" busytimeId="${busytimeId}">
-        <span class="event">
+        <div class="event">
           ${indicator} ${eventTime} ${eventDetails}
         </span>
       </li>`;
