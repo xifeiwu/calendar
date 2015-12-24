@@ -401,6 +401,25 @@ ModifyEvent.prototype = {
 
           return;
         }
+
+        // To 'sync' local account if it's a recurring event just added
+        if (self.event.remote.isRecurring) {
+          nextTick(function() {
+            self.store.ownersOf(self.event, function(err, owners) {
+              if (err) {
+                return console.error('Fetch owners error: ' + err);
+              }
+
+              if (owners.account.providerType === 'Local') {
+                // TODO: To sync the calendar of local account might be enough
+                self.app.syncController.account(owners.account, function() {
+                  console.log('To sync ' + JSON.stringify(owners.account));
+                });
+              }
+            });
+          });
+        }
+
         self.app.toast.show({message: _('toast-event-add-success')});
         router.go(self.returnTo(), state);
       };
