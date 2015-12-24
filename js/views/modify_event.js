@@ -105,13 +105,6 @@ ModifyEvent.prototype = {
       }
     }
 
-    // because of race conditions it is theoretically possible
-    // for the user to check/uncheck this value
-    // when we don't actually have a model loaded.
-    if (this.event) {
-      this.event.isAllDay = !!allday;
-    }
-
     // Reset alarms if we come from a user event
     if (e) {
       this.event.alarms = [];
@@ -152,7 +145,7 @@ ModifyEvent.prototype = {
 
     var newAlarm = document.createElement('div');
     newAlarm.innerHTML = template.picker.render({
-      layout: this.event.isAllDay ? 'allday' : 'standard'
+      layout: this.getEl('allday').checked ? 'allday' : 'standard'
     });
     this.alarmList.appendChild(newAlarm);
   },
@@ -500,6 +493,7 @@ ModifyEvent.prototype = {
       repeat: this.getEl('repeat').value,
       calendarId: this.getEl('calendarId').value,
       description: this.getEl('description').innerHTML,
+      isAllDay: this.getEl('allday').checked,
       recurrenceId: ''
     };
 
