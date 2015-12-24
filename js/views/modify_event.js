@@ -99,26 +99,31 @@ ModifyEvent.prototype = {
     } else {
       // disable case
       this.element.classList.remove(this.ALLDAY);
-      if (e) {
-        // only reset the start/end time if coming from an user interaction
-        this._resetDateTime();
-      }
     }
 
-    // Reset alarms if we come from a user event
     if (e) {
+      // only reset the start/end time if coming from an user interaction
+      this._resetDateTime();
+
+      // Reset alarms if we come from a user event
       this.event.alarms = [];
       this.updateAlarms(allday);
     }
   },
 
   _resetDateTime: function() {
-    // if start event was "all day" and switch to regular event start/end time
+    // if start event was "all day" and switch to regular event start/end date
     // will be the same, so we reset to default start time, otherwise we keep
     // the previously selected value
+    var allday = this.getEl('allday').checked;
     var startDateTime = this._getStartDateTime();
-    if (startDateTime === this._getEndDateTime()) {
-      var startDate = new Date(startDateTime);
+    var endDateTime = this._getEndDateTime();
+    var startDate = new Date(startDateTime);
+    var endDate = new Date(endDateTime);
+
+    this._duration = endDateTime - startDateTime;
+
+    if (!allday && startDate.getDate() === endDate.getDate()) {
       this._setDefaultHour(startDate);
       this.getEl('startTime').value = InputParser.exportTime(startDate);
       this._renderDateTimeLocale(
@@ -727,23 +732,49 @@ ModifyEvent.prototype = {
   },
 
   _setEndDateTimeWithCurrentDuration: function() {
+    var allday = this.getEl('allday').checked;
     var date = new Date(this._getStartDateTime() + this._duration);
-    var endDateLocale = this._findElement('endDateLocale');
-    var endTimeLocale = this._findElement('endTimeLocale');
-    this.getEl('endDate').value = InputParser.exportDate(date);
-    this.getEl('endTime').value = InputParser.exportTime(date);
-    this._renderDateTimeLocale(endDateLocale, date);
-    this._renderDateTimeLocale(endTimeLocale, date);
+    if (allday){
+      date.setDate(date.getDate() - 1);
+      var endDateLocale = this._findElement('endDateLocale');
+      this.getEl('endDate').value = InputParser.exportDate(date);
+      this._renderDateTimeLocale(endDateLocale, date);
+    } else {
+      var endDateLocale = this._findElement('endDateLocale');
+      var endTimeLocale = this._findElement('endTimeLocale');
+      this.getEl('endDate').value = InputParser.exportDate(date);
+      this.getEl('endTime').value = InputParser.exportTime(date);
+      this._renderDateTimeLocale(endDateLocale, date);
+      this._renderDateTimeLocale(endTimeLocale, date);
+    }
+
   },
 
   _getStartDateTime: function() {
-    return new Date(this.getEl('startDate').value + 'T' +
-      this.getEl('startTime').value).getTime();
+    var allday = this.getEl('allday').checked;
+    var date = null;
+    if (allday) {
+      date = InputParser.formatInputDate(
+        this.getEl('startDate').value, null);
+    } else {
+      date = InputParser.formatInputDate(
+        this.getEl('startDate').value, this.getEl('startTime').value);
+    }
+    return date.getTime();
   },
 
   _getEndDateTime: function() {
-    return new Date(this.getEl('endDate').value + 'T' +
-      this.getEl('endTime').value).getTime();
+    var allday = this.getEl('allday').checked;
+    var date = null;
+    if (allday) {
+      date = InputParser.formatInputDate(
+        this.getEl('endDate').value, null);
+      date.setDate(date.getDate() + 1);
+    } else {
+      date = InputParser.formatInputDate(
+        this.getEl('endDate').value, this.getEl('endTime').value);
+    }
+    return date.getTime();
   },
 
   _renderDateTimeLocale: function(targetElement, value) {
