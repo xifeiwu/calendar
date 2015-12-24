@@ -45,7 +45,8 @@
         'views/settings',
         'views/calendar_chooser',
         'views/view_event',
-        'views/setup_calendar'
+        'views/setup_calendar',
+        'views/account_detail'
       ],
       exclude: ['bundle']
     },

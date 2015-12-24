@@ -50,7 +50,8 @@ require.config({
     'views/calendar_chooser': 'lazy_loaded',
     'views/view_event': 'lazy_loaded',
     'views/event_detail': 'lazy_loaded',
-    'views/setup_calendar': 'lazy_loaded'
+    'views/setup_calendar': 'lazy_loaded',
+    'views/account_detail': 'lazy_loaded'
   }
 });
 
