@@ -48,6 +48,7 @@ function OAuthWindow(container, server, params) {
   }
 
   this._element = container;
+  this.windowOpened = false;
 
   View.call(this);
   this.target = server + '?' + QueryString.stringify(params);
@@ -65,7 +66,7 @@ OAuthWindow.prototype = {
   },
 
   get isOpen() {
-    return !!this.browserFrame;
+    return this.windowOpened;
   },
 
   selectors: {
@@ -129,7 +130,7 @@ OAuthWindow.prototype = {
   },
 
   open: function() {
-    if (this.browserFrame) {
+    if (this.isOpen) {
       throw new Error('attempting to open frame while another is open');
     }
 
@@ -141,16 +142,9 @@ OAuthWindow.prototype = {
       'action', this._handleUserTriggeredClose
     );
 
-    // setup browser iframe
-    var iframe = this.browserFrame =
-      document.createElement('iframe');
-
-    iframe.setAttribute('mozbrowser', true);
-    iframe.setAttribute('src', this.target);
-
-    this.browserContainer.appendChild(iframe);
-
-    iframe.addEventListener('mozbrowserlocationchange', this);
+    this.windowOpened = true;
+    window.open(this.target, '', 'dialog');
+    window.addEventListener('mozbrowserlocationchange', this);
   },
 
   close: function() {
@@ -158,7 +152,7 @@ OAuthWindow.prototype = {
       return;
     }
 
-    this.browserFrame.removeEventListener(
+    window.removeEventListener(
       'mozbrowserlocationchange', this
     );
 
@@ -168,11 +162,7 @@ OAuthWindow.prototype = {
 
     this.element.classList.remove(View.ACTIVE);
 
-    this.browserFrame.parentNode.removeChild(
-      this.browserFrame
-    );
-
-    this.browserFrame = undefined;
+    this.windowOpened = false;
   }
 };
 
