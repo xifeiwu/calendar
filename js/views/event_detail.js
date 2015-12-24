@@ -202,7 +202,16 @@ EventDetail.prototype = {
       if (err) {
         this.currentCalendar.textContent = '';
       } else {
-        this.currentCalendar.textContent = calendar.remote.name;
+        this.app.store('Account').get(calendar.accountId, (err, account) => {
+          if (err) {
+            this.currentCalendar.textContent = calendar.remote.name;
+          } else {
+            this.currentCalendar.textContent = _('account-calendar-format', {
+              account: _('preset-' + account.preset),
+              calendar: calendar.remote.name
+            });
+          }
+        });
       }
     });
 
