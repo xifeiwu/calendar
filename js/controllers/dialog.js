@@ -24,11 +24,17 @@ DialogController.prototype = {
     }
 
     if (!option || !option.dialogType ||
-        !option.softKeysHandler) {
+        !(option.softKeysHandler || option.inputSoftKeysHandler)) {
       console.warn('DialogController warnning: empty option!');
     }
 
-    SoftkeyHandler.register(this.dialog, option.softKeysHandler);
+    if (option.softKeysHandler) {
+      SoftkeyHandler.register(this.dialog, option.softKeysHandler);
+    }
+    if (option.inputSoftKeysHandler) {
+      SoftkeyHandler.register(this.dialog.dialogTextInput,
+        option.inputSoftKeysHandler);
+    }
 
     this.dialog.on('h5dialog:opened', function() {
       if (DEBUG) {
@@ -63,6 +69,14 @@ DialogController.prototype = {
     if (DEBUG) {
       console.log('DialogController call open');
     }
+  },
+
+  setInputValue: function(text) {
+    this.dialog.dialogTextInput.value = text;
+  },
+
+  getInputValue: function() {
+    return this.dialog.dialogTextInput.value;
   },
 
   close: function(option) {

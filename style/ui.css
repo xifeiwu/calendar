@@ -340,6 +340,11 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   z-index: 1000;
 }
 
+#calendar-dialog-wrapper h5-dialog .dialog-input-container input {
+  font-size: 2.1rem;
+  height: 4.2rem;
+}
+
 #month-view-date-picker {
   position: absolute;
   bottom: 0px;

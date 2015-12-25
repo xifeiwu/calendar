@@ -6,6 +6,7 @@ var View = require('view');
 var router = require('router');
 var Local = require('provider/local');
 var nextTick = require('next_tick');
+var debug = require('debug')('advanced_settings');
 
 require('dom!advanced-settings-view');
 
@@ -77,9 +78,6 @@ AdvancedSettings.prototype = {
 
   _initEvents: function() {
     var setting = this.app.store('Setting');
-
-    this.setupCalendar.addEventListener('click',
-                                       this.onSetupCalendar.bind(this));
     setting.on('syncFrequencyChange', this);
     this.syncFrequency.addEventListener('change', this);
 
@@ -167,12 +165,6 @@ AdvancedSettings.prototype = {
   oninactive: function() {
     View.prototype.oninactive.call(this);
     window.removeEventListener('keydown', this._keyDownHandler);
-  },
-
-  onSetupCalendar: function(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    router.show(event.target.getAttribute('href'));
   },
 
   render: function() {
