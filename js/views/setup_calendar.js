@@ -7,9 +7,9 @@ var providerFactory = require('provider/provider_factory');
 var router = require('router');
 var template = require('templates/account');
 var Local = require('provider/local');
+var debug = require('debug')('setup_calendar');
 var _ = navigator.mozL10n.get;
 require('dom!setup-calendar-view');
-require('shared/h5-dialog/dist/amd/script');
 
 var ACCOUNT_PREFIX = 'account-';
 
@@ -19,6 +19,7 @@ function SetupCalendar(options) {
   this._initEvents();
   this.initHeader();
   this.localCalendarList = {};
+  this.dialogController = this.app.dialogController;
 }
 module.exports = SetupCalendar;
 
@@ -36,7 +37,6 @@ SetupCalendar.prototype = {
     accountList: '#setup-calendar-view .account-list',
     createAccount: '#setup-calendar-view .sk-add-account',
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',
-    h5Dialog: '#setup-calendar-view .h5-dialog-container h5-dialog',
     localCalendars: '#setup-calendar-view .local-calendars',
     accountItem: '.sk-account',
     errors: '#setup-calendar-view .errors',
@@ -62,10 +62,6 @@ SetupCalendar.prototype = {
 
   get addLocalCalendar() {
     return this._findElement('addLocalCalendar');
-  },
-
-  get h5Dialog() {
-    return this._findElement('h5Dialog');
   },
 
   get localCalendars() {
@@ -96,6 +92,9 @@ SetupCalendar.prototype = {
     SoftkeyHandler.register(this.addLocalCalendar, {
       lsk: {
         name: 'back',
+        action: () => {
+          this._goToAdvancedSettings();
+        }
       },
       dpe: {
         name: 'select',
@@ -103,54 +102,6 @@ SetupCalendar.prototype = {
           this._popUpDialog('add');
         }
       }
-    });
-
-    /**
-     * When the dialogTextInput get focus, the owner of softkey is
-     * Input Method, so we have to listen the keydown event,
-     * and do something we need.
-     * dpe key is used to get the value in dialogTextInput, as the evt.key
-     * passed to dialogTextInput is undefined, evt.keyCode is used.
-     * lsk is used to cancel the operation of input, if we do not stop
-     * keydown propagation, the key down event will be passed to the current
-     * page, it is not we want. The evt.keyCode passed to dialogTextInput
-     * is 0, which is no correct, so evt.key is used.
-    */
-    this.h5Dialog.dialogTextInput.addEventListener('keydown', (evt) => {
-      if (evt.keyCode === KeyEvent.DOM_VK_RETURN) {
-        switch (this._currentDialogAction) {
-          case 'add':
-            this._saveCalendar(this.h5Dialog.dialogTextInput.value.trim());
-            break;
-          case 'rename':
-            this._renameCalendar(this.h5Dialog.dialogTextInput.value.trim());
-            break;
-        }
-        evt.stopPropagation();
-        evt.preventDefault();
-      }
-      if (evt.key === 'AcaSoftLeft') {
-          this._closeDialog();
-          evt.stopPropagation();
-          evt.preventDefault();
-      }
-    });
-
-    this.h5Dialog.addEventListener('keydown', (evt) => {
-      switch (evt.key) {
-        case 'AcaSoftLeft':
-          this._closeDialog();
-          evt.preventDefault();
-        break;
-        case 'AcaSoftRight':
-          if (this._currentDialogAction &&
-              this._currentDialogAction === 'delete') {
-            this._deleteCalendar();
-          }
-        break;
-      }
-      evt.stopPropagation();
-      evt.preventDefault();
     });
   },
 
@@ -166,6 +117,10 @@ SetupCalendar.prototype = {
     window.removeEventListener('keydown', this._keyDownHandler);
   },
 
+  _goToAdvancedSettings: function() {
+    window.history.back();
+  },
+
   handleKeyDownEvent: function(evt) {
     switch (evt.key) {
       case 'Enter':
@@ -173,7 +128,7 @@ SetupCalendar.prototype = {
       case 'Accept':
         break;
       case 'AcaSoftLeft':
-        router.go('/advanced-settings/');
+        evt.stopPropagation();
         evt.preventDefault();
         break;
       case 'AcaSoftRight':
@@ -185,44 +140,92 @@ SetupCalendar.prototype = {
     this._currentDialogAction = action;
     this._currentCalendar = element;
     var name = '';
+    var option = null;
     switch (action) {
       case 'add':
-        this.h5Dialog.open({
+        option = {
           header: _('new-calendar'),
-          dialogType: 'prompt'
-        });
+          dialogType: 'prompt',
+          inputSoftKeysHandler: {
+            lsk: {
+              name: 'cancel',
+              action: () => {
+                this.dialogController.close();
+              }
+            },
+            dpe: {
+              name: 'ok',
+              action: () => {
+                var content = this.dialogController.getInputValue().trim();
+                this._saveCalendar(content);
+              }
+            }
+          }
+        };
+        this._openDialog(option);
         break;
       case 'delete':
         name = element.querySelector('.setup-calendar-p').innerHTML;
-        SoftkeyHandler.register(this.h5Dialog, {
-          lsk: {
-            name: 'cancel'
-          },
-          rsk: {
-            name: 'delete'
+        option = {
+          message: _('confirm-delete-calendar', {
+            name: name
+          }),
+          dialogType: 'confirm',
+          softKeysHandler: {
+            lsk: {
+              name: 'cancel',
+              action: () => {
+                this.dialogController.close();
+              }
+            },
+            rsk: {
+              name: 'delete',
+              action: () => {
+                if (this._currentDialogAction &&
+                    this._currentDialogAction === 'delete') {
+                  this._deleteCalendar();
+                }
+                this.dialogController.close();
+              }
+            }
           }
-        });
-        this.h5Dialog.open({
-          message: _('delete-calendar') + name + ' ?',
-          dialogType: 'confirm'
-        });
+        };
+        this._openDialog(option);
         break;
       case 'rename':
         name = element.querySelector('.setup-calendar-p').innerHTML;
-        this.h5Dialog.open({
+        option = {
           header: _('rename-calendar'),
           dialogType: 'prompt',
-          initialValue: name
-        });
+          initialValue: name,
+          inputSoftKeysHandler: {
+            lsk: {
+              name: 'cancel',
+              action: () => {
+                this.dialogController.close();
+              }
+            },
+            dpe: {
+              name: 'ok',
+              action: () => {
+                var content = this.dialogController.getInputValue().trim();
+                this._renameCalendar(content);
+              }
+            }
+          }
+        };
+        this._openDialog(option);
         break;
     }
   },
 
-  _closeDialog: function() {
-    if (this.h5Dialog && this.h5Dialog.classList.contains('opened')) {
-      this.h5Dialog.close();
+  _openDialog: function(option) {
+    this.dialogController.once('opened', () => {
+    });
+    this.dialogController.once('closed', () => {
       this.rootElement.focus();
-    }
+    });
+    this.dialogController.show(option);
   },
 
   _getLocalAccountId: function() {
@@ -253,7 +256,7 @@ SetupCalendar.prototype = {
       if (err) {
         console.error('Cannot save calendar', err);
       }
-      self._closeDialog();
+      self.dialogController.close();
     }
 
     this._getLocalAccountId().then(() => {
@@ -266,7 +269,7 @@ SetupCalendar.prototype = {
       calendarStore.persist(calendar, persist.bind(this));
     }).catch((err) => {
       console.error('Error in _saveCalendar.', err);
-      this._closeDialog();
+      self.dialogController.close();
     });
   },
 
@@ -287,7 +290,7 @@ SetupCalendar.prototype = {
     var self = this;
     var id = this._currentCalendar.getAttribute('calendar-id');
     function onRemove(err, id) {
-      self._closeDialog();
+      self.dialogController.close();
     }
     var store = this.app.store('Calendar');
     store.remove(id, onRemove);
@@ -356,7 +359,10 @@ SetupCalendar.prototype = {
     Array.prototype.slice.call(elements).forEach((element) => {
       SoftkeyHandler.register(element, {
         lsk: {
-          name: 'cancel',
+          name: 'back',
+          action: () => {
+            this._goToAdvancedSettings();
+          }
         },
         dpe: {
           name: 'rename',
@@ -376,6 +382,12 @@ SetupCalendar.prototype = {
 
   initHeader: function() {
     SoftkeyHandler.register(this.createAccount, {
+      lsk: {
+        name: 'back',
+        action: () => {
+          this._goToAdvancedSettings();
+        }
+      },
       dpe: {
         name: 'select',
         action: () => {
@@ -443,7 +455,10 @@ SetupCalendar.prototype = {
     // a good way.
     SoftkeyHandler.register(this.accountItem, {
       lsk: {
-        name: 'back'
+        name: 'back',
+        action: () => {
+          this._goToAdvancedSettings();
+        }
       },
       dpe: {
         name: 'view',
