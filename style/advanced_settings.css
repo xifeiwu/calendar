@@ -1,0 +1,56 @@
+#advanced-settings-view div.content {
+  background-color: var(--background);
+  top: 6.2rem;
+  height: calc(100% - 6.2rem);
+  overflow-y: scroll;
+}
+
+#advanced-settings-view .settings-list label,
+#advanced-settings-view .account-list a {
+  text-transform: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: calc(100% - 3rem);
+}
+
+#advanced-settings-view .settings-list span {
+  margin: 0;
+  padding: 0;
+}
+
+/* For the account listing, want the final child to still have
+   a bottom border to separate it from the Add Account button */
+#advanced-settings-view .account-list li:last-child label,
+#advanced-settings-view .account-list li:only-child label,
+#advanced-settings-view .account-list li:last-child a,
+#advanced-settings-view .account-list li:only-child a {
+  border-bottom: 0.1rem solid #C5C5C5;
+}
+
+#advanced-settings-view .account-list .error a {
+  background: transparent url('icons/accountwarning.png') no-repeat left / 2rem auto;
+  -moz-padding-start: 2.7rem;
+}
+
+#advanced-settings-view .preset:after {
+  content: ' - '
+}
+
+#advanced-settings-view .user {
+  width: 50%;
+}
+
+#advanced-settings-view select[name="defaultCalendar"] {
+  position: absolute;
+  z-index: -1;
+  -moz-appearance: none;
+}
+
+#advanced-settings-view span[name="defaultCalendar-locale"] {
+  display: block;
+  font-size: 2.1rem;
+  color: var(--highlight-color);
+  padding: 5px 0px 3px 0px;
+  border-bottom: 1px var(--secondary-info-color) solid;
+}
