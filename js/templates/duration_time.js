@@ -66,7 +66,7 @@ module.exports = create({
 
     if (isRecurring) {
       content += l10n.get('event-detail-repeat', {
-        repeat: l10n.get(repeat)
+        repeat: repeat ? l10n.get(repeat) : l10n.get('repeating-event')
       });
     }
 
