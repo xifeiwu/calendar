@@ -39,4 +39,10 @@
   text-overflow: ellipsis;
   width: 27rem;
   overflow: hidden;
+  white-space: nowrap;
+}
+
+#setup-calendar-view .setup-calendar-container {
+  height: calc(100% - 6.2rem);
+  overflow-y: scroll;
 }
