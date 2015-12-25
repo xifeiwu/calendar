@@ -71,10 +71,14 @@ function issueNotification(alarm) {
     });
 
     var body = event.remote.description || '';
+
+    // When users store a multi-line note, the notification will display <br> when
+    // there are line-breaks, to avoid this, the following code is introduced.
+    var bodyOneLine = body.replace(/<br>/g, ' ');
     debug('Will send event notification with title:', title, 'body:', body);
     return notification.sendNotification(
       title,
-      body,
+      bodyOneLine,
       `/alarm-display/${busytime._id}`
     );
   });
