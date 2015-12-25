@@ -161,8 +161,8 @@ Local.prototype = {
     var create = mutations.create({ event: event });
     if (event.remote.isRecurring) {
       create.icalComponent = {
-        calendarId: LOCAL_CALENDAR_ID,
-        eventId: LOCAL_CALENDAR_ID + '-' + event.remote.id,
+        calendarId: event.calendarId,
+        eventId: event.calendarId + '-' + event.remote.id,
         lastRecurrenceId: {
           tzid: jstz.determine().name(),
           offset: 0,
