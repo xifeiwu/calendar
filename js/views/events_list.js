@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
 'use strict';
 
-var View = require('view');
+var EventBase = require('./event_base');
 var dateFormat = require('date_format');
 var dayObserver = require('day_observer');
 var createDay = require('calc').createDay;
@@ -13,7 +13,7 @@ var _ = navigator.mozL10n.get;
 require('dom!events-list-view');
 
 function EventsList(options) {
-  View.apply(this, arguments);
+  EventBase.apply(this, arguments);
   this._render = this._render.bind(this);
   this.controller = this.app.timeController;
   this.deleteController = this.app.deleteController;
@@ -41,7 +41,7 @@ function EventsList(options) {
 module.exports = EventsList;
 
 EventsList.prototype = {
-  __proto__: View.prototype,
+  __proto__: EventBase.prototype,
 
   selectors: {
     element: '#events-list-view',
@@ -63,18 +63,21 @@ EventsList.prototype = {
   },
 
   onactive: function() {
-    View.prototype.onactive.call(this);
+    EventBase.prototype.onactive.apply(this, arguments);
     this.initCurrentDate(this.controller.selectedDay);
     window.addEventListener('keydown', this._keyDownHandler, false);
   },
 
   oninactive: function() {
-    View.prototype.oninactive.call(this);
+    EventBase.prototype.oninactive.apply(this, arguments);
     if (this.date) {
       dayObserver.off(this.date, this._render);
     }
     this.date = null;
     window.removeEventListener('keydown', this._keyDownHandler);
+  },
+
+  _initEvents: function() {
   },
 
   findAndFocus: function() {
@@ -93,36 +96,6 @@ EventsList.prototype = {
     } else {
       router.go('/month/');
     }
-  },
-
-  /*
-   * TODO: this method is the same as in event detail, they should be move to
-   * a common class.
-   */
-  deleteEvent: function(deleteSingleOnly) {
-    dayObserver.findAssociated(this.busytimeId).then(record => {
-      if (deleteSingleOnly && record.event.remote.isRecurring) {
-        this.deleteController.deleteLocalBusytime(record.event, this.busytimeId,
-          function(err, evt) {
-            if (err) {
-              console.error('Delete failed: ' + JSON.stringify(evt));
-            } else {
-              console.error('Delete successfully: ' + JSON.stringify(evt));
-            }
-          }
-        );
-      } else {
-        this.deleteController.deleteEvent(record.event, function(err, evt) {
-          if (err) {
-            console.error('Delete failed: ' + JSON.stringify(evt));
-          } else {
-            console.error('Delete successfully: ' + JSON.stringify(evt));
-          }
-        });
-      }
-    }).catch(() => {
-      console.error('Error deleting records for id: ', this.busytimeId);
-    });
   },
 
   handleKeyDownEvent: function(evt) {
@@ -183,6 +156,10 @@ EventsList.prototype = {
       title: _('delete'),
       key: 'delete'
     };
+    var editItem = {
+      title: _('edit'),
+      key: 'edit'
+    };
     if (this.records[this.busytimeId].remote.isRecurring) {
       deleteItem.options = {
         header: _('repeat-event-header'),
@@ -197,12 +174,23 @@ EventsList.prototype = {
           }
         ]
       };
+
+      editItem.options = {
+        header: _('repeat-event-header'),
+        items: [
+          {
+            title: _('edit-this-only'),
+            key: 'edit-this-only'
+          },
+          {
+            title: _('edit-all'),
+            key: 'edit-all'
+          }
+        ]
+      };
     }
     var items = [
-      {
-        title: _('edit'),
-        key: 'edit'
-      },
+      editItem,
       deleteItem
     ];
 
@@ -219,6 +207,12 @@ EventsList.prototype = {
       switch(optionKey) {
         case 'edit':
           router.go('/event/edit/' + this.busytimeId);
+          break;
+        case 'edit-this-only':
+          router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
+          break;
+        case 'edit-all':
+          router.go('/event/edit/' + this.busytimeId + '/edit-all');
           break;
         case 'delete':
         case 'delete-all':
@@ -237,7 +231,14 @@ EventsList.prototype = {
                 name: 'delete',
                 action: () => {
                   this.dialogController.close();
-                  this.deleteEvent(false);
+                  this.deleteEvent(false, function(err, evt) {
+                    if (err) {
+                      console.error('Delete failed: ' + JSON.stringify(evt));
+                    } else {
+                      console.error('Delete successfully: ' +
+                        JSON.stringify(evt));
+                    }
+                  });
                 }
               }
             }
@@ -259,7 +260,14 @@ EventsList.prototype = {
                 name: 'delete',
                 action: () => {
                   this.dialogController.close();
-                  this.deleteEvent(true);
+                  this.deleteEvent(true, function(err, evt) {
+                    if (err) {
+                      console.error('Delete failed: ' + JSON.stringify(evt));
+                    } else {
+                      console.error('Delete successfully: ' +
+                        JSON.stringify(evt));
+                    }
+                  });
                 }
               }
             }

@@ -273,6 +273,22 @@ EventBase.prototype = {
     this.busytimeId = null;
   },
 
+  deleteEvent: function(deleteSingleOnly, callback) {
+    dayObserver.findAssociated(this.busytimeId).then(record => {
+      if (deleteSingleOnly && record.event.remote.isRecurring) {
+        this.deleteController.deleteLocalBusytime(
+          record.event,
+          this.busytimeId,
+          callback
+        );
+      } else {
+        this.deleteController.deleteEvent(record.event, callback);
+      }
+    }).catch(() => {
+      console.error('Error deleting records for id: ', this.busytimeId);
+    });
+  },
+
   /**
    * Handles the url parameters for when this view
    * comes into focus.
