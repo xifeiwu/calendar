@@ -383,23 +383,6 @@ ModifyEvent.prototype = {
           eventStartHour: moveDate.getHours()
         };
 
-        if (method === 'updateEvent' ||
-            method === 'updateEventAll' ||
-            method === 'updateEventThisOnly') {
-          // As updateEvent will change busytime id, if the previous page
-          // is eventDetail. window.history.back() will go to a path that
-          // not exist. if the previous page is eventDetail, we will need
-          // to refresh the location of previous using new busytime id.
-          var pathToGo = self.returnTo();
-          if (/^\/event\/detail\//.test(pathToGo) &&
-              typeof(busytimeOrId) === 'object') {
-            pathToGo = '/event/detail/' + busytimeOrId._id;
-          }
-          router.go(pathToGo);
-
-          return;
-        }
-
         // To 'sync' local account if it's a recurring event just added
         if (self.event.remote.isRecurring) {
           nextTick(function() {
@@ -416,6 +399,23 @@ ModifyEvent.prototype = {
               }
             });
           });
+        }
+
+        if (method === 'updateEvent' ||
+            method === 'updateEventAll' ||
+            method === 'updateEventThisOnly') {
+          // As updateEvent will change busytime id, if the previous page
+          // is eventDetail. window.history.back() will go to a path that
+          // not exist. if the previous page is eventDetail, we will need
+          // to refresh the location of previous using new busytime id.
+          var pathToGo = self.returnTo();
+          if (/^\/event\/detail\//.test(pathToGo) &&
+              typeof(busytimeOrId) === 'object') {
+            pathToGo = '/event/detail/' + busytimeOrId._id;
+          }
+          router.go(pathToGo);
+
+          return;
         }
 
         self.app.toast.show({message: _('toast-event-add-success')});

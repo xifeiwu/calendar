@@ -3,6 +3,7 @@ define(function(require, exports, module) {
 
 var Calc = require('calc');
 var probablyParseInt = require('probably_parse_int');
+var ICAL = require('ext/ical');
 
 /**
  * Creates a wrapper around a event instance from the db
@@ -16,7 +17,7 @@ function Event(data) {
     data.remote = {};
   }
 
-  this.data = data;
+  this.data = isNew ? data : ICAL.helpers.clone(data, true);
   /** shortcut */
   var remote = this.remote = this.data.remote;
 
