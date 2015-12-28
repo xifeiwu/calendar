@@ -4,6 +4,7 @@ define(function(require, exports, module) {
 var Abstract = require('./abstract');
 var denodeifyAll = require('promise').denodeifyAll;
 var nextTick = require('next_tick');
+var Local = require('provider/local');
 
 function Setting() {
   Abstract.apply(this, arguments);
@@ -26,6 +27,7 @@ Setting.prototype = {
     standardAlarmDefault: 'none',
     alldayAlarmDefault: 'none',
     syncFrequency: 15,
+    defaultCalendar: Local.calendarId,
     syncAlarm: {
       alarmId: null,
       start: null,
