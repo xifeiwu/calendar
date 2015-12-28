@@ -657,11 +657,6 @@ Service.prototype = {
         var details = event.getOccurrenceDetails(next);
         var inFuture = details.endDate.compare(now);
 
-        // Add a check to avoid re-adding local recurring events
-        if (inFuture < 0) {
-          return;
-        }
-
         debug('alarm time',
               event.summary,
               'will add ' + String(inFuture),
