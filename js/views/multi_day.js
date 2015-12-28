@@ -227,14 +227,6 @@ MultiDay.prototype = {
     var day = createDayDiff(this.baseDate, diff);
     this.timeController.move(day);
     this.timeController.selectedDay = day;
-    var evt = new CustomEvent('h5os-page-changed', {
-      detail: {
-        page: window.location.pathname
-      },
-      bubbles: true,
-      cancelable: false
-    });
-    window.dispatchEvent(evt);
   },
 
   _render: function() {

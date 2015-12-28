@@ -7,6 +7,7 @@ var SingleMonth = require('./single_month');
 var View = require('view');
 var dateFromId = Calc.dateFromId;
 var monthStart = Calc.monthStart;
+var isSameDate = Calc.isSameDate;
 var performance = require('performance');
 var router = require('router');
 var debug = require('debug')('month');
@@ -89,6 +90,21 @@ Month.prototype = {
       this.currentFrame.activate();
     }
     this.element.addEventListener('keydown', this._keyDownHandler);
+    this._resetFocus();
+  },
+
+  _resetFocus: function() {
+    navigationHandler.initMonthView();
+    var currentFocus = this.element.querySelector('.focus');
+    var currentDate = null;
+    if (currentFocus){
+      currentDate = dateFromId(currentFocus.dataset.date);
+      debug('currentFocus:' + currentFocus.dataset.date);
+    }
+    if (this.app.timeController.selectedDay && currentDate &&
+        !isSameDate(this.app.timeController.selectedDay, currentDate)) {
+      this._goToDay('local-day', this.app.timeController.selectedDay);
+    }
   },
 
   _onswipe: function(data) {
@@ -153,6 +169,8 @@ Month.prototype = {
         newDate = new Date(date.getTime() +
           date.getTimezoneOffset() * 60 * 1000);
         break;
+      case 'local-day':
+        newDate = date;
     }
     if (newDate) {
       this.controller.move(newDate);
