@@ -392,10 +392,9 @@ ModifyEvent.prototype = {
               }
 
               if (owners.account.providerType === 'Local') {
-                // TODO: To sync the calendar of local account might be enough
-                self.app.syncController.account(owners.account, function() {
-                  console.log('To sync ' + JSON.stringify(owners.account));
-                });
+                self.app.recurringEventsController.queueExpand(
+                  self.app.timeController.position
+                );
               }
             });
           });
