@@ -2,10 +2,6 @@
   pointer-events: none;
 }
 
-#modify-event-view.loading > form {
-  display: none;
-}
-
 #modify-event-view form {
   overflow-Y: auto;
   height: -moz-calc(100% - 5rem);
