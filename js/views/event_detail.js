@@ -93,7 +93,14 @@ EventDetail.prototype = {
           name: 'delete',
           action: () => {
             this.dialogController.close();
-            this.deleteEvent(deleteSingleOnly);
+            this.deleteEvent(deleteSingleOnly, function(err, evt) {
+              if (err) {
+                console.error('Delete failed: ' + JSON.stringify(evt));
+              } else {
+                console.error('Delete successfully: ' + JSON.stringify(evt));
+              }
+              router.go(this.returnTo());
+            }.bind(this));
           }
         }
       }
@@ -283,38 +290,6 @@ EventDetail.prototype = {
       });
     }
 
-  },
-
-  /*
-   * TODO: this method is the same as in event list, they should be move to
-   * a common class.
-   */
-  deleteEvent: function(deleteSingleOnly) {
-    dayObserver.findAssociated(this.busytimeId).then(record => {
-      if (deleteSingleOnly && record.event.remote.isRecurring) {
-        this.deleteController.deleteLocalBusytime(record.event, this.busytimeId,
-          function(err, evt) {
-            if (err) {
-              console.error('Delete failed: ' + JSON.stringify(evt));
-            } else {
-              console.error('Delete successfully: ' + JSON.stringify(evt));
-            }
-            router.go(this.returnTo());
-          }.bind(this)
-        );
-      } else {
-        this.deleteController.deleteEvent(record.event, function(err, evt) {
-          if (err) {
-            console.error('Delete failed: ' + JSON.stringify(evt));
-          } else {
-            console.error('Delete successfully: ' + JSON.stringify(evt));
-          }
-          router.go(this.returnTo());
-        }.bind(this));
-      }
-    }).catch(() => {
-      console.error('Error deleting records for id: ', this.busytimeId);
-    });
   },
 
   /**
