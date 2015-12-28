@@ -60,14 +60,14 @@ module.exports = {
     this._routeViewFn = Object.create(null);
     this._pendingManager = new PendingManager();
 
-    var loadedLazyStyles = false;
+    this.loadedLazyStyles = false;
 
     this._pendingManager.oncomplete = function onpending() {
       document.body.classList.remove(pendingClass);
       performance.pendingReady();
       // start loading sub-views as soon as possible
-      if (!loadedLazyStyles) {
-        loadedLazyStyles = true;
+      if (!this.loadedLazyStyles) {
+        this.loadedLazyStyles = true;
 
         // XXX: not loading the 'lazy_loaded.js' here anymore because for some
         // weird reason curl.js was returning an object instead of
@@ -394,6 +394,12 @@ module.exports = {
       // we init the UI after the db.load to increase perceived performance
       // (will feel like busytimes are displayed faster)
       navigator.mozL10n.once(() => this._initUI());
+
+      // To make sure lazy_loaded can be loaded
+      if (!this.loadedLazyStyles) {
+        this.loadedLazyStyles = true;
+        window.require(['css!lazy_loaded']);
+      }
     });
   },
 
