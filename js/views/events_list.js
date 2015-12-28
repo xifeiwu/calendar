@@ -304,6 +304,28 @@ EventsList.prototype = {
   _render: function(records) {
     this.records = {};
     this.recordsCount = records.basic.length + records.allday.length;
+
+    // Re-order the list, lift the first added event (and earliest) on the top
+    records.basic = records.basic.sort(stampSorts);
+    records.basic = records.basic.sort(startTimeSorts);
+
+    // Applies the same method to all-day event
+    records.allday = records.allday.sort(stampSorts);
+
+    // Order the list according to timeStamps
+    function stampSorts(a, b) {
+      var obA = a.event.remote.timeStamp;
+      var obB = b.event.remote.timeStamp;
+      obA = !!(obA && obB) ? obA : (obB || obA || '');
+      obB = !!(obA && obB) ? obB : (obA || obB || '');
+      return obA - obB;
+    }
+
+    // Order the list according to time sequences
+    function startTimeSorts(a, b) {
+      return a.event.remote.start.utc - b.event.remote.start.utc;
+    }
+
     // we should always render allday events at the top
     this.events.innerHTML = records.allday.concat(records.basic)
       .map(this._renderEvent, this)

@@ -520,6 +520,12 @@ ModifyEvent.prototype = {
       recurrenceId: ''
     };
 
+    if (!this.isSaved()) {
+      fields.timeStamp = new Date().getTime();
+    } else {
+      fields.timeStamp = this.event.timeStamp;
+    }
+
     if (fields.repeat !== 'never') {
       fields.isRecurring = true;
     } else {

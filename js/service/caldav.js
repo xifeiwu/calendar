@@ -342,6 +342,7 @@ Service.prototype = {
       end: this.formatICALTime(event.endDate),
       organizer: event.organizer,
       attendees: resultAttendees,
+      timeStamp: new Date().getTime(),
       exceptions: exceptions
     };
 
