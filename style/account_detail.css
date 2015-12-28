@@ -31,4 +31,10 @@
   text-overflow: ellipsis;
   width: 27rem;
   overflow: hidden;
+  white-space: nowrap;
+}
+
+#account-detail-view div.account-detail-container {
+  overflow-y: scroll;
+  height: calc(100% - 6.2rem);
 }
