@@ -221,7 +221,6 @@ module.exports = {
     periodicSyncController.observe();
 
     var recurringEventsController = new RecurringEventsController(this);
-    this.observePendingObject(recurringEventsController);
     recurringEventsController.observe();
     this.recurringEventsController = recurringEventsController;
 
