@@ -155,7 +155,7 @@ AdvancedSettings.prototype = {
         this.syncFrequency.value = String(value);
         break;
       case 'defaultCalendarChange':
-        this.renderDefaultCalendar(null, value);
+        this._renderCalendarLocale(null, value);
         break;
     }
   },
@@ -232,7 +232,7 @@ AdvancedSettings.prototype = {
     window.removeEventListener('keydown', this._keyDownHandler);
   },
 
-  renderDefaultCalendar: function(err, value) {
+  _renderCalendarLocale: function(err, value) {
     if (err) {
       return;
     }
@@ -291,7 +291,7 @@ AdvancedSettings.prototype = {
     settings.getValue('syncFrequency', renderSyncFrequency);
     settings.getValue('standardAlarmDefault', renderAlarmDefault('standard'));
     settings.getValue('alldayAlarmDefault', renderAlarmDefault('allday'));
-    settings.getValue('defaultCalendar', this.renderDefaultCalendar.bind(this));
+    settings.getValue('defaultCalendar', this._renderCalendarLocale.bind(this));
 
     this._renderCalendarSelector();
   }
