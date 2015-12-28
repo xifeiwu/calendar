@@ -261,17 +261,6 @@ define(function(require, exports, module) {
 
     init: function _init() {
       debug('_init');
-      window.addEventListener('h5os-page-changed', function(e) {
-        var id = getIdByPath(e.detail.page);
-        debug('h5os-page-changed, e.detail.page: ' + e.detail.page);
-        debug('h5os-page-changed, id: ' + id);
-        if (id) {
-          currentContainerID = id;
-          setTimeout(() => {
-            this.reset(id);
-          }, 200);
-        }
-      }.bind(this));
 
       document.addEventListener('focusChanged', function(e) {
         var focusedItem = e.detail.focusedElement;
@@ -332,6 +321,16 @@ define(function(require, exports, module) {
           }
         }
       }.bind(this));
+    },
+
+    initMonthView: function() {
+      currentContainerID = 'month-view';
+      if (currentContainerID in controls) {
+        return;
+      }
+      this.navSetup(currentContainerID, '.month.active .focusable');
+      var currentDate = new Date();
+      this.setFocusOnMonthView(currentDate);
     },
 
     setFocus: function _setFocus(id) {

@@ -12,6 +12,11 @@ define(function(require, exports, module) {
       }
     },
 
+    // TODO: navigation_handler and navigation_map will be refactored later.
+    initMonthView: function() {
+      NavigationMap.initMonthView();
+    },
+
     getCurItem: function _getCurItem() {
       return NavigationMap.getCurItem();
     },

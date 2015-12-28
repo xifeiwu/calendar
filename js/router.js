@@ -157,14 +157,6 @@ Router.prototype = {
       // Set the current path
       if (options.appPath !== false) {
         self.currentPath = ctx.canonicalPath;
-        var evt = new CustomEvent('h5os-page-changed', {
-          detail: {
-            page: self.currentPath
-          },
-          bubbles: true,
-          cancelable: false
-        });
-        window.dispatchEvent(evt);
       }
 
       next();
