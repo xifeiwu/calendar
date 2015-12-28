@@ -118,7 +118,7 @@ SetupCalendar.prototype = {
   },
 
   _goToAdvancedSettings: function() {
-    window.history.back();
+    router.go('/advanced-settings/');
   },
 
   handleKeyDownEvent: function(evt) {
