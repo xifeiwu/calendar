@@ -65,6 +65,8 @@
 <script defer src="shared/h5-input-wrapper/h5-input-wrapper.js"></script>
 <script defer src="shared/h5-two-line-li/h5-two-line-li.js"></script>
 <script defer src="shared/h5-list-button/h5-list-button.js"></script>
+<script defer src="shared/h5-progress/h5-progress.js"></script>
+
 <!-- Icons are lazy loaded by gaia-header -->
 <!-- <link rel="stylesheet" type="text/css" href="shared/gaia-icons/gaia-icons.css" /> -->
 
@@ -99,14 +101,15 @@
 <section is="errors" id="errors" role="status" aria-live="assertive" aria-atomic="true"></section>
 <section is="settings" id="settings" role="region"></section>
 
+<div id="progress-indicator" class="sk-sync-calendar" tabindex="0">
+  <p data-l10n-id="calendar-syncing"></p>
+  <h5-progress h5-indeterminate=""></h5-progress>
+</div>
+
 <section id="time-views" role="region">
   <h5-header id="time-header">
     <h1 id="current-month-year" aria-labelledby="current-time-indicator"></h1>
   </h5-header>
-
-  <div id="progress-indicator">
-    <div id="throbber"></div>
-  </div>
 
   <section id="month-view" role="tabpanel" aria-labelledby="month"></section>
 

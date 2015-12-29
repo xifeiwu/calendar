@@ -49,6 +49,7 @@
     "h5-two-line-li": "gaia-components/h5-two-line-li#~0.0.4",
     "h5-dialog": "gaia-components/h5-dialog#~0.0.5",
     "h5-list-button": "gaia-components/h5-list-button#~0.0.2",
-    "h5-icons": "gaia-components/h5-icons#~0.1.5"
+    "h5-icons": "gaia-components/h5-icons#~0.1.5",
+    "h5-progress": "gaia-components/h5-progress#~0.0.1"
   }
 }
