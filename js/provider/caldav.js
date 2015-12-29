@@ -429,7 +429,9 @@ CaldavProvider.prototype = {
       };
 
       function next(err, pull) {
-        pullGroups.push(pull);
+        if (!err && pull) {
+          pullGroups.push(pull);
+        }
         if (!(--pending)) {
           var trans = self.app.db.transaction(
             ['icalComponents', 'alarms', 'busytimes'],
@@ -469,6 +471,9 @@ CaldavProvider.prototype = {
     calStore.ownersOf(calendarId, function(err, owners) {
       if (err) {
         return callback(err);
+      }
+      if (owners.account.providerType !== 'Caldav') {
+        return callback('Not Caldav provider');
       }
 
       var calendar = owners.calendar;
