@@ -151,16 +151,30 @@ body[data-path="/day/"] #view-selector > .day > a:active {
 #progress-indicator {
   position: absolute;
   left: 0;
+  bottom: 0;
   width: 100%;
   height: 0.3rem;
   border: none;
   overflow: hidden;
   z-index: 1000;
   display: none;
+  height: 5.7rem;
+}
+
+#progress-indicator p {
+  line-height: 100%;
+  text-align: center;
+  font-size: 1.8rem;
+  color: var(--color-gs00);
+}
+
+.pending-operation #time-views{
+  opacity: 0.2;
 }
 
 .pending-operation #progress-indicator {
-  display: block
+  display: block;
+  opacity: 1;
 }
 
 #throbber {
