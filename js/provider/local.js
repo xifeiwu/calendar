@@ -171,6 +171,7 @@ Local.prototype = {
         },
         ical: this.jointIcal(event)
       };
+      create.excludeBusy = true;
     }
 
     create.commit(function(err) {
