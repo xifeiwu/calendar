@@ -117,6 +117,7 @@ Local.prototype = {
     ical += 'PRODID:-//H5OS//Calendar 1.0//EN\r\n';
     ical += 'VERSION:2.0\r\n';
     ical += 'CALSCALE:GREGORIAN\r\n';
+
     ical += 'BEGIN:VTIMEZONE\r\n';
     ical += 'TZID:' + tzid + '\r\n';
     ical += 'BEGIN:STANDARD\r\n';
@@ -125,6 +126,7 @@ Local.prototype = {
     ical += 'DTSTART;TZID=' + tzid + ':' + dtstart + '\r\n';
     ical += 'END:STANDARD\r\n';
     ical += 'END:VTIMEZONE\r\n';
+
     ical += 'BEGIN:VEVENT\r\n';
     ical += 'DTSTART;TZID=' + tzid + ':' + dtstart + '\r\n';
     ical += 'DTEND;TZID=' + tzid + ':' + dtend + '\r\n';
@@ -137,6 +139,18 @@ Local.prototype = {
     ical += 'STATUS:CONFIRMED\r\n';
     ical += 'SUMMARY:' + event.remote.title + '\r\n';
     ical += 'TRANSP:TRANSPARENT\r\n';
+
+    event.remote.alarms.forEach(function(alarm) {
+      ical += 'BEGIN:VALARM\r\n';
+      if (alarm.trigger < 0) {
+        ical += 'TRIGGER:-PT' + (Math.abs(alarm.trigger) / 60) + 'M\r\n';
+      } else {
+        ical += 'TRIGGER:PT' + (Math.abs(alarm.trigger) / 60) + 'M\r\n';
+      }
+      ical += 'ACTION:' + alarm.action + '\r\n';
+      ical += 'END:VALARM\r\n';
+    });
+
     ical += 'END:VEVENT\r\n';
     ical += 'END:VCALENDAR\r\n';
 
