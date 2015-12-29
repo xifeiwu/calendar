@@ -200,9 +200,15 @@ EventDetail.prototype = {
       this.element.classList.add(this.INVITATION);
     }
 
-    var dateSrc = model;
     var durationTimeContent =
-      DurationTime.durationTimeEventDetail.render(dateSrc);
+      DurationTime.durationTimeEventDetail.render({
+        startDate: model.startDate,
+        endDate: model.endDate,
+        isAllDay: model.isAllDay,
+        isRecurring: model.isRecurring,
+        repeat: model.repeat,
+        selectedDate: this.app.timeController.selectedDay
+      });
     this.durationTime.innerHTML = durationTimeContent;
 
     this.app.store('Calendar').get(model.calendarId, (err, calendar) => {
