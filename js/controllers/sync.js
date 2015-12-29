@@ -14,6 +14,7 @@ var Responder = require('responder');
 function Sync(app) {
   this.app = app;
   this.pending = 0;
+  this.isRunning = false;
 
   Responder.call(this);
 }
@@ -28,6 +29,7 @@ Sync.prototype = {
   _incrementPending: function() {
     if (!this.pending) {
       this.emit('syncStart');
+      this.isRunning = true;
     }
 
     this.pending++;
@@ -36,11 +38,27 @@ Sync.prototype = {
   _resolvePending: function() {
     if (!(--this.pending)) {
       this.emit('syncComplete');
+      this.isRunning = false;
     }
 
     if (this.pending < 0) {
       dump('\n\n Error calendar sync .pending is < 0 \n\n');
     }
+  },
+
+  interrupt: function() {
+    if (this.isRunning) {
+      this.emit('syncComplete');
+      this.emit('syncInterrupt');
+      this.reset();
+    } else {
+      console.warn('SyncController is not running!!!');
+    }
+  },
+
+  reset: function() {
+    this.pending = 0;
+    this.isRunning = false;
   },
 
   /**
@@ -62,6 +80,7 @@ Sync.prototype = {
     if (this.app.offline()) {
       this.emit('offline');
       this.emit('syncComplete');
+      this.isRunning = false;
       return;
     }
 
@@ -70,12 +89,16 @@ Sync.prototype = {
     account.all(function(err, list) {
 
       for (var key in list) {
+        if (!this.isRunning) {
+          return console.warn('SyncController is canceled!!!');
+        }
         this.account(list[key]);
       }
 
       // If we have nothing to sync
       if (!this.pending) {
         this.emit('syncComplete');
+        this.isRunning = false;
       }
 
     }.bind(this));
@@ -91,6 +114,10 @@ Sync.prototype = {
   calendar: function(account, calendar, callback) {
     var store = this.app.store('Calendar');
     var self = this;
+
+    if (!this.isRunning) {
+      return console.warn('SyncController is canceled!!!');
+    }
 
     this._incrementPending();
     store.sync(account, calendar, err => {
