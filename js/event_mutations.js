@@ -95,11 +95,12 @@ Create.prototype = {
 
     eventStore.persist(this.event, trans);
 
-    if (!this.busytime) {
-      this.busytime = createBusytime(this.event);
+    if (!this.excludeBusy) {
+      if (!this.busytime) {
+        this.busytime = createBusytime(this.event);
+      }
+      busytimeStore.persist(this.busytime, trans);
     }
-
-    busytimeStore.persist(this.busytime, trans);
 
     if (this.icalComponent) {
       componentStore.persist(this.icalComponent, trans);

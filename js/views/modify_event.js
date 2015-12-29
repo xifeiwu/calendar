@@ -411,6 +411,8 @@ ModifyEvent.prototype = {
           if (/^\/event\/detail\//.test(pathToGo) &&
               typeof(busytimeOrId) === 'object') {
             pathToGo = '/event/detail/' + busytimeOrId._id;
+          } else if (!busytimeOrId) {
+            pathToGo = '/event/list/';
           }
           router.go(pathToGo);
 

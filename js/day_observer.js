@@ -375,7 +375,11 @@ function removeBusytimeIfOutsideSpans(busytime) {
 
 function removeEventIfNoBusytimes(ids, eventId) {
   if (!ids.length) {
-    removeEventById(eventId);
+    // remove non-recurring events only, since recurring events
+    // may have 0 busytimes in a certain moment
+    if (!events.get(eventId).remote.isRecurring) {
+      removeEventById(eventId);
+    }
   }
 }
 
