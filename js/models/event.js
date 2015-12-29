@@ -235,6 +235,14 @@ Event.prototype = {
     return this.remote.alarms;
   },
 
+  get timeStamp() {
+    return this.remote.timeStamp || '';
+  },
+
+  set timeStamp(value) {
+    this.remote.timeStamp = value;
+  },
+
   /**
    * If data doesn't have any errors, the event
    * takes on the attributes of data.
