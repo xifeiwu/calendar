@@ -10,10 +10,10 @@
         "url": "https://www.googleapis.com/oauth2/v3/userinfo",
         "field": "email"
       },
-      "client_secret": "jQTKlOhF-RclGaGJot3HIcVf",
-      "client_id": "605300196874-1ki833poa7uqabmh3hq6u1onlqlsi54h.apps.googleusercontent.com",
+      "client_secret": "CUT70B19W3D7piynAKYllDM_",
+      "client_id": "368354821137-5d21tpks0rld66l60pu7kh3kot4cfant.apps.googleusercontent.com",
       "scope": "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email",
-      "redirect_uri": "https://oauth.gaiamobile.org/authenticated"
+      "redirect_uri": "https://zerg.acadine.com/app/calendar/redirect.html"
     },
     "options": {
       "domain": "https://apidata.googleusercontent.com",

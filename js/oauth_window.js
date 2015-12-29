@@ -2,9 +2,6 @@ define(function(require, exports, module) {
 'use strict';
 
 var QueryString = require('querystring');
-var View = require('view');
-
-require('dom!oauth2');
 
 /**
  * Creates a oAuth dialog given a set of parameters.
@@ -35,97 +32,75 @@ require('dom!oauth2');
  *
  *
  */
-function OAuthWindow(container, server, params) {
+function OAuthWindow(server, params) {
   if (!params.redirect_uri) {
     throw new Error(
       'must provide params.redirect_uri so oauth flow can complete'
     );
   }
 
-  this.params = {};
+  this._apiParams = {};
   for (var key in params) {
-    this.params[key] = params[key];
+    this._apiParams[key] = params[key];
   }
 
-  this._element = container;
-  this.windowOpened = false;
+  this._windowOpened = false;
+  this._browserWindow = null;
+  this._monitorTimer = null;
 
-  View.call(this);
-  this.target = server + '?' + QueryString.stringify(params);
+  this._target = server + '?' + QueryString.stringify(params);
 
-  this._handleUserTriggeredClose =
-    this._handleUserTriggeredClose.bind(this);
+  this._handleFinalRedirect = this._handleFinalRedirect.bind(this);
+  this._startMonitorWindow = this._startMonitorWindow.bind(this);
 }
+
 module.exports = OAuthWindow;
 
 OAuthWindow.prototype = {
-  __proto__: View.prototype,
-
-  get element() {
-    return this._element;
-  },
 
   get isOpen() {
-    return this.windowOpened;
+    return this._windowOpened;
   },
 
-  selectors: {
-    browserHeader: 'gaia-header',
-    browserTitle: 'gaia-header > h1',
-    browserContainer: '.browser-container'
-  },
+  _handleFinalRedirect: function(event) {
+    var origin = event.origin || event.originalEvent.origin;
 
-  get browserContainer() {
-    return this._findElement('browserContainer', this.element);
-  },
-
-  get browserTitle() {
-    return this._findElement('browserTitle', this.element);
-  },
-
-  get browserHeader() {
-    return this._findElement('browserHeader', this.element);
-  },
-
-  _handleFinalRedirect: function(url) {
     this.close();
 
+    if (this._apiParams.redirect_uri.indexOf(origin) === -1) {
+      return;
+    }
+
+    var msg = event.data;
     if (this.oncomplete) {
       var params;
 
       // find query string
-      var queryStringIdx = url.indexOf('?');
+      var queryStringIdx = msg.indexOf('?');
       if (queryStringIdx !== -1) {
-        params = QueryString.parse(url.slice(queryStringIdx + 1));
+        params = QueryString.parse(msg.slice(queryStringIdx + 1));
       }
-
       this.oncomplete(params || {});
     }
   },
 
-  _handleLocationChange: function(url) {
-    this.browserTitle.textContent = url;
-  },
-
-  _handleUserTriggeredClose: function() {
-    // close the oauth flow
-    this.close();
-
-    // trigger an event so others can cleanup
-    if (this.onabort) {
-      this.onabort();
+  _startMonitorWindow: function() {
+    if (this._browserWindow && !this._browserWindow.closed) {
+      this._monitorTimer = window.setTimeout(this._startMonitorWindow, 100);
+    } else {
+      if (this.isOpen) {
+        if (this.onabort) {
+          this.onabort();
+        }
+        this.close();
+      }
     }
   },
 
-  handleEvent: function(event) {
-    switch (event.type) {
-      case 'mozbrowserlocationchange':
-        var url = event.detail;
-        if (url.indexOf(this.params.redirect_uri) === 0) {
-          return this._handleFinalRedirect(url);
-        }
-        this._handleLocationChange(url);
-        break;
+  _stopMonitorWindow: function() {
+    if (this._monitorTimer) {
+      window.clearTimeout(this._monitorTimer);
+      this._monitorTimer = null;
     }
   },
 
@@ -134,35 +109,26 @@ OAuthWindow.prototype = {
       throw new Error('attempting to open frame while another is open');
     }
 
-    // add the active class
-    this.element.classList.add(View.ACTIVE);
-
-    // handle cancel events
-    this.browserHeader.addEventListener(
-      'action', this._handleUserTriggeredClose
-    );
-
-    this.windowOpened = true;
-    window.open(this.target, '', 'dialog');
-    window.addEventListener('mozbrowserlocationchange', this);
+    this._browserWindow = window.open(this._target, '', 'dialog');
+    window.addEventListener('message', this._handleFinalRedirect);
+    this._windowOpened = true;
+    this._startMonitorWindow();
   },
 
   close: function() {
+    this._stopMonitorWindow();
+
     if (!this.isOpen) {
       return;
     }
 
-    window.removeEventListener(
-      'mozbrowserlocationchange', this
-    );
+    window.removeEventListener('message', this._handleFinalRedirect);
 
-    this.browserHeader.removeEventListener(
-      'action', this._handleUserTriggeredClose
-    );
-
-    this.element.classList.remove(View.ACTIVE);
-
-    this.windowOpened = false;
+    if (this._browserWindow && !this._browserWindow.closed) {
+      this._browserWindow.close();
+      this._browserWindow = null;
+    }
+    this._windowOpened = false;
   }
 };
 
