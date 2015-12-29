@@ -247,11 +247,27 @@ SetupCalendar.prototype = {
     });
   },
 
+  _checkCalendarName: function(name) {
+    var _isNameExist = false;
+    for (var key in this.localCalendarList) {
+      if (name === this.localCalendarList[key].remote.name) {
+        _isNameExist = true;
+        break;
+      }
+    }
+    return _isNameExist;
+  },
+
   _saveCalendar: function(name) {
     if (name.length === 0) {
       return;
     }
     var self = this;
+    if (this._checkCalendarName(name)) {
+      self.dialogController.close();
+      this.showNotices([{name: 'name-already-exist'}]);
+      return;
+    }
     function persist(err, id, model) {
       if (err) {
         console.error('Cannot save calendar', err);
@@ -278,6 +294,11 @@ SetupCalendar.prototype = {
       return;
     }
     var self = this;
+    if (this._checkCalendarName(newName)) {
+      self.dialogController.close();
+      this.showNotices([{name: 'name-already-exist'}]);
+      return;
+    }
     var id = this._currentCalendar.getAttribute('calendar-id');
     var store = this.app.store('Calendar');
     function onRemove(err, id) {
