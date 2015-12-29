@@ -307,7 +307,9 @@ Local.prototype = {
       };
 
       function next(err, pull) {
-        pullGroups.push(pull);
+        if (!err && pull) {
+          pullGroups.push(pull);
+        }
         if (!(--pending)) {
           var trans = self.app.db.transaction(
             ['icalComponents', 'alarms', 'busytimes'],
@@ -347,6 +349,9 @@ Local.prototype = {
     calStore.ownersOf(calendarId, function(err, owners) {
       if (err) {
         return callback(err);
+      }
+      if (owners.account.providerType !== 'Local') {
+        return callback('Not local provider');
       }
 
       var calendar = owners.calendar;
