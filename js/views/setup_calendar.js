@@ -325,6 +325,9 @@ SetupCalendar.prototype = {
   },
 
   _dbListener: function(operation, id, model) {
+    if (this.localAccountId !== model.accountId) {
+      return;
+    }
     if (operation === 'add' || operation === 'update') {
       this.localCalendarList[id] = model;
     } else if (operation === 'remove') {
