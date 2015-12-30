@@ -51,6 +51,9 @@ Sync.prototype = {
       this.emit('syncComplete');
       this.emit('syncInterrupt');
       this.reset();
+      this.app.toast.show({
+        message: navigator.mozL10n.get('sync-canceled')
+      });
     } else {
       console.warn('SyncController is not running!!!');
     }
