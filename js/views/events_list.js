@@ -196,6 +196,8 @@ EventsList.prototype = {
 
     this.optionMenuController.once('closed', function() {
       this.events.querySelector('li[cacheFocus]').removeAttribute('cacheFocus');
+      document.querySelector('#events-list-view').classList.
+        remove('option-menu-bg');
       this.findAndFocus();
     }.bind(this));
 
@@ -276,6 +278,7 @@ EventsList.prototype = {
       }
     }.bind(this));
 
+    document.querySelector('#events-list-view').classList.add('option-menu-bg');
     this.optionMenuController.show({
       items: items
     });
