@@ -5,7 +5,6 @@
  * performance, that way we load a single CSS file.
  */
 @import url("../shared/confirm/confirm.css");
-@import url("../shared/input_areas/input_areas.css");
 @import url("../shared/progress_activity/progress_activity.css");
 @import url("../shared/status/status.css");
 @import url("../shared/switches/switches.css");
