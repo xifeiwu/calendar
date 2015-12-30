@@ -29,10 +29,12 @@ function Month() {
   }.bind(this));
   this.datePicker.addEventListener('blur', function(evt) {
     navigationHandler.getCurItem().focus();
+    document.querySelector('#time-views').classList.remove('option-menu-bg');
   }.bind(this));
 
   this.calendarChooser = new CalendarChooser({ app: this.app });
   this.calendarChooser.event.on('hide', function() {
+    document.querySelector('#time-views').classList.remove('cal-chooser-bg');
     navigationHandler.getCurItem().focus();
   });
 
@@ -322,11 +324,12 @@ Month.prototype = {
         key: name
       });
     });
-
     this.app.optionMenuController.once('closed', function() {
       if (document.activeElement.getAttribute('id') !==
           'month-view-date-picker') {
         navigationHandler.getCurItem().focus();
+        document.querySelector('#time-views').classList.
+          remove('option-menu-bg');
       }
     }.bind(this));
     this.app.optionMenuController.once('selected', function(optionKey) {
@@ -341,6 +344,7 @@ Month.prototype = {
           break;
         case 'month-view-calendars-to-display':
           this.calendarChooser.show();
+          document.querySelector('#time-views').classList.add('cal-chooser-bg');
           break;
         case 'month-view-settings':
           router.go('/advanced-settings/');
@@ -354,7 +358,7 @@ Month.prototype = {
           break;
       }
     }.bind(this));
-
+    document.querySelector('#time-views').classList.add('option-menu-bg');
     this.app.optionMenuController.show({
       items: items
     });
