@@ -350,7 +350,7 @@ SetupCalendar.prototype = {
   },
 
   _dbListener: function(operation, id, model) {
-    if (this.localAccountId !== model.accountId) {
+    if (model && this.localAccountId !== model.accountId) {
       return;
     }
     if (operation === 'add' || operation === 'update') {

@@ -15,6 +15,8 @@ function AdvancedSettings(options) {
   View.apply(this, arguments);
   this._initEvents();
   this.initHeader();
+  this.calendarList = null;
+  this.accountList = null;
 }
 module.exports = AdvancedSettings;
 
@@ -93,17 +95,64 @@ AdvancedSettings.prototype = {
     this.standardAlarmLabel.addEventListener('change', this);
     this.alldayAlarmLabel.addEventListener('change', this);
     this.defaultCalendar.addEventListener('change', this);
+  },
 
-    this.accountStore = this.app.store('Account');
-    this.calendarStore = this.app.store('Calendar');
+  _getAccounts: function() {
+    return new Promise((resolve, reject) => {
+      var store = this.app.store('Account');
+      store.all().then((accounts) => {
+        this.accountList = accounts;
+        this._observeAccountStore();
+        resolve();
+      });
+    });
+  },
 
-    this.renderCalendarSelector =
-      this._renderCalendarSelector.bind(this);
-    this.accountStore.on('add', this.renderCalendarSelector);
-    this.accountStore.on('remove', this.renderCalendarSelector);
-    this.calendarStore.on('add', this.renderCalendarSelector);
-    this.calendarStore.on('remove', this.renderCalendarSelector);
-    this.calendarStore.on('update', this.renderCalendarSelector);
+  _getCalendars: function() {
+    return new Promise((resolve, reject) => {
+      var store = this.app.store('Calendar');
+      store.all().then((calendars) => {
+        this.calendarList = calendars;
+        this._observeCalendarStore();
+        resolve();
+      });
+    });
+  },
+
+  _observeAccountStore: function() {
+    var store = this.app.store('Account');
+    // account store events
+    store.on('add', this._dbListener.bind(this, 'account', 'add'));
+    store.on('remove', this._dbListener.bind(this, 'account', 'remove'));
+  },
+
+  _observeCalendarStore: function() {
+    var store = this.app.store('Calendar');
+    // calendar store events
+    store.on('add', this._dbListener.bind(this, 'calendar', 'add'));
+    store.on('update', this._dbListener.bind(this, 'calendar', 'update'));
+    store.on('remove', this._dbListener.bind(this, 'calendar', 'remove'));
+  },
+
+  _dbListener: function(dbName, operation, id, model) {
+    switch (dbName) {
+      case 'calendar':
+        if (operation === 'add' || operation === 'update') {
+          this.calendarList[id] = model;
+        } else if (operation === 'remove') {
+          delete this.calendarList[id];
+          this.app.store('Setting').set('defaultCalendar', Local.calendarId);
+        }
+        break;
+      case 'account':
+        if (operation === 'add') {
+          this.accountList[id] = model;
+        } else if (operation === 'remove') {
+          delete this.accountList[id];
+        }
+        break;
+    }
+    this._renderCalendarSelector();
   },
 
   _renderCalendarSelector: function() {
@@ -111,8 +160,8 @@ AdvancedSettings.prototype = {
     var key = '';
     var groupNode = null;
     var name = '';
-    for (key in this.accountStore._cached) {
-      name = this.accountStore._cached[key].preset;
+    for (key in this.accountList) {
+      name = this.accountList[key].preset;
       groupNode = document.createElement('optgroup');
       groupNode.setAttribute('name', name);
       groupNode.label = _('preset-' + name);
@@ -129,9 +178,9 @@ AdvancedSettings.prototype = {
     var accountNode = null;
     var optionNode = null;
     var calendar = null;
-    for (key in this.calendarStore._cached) {
-      calendar = this.calendarStore._cached[key];
-      accountName = this.accountStore._cached[calendar.accountId].preset;
+    for (key in this.calendarList) {
+      calendar = this.calendarList[key];
+      accountName = this.accountList[calendar.accountId].preset;
       accountSelector = 'optgroup[name="' + accountName + '"]';
       accountNode = this.defaultCalendar.querySelector(accountSelector);
 
@@ -147,6 +196,13 @@ AdvancedSettings.prototype = {
       optionNode.setAttribute('full-name', accountNode.label + ' - ' + name);
       accountNode.appendChild(optionNode);
     }
+    this.app.store('Setting').getValue('defaultCalendar', (err, value) => {
+      if (err) {
+        value = Local.calendarId;
+      }
+      this.defaultCalendar.value = value;
+      this._renderCalendarLocale(value);
+    });
   },
 
   handleSettingDbChange: function(type, value) {
@@ -155,7 +211,7 @@ AdvancedSettings.prototype = {
         this.syncFrequency.value = String(value);
         break;
       case 'defaultCalendarChange':
-        this._renderCalendarLocale(null, value);
+        this._renderCalendarLocale(value);
         break;
     }
   },
@@ -232,20 +288,11 @@ AdvancedSettings.prototype = {
     window.removeEventListener('keydown', this._keyDownHandler);
   },
 
-  _renderCalendarLocale: function(err, value) {
-    if (err) {
-      return;
-    }
+  _renderCalendarLocale: function(value) {
     var selector = 'option[value="' + value + '"]';
     var optionSelected = this.defaultCalendar.querySelector(selector);
-    if (optionSelected) {
-      this.defaultCalendarLocale.innerHTML =
-        optionSelected.getAttribute('full-name');
-    } else {
-      this.defaultCalendarLocale
-        .setAttribute('data-l10n-id', 'choose-default-calendar');
-    }
-    this.defaultCalendar.value = value;
+    this.defaultCalendarLocale.innerHTML =
+      optionSelected.getAttribute('full-name');
   },
 
   render: function() {
@@ -292,9 +339,13 @@ AdvancedSettings.prototype = {
     settings.getValue('syncFrequency', renderSyncFrequency);
     settings.getValue('standardAlarmDefault', renderAlarmDefault('standard'));
     settings.getValue('alldayAlarmDefault', renderAlarmDefault('allday'));
-    settings.getValue('defaultCalendar', this._renderCalendarLocale.bind(this));
 
-    this._renderCalendarSelector();
+    Promise.all([this._getAccounts(), this._getCalendars()]).then(() => {
+      this._renderCalendarSelector();
+    })
+    .catch((err) => {
+      return console.error('Error fetching datebase.', err);
+    });
   }
 };
 
