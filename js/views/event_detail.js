@@ -254,7 +254,8 @@ EventDetail.prototype = {
     this.rootElement.focus();
     this.rootElement.spatialNavigator.focus(location);
 
-    if (model.remote.attendees && model.remote.attendees.length > 0) {
+    if ((model.remote.attendees && model.remote.attendees.length > 0) ||
+        !this.isLocal) {
       SoftkeyHandler.register(this.rootElement, {
         lsk: {
           name: 'back',

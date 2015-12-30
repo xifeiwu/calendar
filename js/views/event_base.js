@@ -139,6 +139,11 @@ EventBase.prototype = {
     this.store.ownersOf(event, fetchOwners);
 
     function fetchOwners(err, owners) {
+      if (owners.account.providerType === 'Local') {
+        self.isLocal = true;
+      } else {
+        self.isLocal = false;
+      }
       self.originalCalendar = owners.calendar;
       self.provider = providerFactory.get(owners.account.providerType);
       self.provider.eventCapabilities(
