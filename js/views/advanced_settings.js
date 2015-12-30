@@ -245,6 +245,7 @@ AdvancedSettings.prototype = {
       this.defaultCalendarLocale
         .setAttribute('data-l10n-id', 'choose-default-calendar');
     }
+    this.defaultCalendar.value = value;
   },
 
   render: function() {
