@@ -385,26 +385,38 @@ SetupCalendar.prototype = {
     }
     var elements = this.localCalendars.querySelectorAll('li[tabindex="0"]');
     Array.prototype.slice.call(elements).forEach((element) => {
-      SoftkeyHandler.register(element, {
-        lsk: {
-          name: 'back',
-          action: () => {
-            this._goToAdvancedSettings();
+      var calendarId = element.getAttribute('calendar-id');
+      if (calendarId === Local.calendarId) {
+        SoftkeyHandler.register(element, {
+          lsk: {
+            name: 'back',
+            action: () => {
+              this._goToAdvancedSettings();
+            }
           }
-        },
-        dpe: {
-          name: 'rename',
-          action: () => {
-            this._popUpDialog('rename', element);
+        });
+      } else {
+        SoftkeyHandler.register(element, {
+          lsk: {
+            name: 'back',
+            action: () => {
+              this._goToAdvancedSettings();
+            }
+          },
+          dpe: {
+            name: 'rename',
+            action: () => {
+              this._popUpDialog('rename', element);
+            }
+          },
+          rsk: {
+            name: 'delete',
+            action: () => {
+              this._popUpDialog('delete', element);
+            }
           }
-        },
-        rsk: {
-          name: 'delete',
-          action: () => {
-            this._popUpDialog('delete', element);
-          }
-        }
-      });
+        });
+      }
     });
   },
 
