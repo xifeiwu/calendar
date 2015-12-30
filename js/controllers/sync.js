@@ -83,7 +83,6 @@ Sync.prototype = {
     if (this.app.offline()) {
       this.emit('offline');
       this.emit('syncComplete');
-      this.isRunning = false;
       return;
     }
 
@@ -92,16 +91,12 @@ Sync.prototype = {
     account.all(function(err, list) {
 
       for (var key in list) {
-        if (!this.isRunning) {
-          return console.warn('SyncController is canceled!!!');
-        }
         this.account(list[key]);
       }
 
       // If we have nothing to sync
       if (!this.pending) {
         this.emit('syncComplete');
-        this.isRunning = false;
       }
 
     }.bind(this));
