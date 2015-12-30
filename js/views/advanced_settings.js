@@ -169,6 +169,10 @@ AdvancedSettings.prototype = {
         this.defaultCalendar.insertBefore(groupNode,
           this.defaultCalendar.firstChild);
       } else {
+        // XXX: ignore online account for now
+        if (!this.app.isOnlineModificationEnable()) {
+          continue;
+        }
         this.defaultCalendar.appendChild(groupNode);
       }
     }
@@ -181,6 +185,10 @@ AdvancedSettings.prototype = {
     for (key in this.calendarList) {
       calendar = this.calendarList[key];
       accountName = this.accountList[calendar.accountId].preset;
+      // XXX: ignore online calendar for now
+      if (accountName !== 'local' && !this.app.isOnlineModificationEnable()) {
+        continue;
+      }
       accountSelector = 'optgroup[name="' + accountName + '"]';
       accountNode = this.defaultCalendar.querySelector(accountSelector);
 
