@@ -407,7 +407,7 @@ ModifyAccount.prototype = {
     var params = data.params;
     var changeToken = ++this._changeToken;
 
-    this.completeUrl = '/settings/';
+    this.completeUrl = '/setup-calendar/';
 
     var self = this;
 
