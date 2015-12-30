@@ -103,8 +103,12 @@ Month.prototype = {
       currentDate = dateFromId(currentFocus.dataset.date);
       debug('currentFocus:' + currentFocus.dataset.date);
     }
-    if (this.app.timeController.selectedDay && currentDate &&
-        !isSameDate(this.app.timeController.selectedDay, currentDate)) {
+    if (currentDate) {
+      if (this.app.timeController.selectedDay &&
+          !isSameDate(this.app.timeController.selectedDay, currentDate)) {
+        this._goToDay('local-day', this.app.timeController.selectedDay);
+      }
+    } else {
       this._goToDay('local-day', this.app.timeController.selectedDay);
     }
   },
