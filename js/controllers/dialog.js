@@ -60,6 +60,13 @@ DialogController.prototype = {
       this.emit('blur');
     }.bind(this));
 
+    this.dialog.dialogTextInput.addEventListener('blur', function(evt) {
+      if (DEBUG) {
+        console.log('DialogController blur');
+      }
+      this.emit('input-blur');
+    }.bind(this));
+
     this.dialog.open({
       header: option.header || '',
       dialogType: option.dialogType || 'prompt',

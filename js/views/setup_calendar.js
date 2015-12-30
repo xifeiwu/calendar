@@ -225,6 +225,10 @@ SetupCalendar.prototype = {
     this.dialogController.once('closed', () => {
       this.rootElement.focus();
     });
+    this.dialogController.once('input-blur', () => {
+      this.dialogController.close();
+      this.rootElement.focus();
+    });
     this.dialogController.show(option);
   },
 
