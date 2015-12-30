@@ -79,7 +79,10 @@
 }
 
 
-#modify-account-view.auth-oauth2.create .oauth2-sign-in,
+#modify-account-view.auth-oauth2.create .oauth2-sign-in {
+  display: none;
+}
+
 #modify-account-view.auth-oauth2.error .sync-errors,
 #modify-account-view.auth-oauth2.error .oauth2-sign-in {
   display: block;

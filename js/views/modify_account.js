@@ -253,7 +253,6 @@ ModifyAccount.prototype = {
     }
 
     var self = this;
-    this.oauth2Window.classList.add(View.ACTIVE);
 
     navigator.mozApps.getSelf().onsuccess = function(e) {
       var app = e.target.result;
@@ -294,7 +293,6 @@ ModifyAccount.prototype = {
     });
 
     var oauth = this._oauthDialog = new OAuthWindow(
-      this.oauth2Window,
       apiCredentials.authorizationUrl,
       params
     );
