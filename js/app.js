@@ -165,6 +165,15 @@ module.exports = {
   },
 
   /**
+   * To check the ability of modification to online account
+   * TODO: For now, we just disable this feature since these
+   * functions are not ready.
+   */
+  isOnlineModificationEnable: function() {
+    return false;
+  },
+
+  /**
    * Internally restarts the application.
    */
   forceRestart: function() {
