@@ -244,6 +244,10 @@ ModifyEvent.prototype = {
       if (name === 'local') {
         calendarListNode.insertBefore(groupNode, calendarListNode.firstChild);
       } else {
+        // XXX: ignore online account for now
+        if (!this.app.isOnlineModificationEnable()) {
+          continue;
+        }
         calendarListNode.appendChild(groupNode);
       }
     }
@@ -252,6 +256,10 @@ ModifyEvent.prototype = {
     for (key in this.calendarList) {
       var calendar = this.calendarList[key];
       var accountName = this.accountList[calendar.accountId].preset;
+      // XXX: ignore online calendar for now
+      if (accountName !== 'local' && !this.app.isOnlineModificationEnable()) {
+        continue;
+      }
 
       optionNode = document.createElement('option');
       optionNode.value = calendar._id;
