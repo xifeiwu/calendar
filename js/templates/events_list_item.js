@@ -13,6 +13,8 @@ var colors = [
 var EventsListItem = create({
   event: function() {
     var busytimeId = this.h('busytimeId');
+    var eventId = this.h('eventId');
+    var calendarId = this.h('calendarId');
 
     var color = colors[Math.floor(Math.random() * 20)];
     var indicator = `
@@ -42,7 +44,8 @@ var EventsListItem = create({
       </div>`;
 
     var content = `
-      <li tabindex="0" class="sk-events-list-item" busytimeId="${busytimeId}">
+      <li tabindex="0" busytimeId="${busytimeId}" eventId="${eventId}"
+        calendarId="${calendarId}">
         <div class="event">
           ${indicator} ${eventTime} ${eventDetails}
         </span>

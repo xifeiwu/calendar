@@ -122,10 +122,13 @@ EventsList.prototype = {
         if (!this.isDialogOpened) {
           var element = document.activeElement;
           if (!!element && element.hasAttribute('busytimeId')) {
-            element.setAttribute('cacheFocus','');
-            this.busytimeId = element.getAttribute('busytimeId');
-            this.lastFocusedEvent = element;
-            this._showOptionMenu();
+            // XXX: only support options for local events for now
+            if (element.getAttribute('providerType') === 'Local') {
+              element.setAttribute('cacheFocus','');
+              this.busytimeId = element.getAttribute('busytimeId');
+              this.lastFocusedEvent = element;
+              this._showOptionMenu();
+            }
           } else {
             this.busytimeId = null;
           }
@@ -334,6 +337,35 @@ EventsList.prototype = {
       .map(this._renderEvent, this)
       .join('');
     this.findAndFocus();
+
+    var fetchOwners = function(ele) {
+      return new Promise((resolve, reject) => {
+        this.store.ownersOf(ele.getAttribute('calendarId'),
+          function (err, owners) {
+            if (err) {
+              return console.error('fetch owners error: ' + err);
+            }
+            ele.setAttribute('providerType', owners.account.providerType);
+            // XXX: hide options for non-local events for now
+            if (owners.account.providerType === 'Local') {
+              ele.classList.add('sk-events-list-item');
+            } else {
+              ele.classList.add('sk-events-list-item-online');
+            }
+          });
+        resolve();
+      });
+    }.bind(this);
+
+    var promises = [];
+    var elements = this.events.querySelectorAll('li');
+    for (var i = 0; i < elements.length; i++) {
+      promises.push(fetchOwners(elements[i]));
+    }
+
+    Promise.all(promises).then(() => {
+      console.log('Finish updating all events.');
+    });
   },
 
   _renderEvent: function(record) {
@@ -342,6 +374,8 @@ EventsList.prototype = {
     this.records[busytime._id] = event;
 
     return template.event.render({
+      eventId: event._id,
+      calendarId: event.calendarId,
       busytimeId: busytime._id,
       title: event.remote.title,
       startTime: startDate,
