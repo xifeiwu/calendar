@@ -81,16 +81,33 @@ MonthDayAgenda.prototype = {
   },
 
   _render: function(records) {
-    // we should always render allday events at the top 
-    // and display the first one
-    var eventToDisplay = records.allday.concat(records.basic)
-      .map(this._renderEvent, this);
+    // we should always display the first added all-day event
+    // if there are no all-day events, display the first added basic event
+    var basicMin = findMin(records.basic);
+    var alldayMin = findMin(records.allday);
 
+    var events = [];
+
+    !!alldayMin ? events.push(alldayMin) : (!!basicMin ?
+                                            events.push(basicMin) : () => {});
+
+    var eventToDisplay = events.map(this._renderEvent, this);
     this.events.innerHTML = eventToDisplay[0];
-
     this.emptyMessage.classList.toggle('active', records.amount === 0);
 
     performance.monthsDayReady();
+
+    function findMin(arr) {
+      var min = Infinity;
+      var minOb;
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].event.remote.timeStamp < min) {
+          minOb = arr[i];
+          min = arr[i].event.remote.timeStamp;
+        }
+      }
+      return minOb;
+    }
   },
 
   _renderEvent: function(record) {
