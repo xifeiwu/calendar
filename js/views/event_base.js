@@ -339,22 +339,24 @@ EventBase.prototype = {
       this._loadModel(id, completeDispatch);
       this.editType = editType;
     } else {
-      classList.add(this.CREATE);
-
-      var controller = this.app.timeController;
-      this.event = this._createModel(controller.mostRecentDay);
-      this._updateUI();
-      this.app.store('Setting').getValue('defaultCalendar',
-        (err, value) => {
-          if (err) {
-            return console.error('get defaultCalendar fail:' + err);
+      if (/^\/event\/add\//.test(router.canonicalPath)) {
+        classList.add(this.CREATE);
+        var controller = this.app.timeController;
+        this.event = this._createModel(controller.mostRecentDay);
+        this._updateUI();
+        this.app.store('Setting').getValue('defaultCalendar',
+          (err, value) => {
+            if (err) {
+              return console.error('get defaultCalendar fail:' + err);
+            }
+            this.event.calendarId = value;
+            this._updateUI();
           }
-          this.event.calendarId = value;
-          this._updateUI();
-        }
-      );
-
-      nextTick(completeDispatch);
+        );
+        nextTick(completeDispatch);
+      } else if (/^\/event\/list\//.test(router.canonicalPath)) {
+        nextTick(completeDispatch);
+      }
     }
 
   },
