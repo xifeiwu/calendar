@@ -38,7 +38,6 @@ SetupCalendar.prototype = {
     createAccount: '#setup-calendar-view .sk-add-account',
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',
     localCalendars: '#setup-calendar-view .local-calendars',
-    accountItem: '.sk-account',
     errors: '#setup-calendar-view .errors',
     status: '#setup-calendar-view section[role="status"]',
     notices: '#setup-calendar-view .notices'
@@ -54,10 +53,6 @@ SetupCalendar.prototype = {
 
   get accountList() {
     return this._findElement('accountList');
-  },
-
-  get accountItem() {
-    return this._findElement('accountItem');
   },
 
   get addLocalCalendar() {
@@ -494,10 +489,8 @@ SetupCalendar.prototype = {
       this.accountList.children[idx].classList.add('error');
     }
 
-    // TODO:
-    // Using accountItem to indicate an account item is not
-    // a good way.
-    SoftkeyHandler.register(this.accountItem, {
+    var accountElement = document.getElementById('account-' + id);
+    SoftkeyHandler.register(accountElement, {
       lsk: {
         name: 'back',
         action: () => {

@@ -17,8 +17,7 @@ module.exports = create({
     var id = this.h('id');
     var preset = this.h('preset');
     var user = this.h('user');
-    return `<li id="account-${id}" role="presentation" 
-      tabindex="0" class="sk-account">
+    return `<li id="account-${id}" role="presentation" tabindex="0">
       <span class="preset" data-l10n-id="preset-${preset}"></span>
       <span class="user">${user}</span>
       </li>`;

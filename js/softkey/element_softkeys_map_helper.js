@@ -41,9 +41,6 @@
         },
         'sk-events-list-item-online': {
           keys: {lsk: 'back', dpe: 'view'}
-        },
-        'sk-account': {
-          keys: {lsk: 'back', rsk: 'remove'}
         }
       },
       attributes: {
