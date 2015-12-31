@@ -1,3 +1,4 @@
+/* global SoftkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -256,7 +257,9 @@ Month.prototype = {
           }
           break;
         case 'AcaSoftLeft':
-          this._goToAddEvent();
+          if (!this.app.syncController.isRunning) {
+            this._goToAddEvent();
+          }
           evt.preventDefault();
           break;
         case 'Enter':
@@ -330,7 +333,9 @@ Month.prototype = {
     });
     this.app.optionMenuController.once('closed', function() {
       if (document.activeElement.getAttribute('id') !==
-          'month-view-date-picker') {
+          'month-view-date-picker' &&
+          document.activeElement.getAttribute('id') !==
+          'progress-indicator') {
         navigationHandler.getCurItem().focus();
         document.querySelector('#time-views').classList.
           remove('option-menu-bg');
@@ -357,6 +362,23 @@ Month.prototype = {
           if (this.app.offline()) {
             this.app.toast.show({message: _('error-offline')});
           } else {
+            var progress = document.getElementById('progress-indicator');
+            this.app.syncController.once('syncStart', function() {
+              progress.focus();
+              SoftkeyHandler.register(progress, {
+                lsk: {
+                  name: 'cancel',
+                  action: () => {
+                    this.app.syncController.interrupt();
+                  }
+                },
+                dpe: {},
+                rsk: {}
+              });
+            }.bind(this));
+            this.app.syncController.once('syncComplete', function() {
+              navigationHandler.getCurItem().focus();
+            }.bind(this));
             this.app.syncController.all();
           }
           break;
