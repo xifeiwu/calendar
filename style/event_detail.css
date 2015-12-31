@@ -176,4 +176,8 @@ li.current-calendar div.indicator{
 
 #event-detail-invitees {
   line-height: 2.1rem;
+  width: 100%;
+  word-break: break-all;
+  white-space: pre-line;
+  display: block;
 }
