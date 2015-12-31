@@ -113,11 +113,10 @@ Sync.prototype = {
     var store = this.app.store('Calendar');
     var self = this;
 
+    this._incrementPending();
     if (!this.isRunning) {
       return console.warn('SyncController is canceled!!!');
     }
-
-    this._incrementPending();
     store.sync(account, calendar, err => {
       self._resolvePending();
       this.handleError(err, callback);
