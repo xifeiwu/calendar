@@ -130,6 +130,7 @@ Router.prototype = {
       // jank while styles start to apply and the view is only
       // partially loaded.
       if (options.path !== false) {
+        self.canonicalPath = ctx.canonicalPath;
         document.body.dataset.path = ctx.canonicalPath;
         // Need to trigger the DOM to accept the new style
         // right away. Otherwise, once manageObject is called,

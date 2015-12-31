@@ -258,7 +258,7 @@ Month.prototype = {
           break;
         case 'AcaSoftLeft':
           if (!this.app.syncController.isRunning) {
-            this._goToAddEvent();
+            router.go('/event/add/');
           }
           evt.preventDefault();
           break;
@@ -305,7 +305,7 @@ Month.prototype = {
       case 'dbltap':
         // make sure we discard double taps that started on a different day
         if (this._lastTarget === target) {
-          this._goToAddEvent();
+          router.go('/event/add/');
         }
         break;
       case 'monthChange':
@@ -388,15 +388,6 @@ Month.prototype = {
     this.app.optionMenuController.show({
       items: items
     });
-  },
-
-  _goToAddEvent: function(date) {
-    // slight delay to avoid tapping the elements inside the add event screen
-    setTimeout(() => {
-      // don't need to set the date since the first tap triggers a click that
-      // sets the  timeController.selectedDay
-      router.go('/event/add/');
-    }, 50);
   },
 
   changeDate: function(time) {
