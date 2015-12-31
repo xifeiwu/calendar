@@ -666,7 +666,8 @@ ModifyEvent.prototype = {
     this.getEl('title').value = model.title;
     this.getEl('location').value = model.location;
     var dateSrc = model;
-    if (model.remote.isRecurring && this.busytime) {
+    if (model.remote.isRecurring && this.busytime &&
+        this.editType === 'edit-this-only') {
       dateSrc = this.busytime;
     }
 
@@ -697,7 +698,11 @@ ModifyEvent.prototype = {
     var endTimeLocale = document.getElementById('end-time-locale');
     this._renderDateTimeLocale(endTimeLocale, endDate);
 
-    this.getEl('repeat').value = model.repeat;
+    if (this.editType === 'edit-this-only') {
+      this.getEl('repeat').value = 'never';
+    } else {
+      this.getEl('repeat').value = model.repeat;
+    }
 
     this.getEl('description').innerHTML = model.description;
 
