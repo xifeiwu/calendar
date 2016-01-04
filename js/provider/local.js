@@ -104,7 +104,10 @@ Local.prototype = {
           new Date(event.remote.startDate).getDate();
         break;
       case 'every-year':
-        rule = 'FREQ=YEARLY;INTERVAL=1';
+        // XXX: Since ical.js cannot handle 2.29 in leap year with YEARLY,
+        // so use 12*month here instead of YEARLY as a workaround.
+        rule = 'FREQ=MONTHLY;INTERVAL=12;BYMONTHDAY=' +
+          new Date(event.remote.startDate).getDate();
         break;
     }
     var tzid = jstz.determine().name();
