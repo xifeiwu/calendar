@@ -63,7 +63,8 @@ ModifyEvent.prototype = {
     this.deleteButton.addEventListener('click', this.deleteRecord);
     this.form.addEventListener('click', this.focusHandler);
     this.form.addEventListener('submit', this.primary);
-
+    var calEvent = this.getEl('calendarId');
+    calEvent.addEventListener('change',this.calendarDis.bind(this));
     var allday = this.getEl('allday');
     allday.addEventListener('change', this._toggleAllDay);
 
@@ -708,6 +709,7 @@ ModifyEvent.prototype = {
 
     // update calendar id
     this.getEl('calendarId').value = model.calendarId;
+    this.calendarDis();
 
     // calendar display
     var currentCalendar = this.getEl('currentCalendar');
@@ -720,6 +722,22 @@ ModifyEvent.prototype = {
     }
 
     this.updateAlarms(model.isAllDay);
+  },
+
+  calendarDis: function () {
+    var _calId = this.getEl('calendarId').value;
+    var calStore = this.app.store('Calendar');
+    var self = this;
+    calStore.ownersOf(_calId, function (err, owners) {
+      if (err) {
+        return console.error(err);
+      }
+      var disSpan = self.element.querySelector('#calendarIdSpan');
+      disSpan.textContent = _('account-calendar-format', {
+        account: _('preset-' + owners.account.preset),
+        calendar: owners.calendar.remote.name
+      });
+    });
   },
 
   /**

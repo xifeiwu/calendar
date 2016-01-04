@@ -193,3 +193,15 @@ h5-check-box[focused] {
 #modify-event-view li.notes h5-input-wrapper [contentEditable] {
   line-height: 2.1rem !important;
 }
+
+#modify-event-view select[name="calendarId"] {
+  position: absolute;
+  z-index: -1;
+}
+
+#modify-event-view #calendarIdSpan {
+  color: var(--highlight-color);
+  display: block;
+  width: 32rem;
+  border-bottom: 0.1rem solid var(--secondary-info-color);
+}
