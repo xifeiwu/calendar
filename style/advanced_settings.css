@@ -51,9 +51,10 @@
   display: block;
   font-size: 2.1rem;
   color: var(--highlight-color);
-  padding: 5px 0px 3px 0px !important;
+  padding: 0.5rem 0 0.3rem 0 !important;
   border-bottom: 1px var(--secondary-info-color) solid;
-  white-space: normal;
   word-wrap: break-word;
   word-break: break-all;
+  width: 28rem;
+  white-space: nowrap;
 }

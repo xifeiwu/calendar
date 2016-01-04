@@ -97,39 +97,44 @@ li.current-calendar div.indicator{
   line-height: 2.1rem;
 }
 
-.event-detail-current-calendar-div {
+#event-detail-view .event-detail-current-calendar-div {
   float: left;
   height: 8.2rem;
   padding-left: 1rem;
 }
 
-.event-detail-current-calendar-div-top {
-  position: absolute;
-  top: 25%;
+#event-detail-view .event-detail-current-calendar-div-top {
+  padding-top: 2.5rem;
   color: var(--color-gs65);
+}
+
+#event-detail-view #event-detail-current-calendar {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 2.1rem;
+  white-space: nowrap;
 }
 
 .event-detail-current-calendar-div-bot {
-  position: absolute;
-  top: 50%;
+  width: 28rem;
   color: var(--color-gs00);
 }
 
-.event-detail-alarms-div-top {
+#event-detail-view .event-detail-alarms-div-top {
+  color: var(--color-gs65);
+}
+
+#event-detail-view .event-detail-alarms-div-bot {
+  color: var(--color-gs00);
+}
+
+#event-detail-view .event-detail-description-div-top {
   padding-top: 1rem;
   color: var(--color-gs65);
 }
 
-.event-detail-alarms-div-bot {
-  color: var(--color-gs00);
-}
-
-.event-detail-description-div-top {
-  padding-top: 1rem;
-  color: var(--color-gs65);
-}
-
-.event-detail-description-div-bot {
+#event-detail-view .event-detail-description-div-bot {
   color: var(--color-gs00);
 }
 
