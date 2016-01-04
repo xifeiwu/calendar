@@ -117,7 +117,8 @@ Create.prototype = {
           var alarm = {
             startDate: {
               offset: this.busytime.start.offset,
-              utc: this.busytime.start.utc + (alarms[i].trigger * 1000)
+              utc: this.busytime.start.utc + (alarms[i].trigger * 1000),
+              tzid: this.busytime.start.tzid
             },
             eventId: this.busytime.eventId,
             busytimeId: this.busytime._id
