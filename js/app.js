@@ -198,6 +198,7 @@ module.exports = {
     router.state('/event/edit/:id/:editType', 'ModifyEvent');
     router.state('/event/show/:id', 'ViewEvent');
     router.state('/event/list/', 'EventsList');
+    router.state('/event/list/:id', 'EventsList');
     router.state('/event/detail/:id', 'EventDetail');
     router.modifier('/account/detail/:id', 'AccountDetail');
 

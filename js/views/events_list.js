@@ -86,11 +86,26 @@ EventsList.prototype = {
       var events = this.events.querySelectorAll('li');
 
       if (events && events.length > 0) {
-        if (this.lastFocusedEvent &&
-            this.events.contains(this.lastFocusedEvent)) {
-          this.lastFocusedEvent.focus();
-        } else {
-          events[0].focus();
+        var found = false;
+        if (this.busytimeId) {
+          for (var i = 0; i < events.length; i++) {
+            if (events[i].getAttribute('busytimeId') ===
+                this.busytimeId) {
+              events[i].focus();
+              found = true;
+              this.busytimeId = null;
+              break;
+            }
+          }
+        }
+
+        if (!found) {
+          if (this.lastFocusedEvent &&
+              this.events.contains(this.lastFocusedEvent)) {
+            this.lastFocusedEvent.focus();
+          } else {
+            events[0].focus();
+          }
         }
       }
     } else {

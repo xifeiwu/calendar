@@ -260,7 +260,7 @@ EventDetail.prototype = {
         lsk: {
           name: 'back',
           action: () => {
-            router.go('/event/list/');
+            router.go('/event/list/' + this.busytimeId);
           }
         },
         dpe: {},
@@ -271,7 +271,7 @@ EventDetail.prototype = {
         lsk: {
           name: 'back',
           action: () => {
-            router.go('/event/list/');
+            router.go('/event/list/' + this.busytimeId);
           }
         },
         dpe: {
