@@ -278,19 +278,19 @@ EventBase.prototype = {
     this.busytimeId = null;
   },
 
-  deleteEvent: function(deleteSingleOnly, callback) {
-    dayObserver.findAssociated(this.busytimeId).then(record => {
+  deleteEvent: function(deleteSingleOnly, busytimeId, callback) {
+    dayObserver.findAssociated(busytimeId).then(record => {
       if (deleteSingleOnly && record.event.remote.isRecurring) {
         this.deleteController.deleteLocalBusytime(
           record.event,
-          this.busytimeId,
+          busytimeId,
           callback
         );
       } else {
         this.deleteController.deleteEvent(record.event, callback);
       }
     }).catch(() => {
-      console.error('Error deleting records for id: ', this.busytimeId);
+      console.error('Error deleting records for id: ', busytimeId);
     });
   },
 

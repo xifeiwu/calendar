@@ -93,14 +93,16 @@ EventDetail.prototype = {
           name: 'delete',
           action: () => {
             this.dialogController.close();
-            this.deleteEvent(deleteSingleOnly, function(err, evt) {
-              if (err) {
-                console.error('Delete failed: ' + JSON.stringify(evt));
-              } else {
-                console.error('Delete successfully: ' + JSON.stringify(evt));
-              }
-              router.go(this.returnTo());
-            }.bind(this));
+            this.deleteEvent(deleteSingleOnly, this.busytimeId,
+              function(err, evt) {
+                if (err) {
+                  console.error('Delete failed: ' + JSON.stringify(evt));
+                } else {
+                  console.error('Delete successfully: ' + JSON.stringify(evt));
+                }
+                router.go(this.returnTo());
+              }.bind(this)
+            );
           }
         }
       }

@@ -20,7 +20,7 @@ function EventsList(options) {
   this.optionMenuController = this.app.optionMenuController;
   this.dialogController = this.app.dialogController;
   this.store = this.app.store('Event');
-  this.busytimeId = null;
+  this.selBusytimeId = null;
   this.lastFocusedEvent = null;
   this.recordsCount = 0;
   // key => busytimeId, value => event
@@ -120,10 +120,10 @@ EventsList.prototype = {
         if (!this.isDialogOpened) {
           var eventElement = document.activeElement;
           if (!!eventElement && eventElement.hasAttribute('busytimeId')) {
-            this.busytimeId = eventElement.getAttribute('busytimeId');
-            router.go('/event/detail/' + this.busytimeId);
+            this.selBusytimeId = eventElement.getAttribute('busytimeId');
+            router.go('/event/detail/' + this.selBusytimeId);
           } else {
-            this.busytimeId = null;
+            this.selBusytimeId = null;
           }
         }
         break;
@@ -140,12 +140,12 @@ EventsList.prototype = {
             // XXX: only support options for local events for now
             if (element.getAttribute('providerType') === 'Local') {
               element.setAttribute('cacheFocus','');
-              this.busytimeId = element.getAttribute('busytimeId');
+              this.selBusytimeId = element.getAttribute('busytimeId');
               this.lastFocusedEvent = element;
               this._showOptionMenu();
             }
           } else {
-            this.busytimeId = null;
+            this.selBusytimeId = null;
           }
         }
         break;
@@ -178,7 +178,7 @@ EventsList.prototype = {
       title: _('edit'),
       key: 'edit'
     };
-    if (this.records[this.busytimeId].remote.isRecurring) {
+    if (this.records[this.selBusytimeId].remote.isRecurring) {
       deleteItem.options = {
         header: _('repeat-event-header'),
         items: [
@@ -220,19 +220,19 @@ EventsList.prototype = {
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
-      if (!this.busytimeId) {
+      if (!this.selBusytimeId) {
         return console.error('Illegal busytimeId!');
       }
 
       switch(optionKey) {
         case 'edit':
-          router.go('/event/edit/' + this.busytimeId);
+          router.go('/event/edit/' + this.selBusytimeId);
           break;
         case 'edit-this-only':
-          router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
+          router.go('/event/edit/' + this.selBusytimeId + '/edit-this-only');
           break;
         case 'edit-all':
-          router.go('/event/edit/' + this.busytimeId + '/edit-all');
+          router.go('/event/edit/' + this.selBusytimeId + '/edit-all');
           break;
         case 'delete':
         case 'delete-all':
@@ -251,14 +251,16 @@ EventsList.prototype = {
                 name: 'delete',
                 action: () => {
                   this.dialogController.close();
-                  this.deleteEvent(false, function(err, evt) {
-                    if (err) {
-                      console.error('Delete failed: ' + JSON.stringify(evt));
-                    } else {
-                      console.error('Delete successfully: ' +
-                        JSON.stringify(evt));
+                  this.deleteEvent(false, this.selBusytimeId,
+                    function(err, evt) {
+                      if (err) {
+                        console.error('Delete failed: ' + JSON.stringify(evt));
+                      } else {
+                        console.error('Delete successfully: ' +
+                          JSON.stringify(evt));
+                      }
                     }
-                  });
+                  );
                 }
               }
             }
@@ -280,14 +282,16 @@ EventsList.prototype = {
                 name: 'delete',
                 action: () => {
                   this.dialogController.close();
-                  this.deleteEvent(true, function(err, evt) {
-                    if (err) {
-                      console.error('Delete failed: ' + JSON.stringify(evt));
-                    } else {
-                      console.error('Delete successfully: ' +
-                        JSON.stringify(evt));
+                  this.deleteEvent(true, this.selBusytimeId,
+                    function(err, evt) {
+                      if (err) {
+                        console.error('Delete failed: ' + JSON.stringify(evt));
+                      } else {
+                        console.error('Delete successfully: ' +
+                          JSON.stringify(evt));
+                      }
                     }
-                  });
+                  );
                 }
               }
             }
