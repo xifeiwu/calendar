@@ -94,6 +94,7 @@ li.current-calendar div.indicator{
 
 #event-detail-view li.alarms {
   padding-left: 1.4rem;
+  line-height: 2.1rem;
 }
 
 .event-detail-current-calendar-div {
@@ -115,14 +116,11 @@ li.current-calendar div.indicator{
 }
 
 .event-detail-alarms-div-top {
-  position: absolute;
-  top: 25%;
+  padding-top: 1rem;
   color: var(--color-gs65);
 }
 
 .event-detail-alarms-div-bot {
-  position: absolute;
-  top: 50%;
   color: var(--color-gs00);
 }
 
