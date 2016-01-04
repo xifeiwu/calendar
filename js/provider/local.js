@@ -100,7 +100,8 @@ Local.prototype = {
         rule = 'FREQ=WEEKLY;INTERVAL=2';
         break;
       case 'every-month':
-        rule = 'FREQ=MONTHLY;INTERVAL=1';
+        rule = 'FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=' +
+          new Date(event.remote.startDate).getDate();
         break;
       case 'every-year':
         rule = 'FREQ=YEARLY;INTERVAL=1';
