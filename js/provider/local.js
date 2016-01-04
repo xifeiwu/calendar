@@ -222,6 +222,20 @@ Local.prototype = {
     }
 
     var update = mutations.update({ event: event });
+    if (event.remote.isRecurring) {
+      update.icalComponent = {
+        calendarId: event.calendarId,
+        eventId: event.calendarId + '-' + event.remote.id,
+        lastRecurrenceId: {
+          tzid: jstz.determine().name(),
+          offset: 0,
+          utc: event.remote.start.utc,
+          isDate: true
+        },
+        ical: this.jointIcal(event)
+      };
+      update.excludeBusy = true;
+    }
     update.commit(function(err) {
       if (err) {
         return callback(err);
