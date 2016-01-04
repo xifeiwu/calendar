@@ -102,7 +102,7 @@ div#events-list-agenda::after {
   width: 23rem;
   font-size: 2.1rem;
   min-height: 8.2rem;
-  color: var(--color-gs00);
+  color: var(--color-gs20);
   display: flex;
   flex-direction: row;
   align-items: center;

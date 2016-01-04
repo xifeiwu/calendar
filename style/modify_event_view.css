@@ -166,7 +166,7 @@ gaia-header#modify-event-header {
 #all-day-event-checkbox-label {
   margin-left: 5rem;
   font-size: 2.1rem;
-  color: var(--color-gs00);
+  color: var(--color-gs20);
 }
 
 h5-check-box[focused] {
