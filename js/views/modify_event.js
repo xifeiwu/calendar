@@ -341,11 +341,13 @@ ModifyEvent.prototype = {
 
     var self = this;
     var provider;
+    var calendar;
 
     this.store.providerFor(this.event, fetchProvider);
 
-    function fetchProvider(err, result) {
+    function fetchProvider(err, result, owners) {
       provider = result;
+      calendar = owners.calendar;
       provider.eventCapabilities(
         self.event.data,
         verifyCaps
@@ -371,6 +373,7 @@ ModifyEvent.prototype = {
       list.add(self.PROGRESS);
 
       var moveDate = self.event.startDate;
+      self.event.remote.color = calendar.remote.color;
 
       var callback = function(err, busytimeOrId) {
         list.remove(self.PROGRESS);
