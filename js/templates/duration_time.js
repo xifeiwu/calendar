@@ -47,14 +47,12 @@ module.exports = create({
 
     if (isRecurring) {
       // convert startDate and endDate to current selected Date
-      var _offset = endDate.getTime() - startDate.getTime();
       startDate.setFullYear(selectedDate.getFullYear());
       startDate.setMonth(selectedDate.getMonth());
       startDate.setDate(selectedDate.getDate());
       endDate.setFullYear(selectedDate.getFullYear());
       endDate.setMonth(selectedDate.getMonth());
       endDate.setDate(selectedDate.getDate());
-      endDate.setTime(endDate.getTime() + _offset);
     }
 
     if (isAllDay) {
