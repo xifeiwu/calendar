@@ -355,10 +355,20 @@ module.exports = {
 
       var rect = elem.getBoundingClientRect();
       var containerRect = viewContainer.getBoundingClientRect();
-      if (rect.top < containerRect.top + 30) {
+      var DISTANCE = 5;
+      // Height of a separator
+      var SEP_HEIGHT = 30;
+
+      // When elements cannot be shown completely due to the viewport height,
+      // following codes help to scroll the container element up/downwards.
+      if (rect.top < containerRect.top + SEP_HEIGHT) {
         // 30 padding for separator
-        viewContainer.scrollTop -= (containerRect.top - rect.top + 30);
-      } else if (rect.bottom > containerRect.bottom) {
+        viewContainer.scrollTop -= (containerRect.top - rect.top + SEP_HEIGHT);
+      } else if (rect.bottom > containerRect.bottom -
+                 Math.ceil(containerRect.height/DISTANCE)) {
+        // For some cases the difference between rect.bottom
+        // and containerRect.bottom are too small to distinguish,
+        // thus containerRect.height/DISTANCE is introduced.
         viewContainer.scrollTop += (rect.bottom - containerRect.bottom);
       }
 
@@ -369,11 +379,13 @@ module.exports = {
         }
         var rect = elem.getBoundingClientRect();
         var containerRect = viewContainer.getBoundingClientRect();
-        if (rect.top < containerRect.top + 30) {
-          viewContainer.scrollTop -= (containerRect.top - rect.top + 30);
-        } else if (rect.bottom > containerRect.bottom) {
-          viewContainer.scrollTop +=
-            (rect.bottom - containerRect.bottom);
+        var DISTANCE = 5;
+        if (rect.top < containerRect.top + SEP_HEIGHT) {
+          viewContainer.scrollTop -=
+            (containerRect.top - rect.top + SEP_HEIGHT);
+        } else if (rect.bottom > containerRect.bottom -
+                   Math.ceil(containerRect.height/DISTANCE)) {
+          viewContainer.scrollTop += (rect.bottom - containerRect.bottom);
         }
       });
     }
