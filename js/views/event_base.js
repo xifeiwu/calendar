@@ -248,14 +248,8 @@ EventBase.prototype = {
   },
 
   _setDefaultHour: function(date) {
-    if (isToday(date)) {
-      var now = new Date();
-      // events created today default to begining of the next hour
-      date.setHours(now.getHours() + 1, 0, 0, 0);
-    } else {
-      // events created on other days default to 8AM
-      date.setHours(8, 0, 0, 0);
-    }
+    var now = new Date();
+    date.setHours(now.getHours() + 1, 0, 0, 0);
   },
 
   /**
