@@ -364,6 +364,7 @@ EventsList.prototype = {
       calendarId: event.calendarId,
       busytimeId: busytime._id,
       title: event.remote.title,
+      color: event.remote.color,
       startTime: startDate,
       endTime: endDate,
       isAllDay: isAllDay(this.date, startDate, endDate)

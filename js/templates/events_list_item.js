@@ -3,20 +3,14 @@ define(function(require, exports, module) {
 
 var DateSpan = require('./date_span');
 var create = require('template').create;
-var colors = [
-  '#6115BF', '#7515BF', '#9115BF', '#A115BF', '#154DBF',
-  '#1531BF', '#2515BF', '#3D15BF', '#12CBC4', '#12A2CB',
-  '#1585BF', '#1579BF', '#2CCB12', '#12CB46', '#12CB7A',
-  '#12CBA6', '#D6CF1B', '#B9D713', '#94D713', '#66D713'
-];
 
 var EventsListItem = create({
   event: function() {
     var busytimeId = this.h('busytimeId');
     var eventId = this.h('eventId');
     var calendarId = this.h('calendarId');
+    var color = this.h('color');
 
-    var color = colors[Math.floor(Math.random() * 20)];
     var indicator = `
       <div class="indicator" style="background-color: ${color}">
       </div>`;

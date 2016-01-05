@@ -66,7 +66,8 @@ Events.prototype = {
    */
   providerFor: function(event, callback) {
     this.ownersOf(event, function(err, owners) {
-      callback(null, providerFactory.get(owners.account.providerType));
+      callback(null, providerFactory.get(owners.account.providerType),
+        owners/* export account and calendar */);
     });
   },
 

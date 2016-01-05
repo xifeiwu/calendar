@@ -26,19 +26,19 @@ module.exports = Store;
  * Remote calendar colors
  */
 Store.REMOTE_COLORS = [
-  '#00aacc', // light blue
-  '#bad600', // light green
-  '#df4784', // pink
-  '#f9bc17', // yellow
-  '#0766b7', // dark blue
-  '#76a408', // dark green
-  '#33a185'  // teal
+  '#7515BF', '#9115BF', '#A115BF',
+  '#154DBF', '#1531BF', '#2515BF',
+  '#3D15BF', '#12CBC4', '#12A2CB',
+  '#1585BF', '#1579BF', '#2CCB12',
+  '#12CB46', '#12CB7A', '#12CBA6',
+  '#D6CF1B', '#B9D713', '#94D713',
+  '#66D713'
 ];
 
 /**
- * Local calendar color (orange)
+ * Local calendar color (xxx)
  */
-Store.LOCAL_COLOR = '#f97c17',
+Store.LOCAL_COLOR = '#6115BF',
 
 /**
  * List of possible calendar capabilities.
