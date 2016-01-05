@@ -8,7 +8,7 @@ var MINUTE = 60;
 var HOUR = 3600;
 var DAY = 86400;
 var WEEK = 604800;
-var MORNING = HOUR * 9;
+var MORNING = HOUR * 0;
 var layouts = {
   standard: [
     'none',
@@ -24,7 +24,7 @@ var layouts = {
   allday: [
     'none',
     0 + MORNING,
-    0 - HOUR * 3,
+    0 - HOUR * 12,
     0 - DAY + MORNING,
     0 - DAY * 2 + MORNING,
     0 - WEEK + MORNING,
