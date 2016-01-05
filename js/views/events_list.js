@@ -235,38 +235,6 @@ EventsList.prototype = {
           router.go('/event/edit/' + this.selBusytimeId + '/edit-all');
           break;
         case 'delete':
-        case 'delete-all':
-          this._showDialog({
-            message: _('delete-event-confirmation'),
-            dialogType: 'confirm',
-            softKeysHandler: {
-              lsk: {
-                name: 'cancel',
-                action: () => {
-                  this.dialogController.close();
-                }
-              },
-              dpe: {},
-              rsk: {
-                name: 'delete',
-                action: () => {
-                  this.dialogController.close();
-                  this.deleteEvent(false, this.selBusytimeId,
-                    function(err, evt) {
-                      if (err) {
-                        console.error('Delete failed: ' + JSON.stringify(evt));
-                      } else {
-                        console.error('Delete successfully: ' +
-                          JSON.stringify(evt));
-                      }
-                    }
-                  );
-                }
-              }
-            }
-          });
-          break;
-        case 'delete-this-only':
           this._showDialog({
             message: _('delete-event-confirmation'),
             dialogType: 'confirm',
@@ -283,19 +251,18 @@ EventsList.prototype = {
                 action: () => {
                   this.dialogController.close();
                   this.deleteEvent(true, this.selBusytimeId,
-                    function(err, evt) {
-                      if (err) {
-                        console.error('Delete failed: ' + JSON.stringify(evt));
-                      } else {
-                        console.error('Delete successfully: ' +
-                          JSON.stringify(evt));
-                      }
-                    }
+                    function(err, evt) {}
                   );
                 }
               }
             }
           });
+          break;
+        case 'delete-all':
+          this.deleteEvent(false, this.selBusytimeId, function(err, evt) {});
+          break;
+        case 'delete-this-only':
+          this.deleteEvent(true, this.selBusytimeId, function(err, evt) {});
           break;
       }
     }.bind(this));

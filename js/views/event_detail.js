@@ -95,11 +95,6 @@ EventDetail.prototype = {
             this.dialogController.close();
             this.deleteEvent(deleteSingleOnly, this.busytimeId,
               function(err, evt) {
-                if (err) {
-                  console.error('Delete failed: ' + JSON.stringify(evt));
-                } else {
-                  console.error('Delete successfully: ' + JSON.stringify(evt));
-                }
                 router.go(this.returnTo());
               }.bind(this)
             );
@@ -146,10 +141,18 @@ EventDetail.prototype = {
     this.optionMenuController.once('selected', function(optionKey) {
       switch(optionKey) {
         case 'delete-this-only':
-          this._openConfirmDialog(true);
+          this.deleteEvent(true, this.busytimeId,
+            function(err, evt) {
+              router.go(this.returnTo());
+            }.bind(this)
+          );
           break;
         case 'delete-all':
-          this._openConfirmDialog(false);
+          this.deleteEvent(false, this.busytimeId,
+            function(err, evt) {
+              router.go(this.returnTo());
+            }.bind(this)
+          );
           break;
         case 'edit-this-only':
           router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
