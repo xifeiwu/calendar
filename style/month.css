@@ -302,7 +302,7 @@ section.month .icon-calendar-dot:before {
   position: absolute;
   top: 40%;
   transform: translatey(-80%);
-  width: 17rem;
+  width: 28rem;
 }
 
 #month-day-agenda .event-details > h5 {
