@@ -441,6 +441,7 @@ Db.prototype = {
       accountId: account._id,
       remote: Local.defaultCalendar()
     };
+    calendar.remote.timeStamp = new Date().getTime();
 
     accountStore.persist(account, trans);
     calendarStore.persist(calendar, trans);

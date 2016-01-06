@@ -257,21 +257,15 @@ SetupCalendar.prototype = {
     return _isNameExist;
   },
 
-  _saveCalendar: function(name) {
+  _saveCalendar: function(name, timeStamp) {
     if (name.length === 0) {
       return;
     }
-    var self = this;
+
     if (this._checkCalendarName(name)) {
-      self.dialogController.close();
+      this.dialogController.close();
       this.showNotices([{name: 'name-already-exist'}]);
       return;
-    }
-    function persist(err, id, model) {
-      if (err) {
-        console.error('Cannot save calendar', err);
-      }
-      self.dialogController.close();
     }
 
     this._getLocalAccountId().then(() => {
@@ -281,10 +275,20 @@ SetupCalendar.prototype = {
         remote: Local.defaultCalendar()
       };
       calendar.remote.name = name;
-      calendarStore.persist(calendar, persist.bind(this));
+      if (timeStamp) {
+        calendar.remote.timeStamp = timeStamp;
+      } else {
+        calendar.remote.timeStamp = new Date().getTime();
+      }
+      calendarStore.persist(calendar, (err, id, model) => {
+        if (err) {
+          console.error('Cannot save calendar', err);
+        }
+        this.dialogController.close();
+      });
     }).catch((err) => {
       console.error('Error in _saveCalendar.', err);
-      self.dialogController.close();
+      this.dialogController.close();
     });
   },
 
@@ -292,28 +296,25 @@ SetupCalendar.prototype = {
     if (newName.length === 0) {
       return;
     }
-    var self = this;
     if (this._checkCalendarName(newName)) {
-      self.dialogController.close();
+      this.dialogController.close();
       this.showNotices([{name: 'name-already-exist'}]);
       return;
     }
     var id = this._currentCalendar.getAttribute('calendar-id');
+    var timeStamp = this._currentCalendar.getAttribute('time-stamp');
     var store = this.app.store('Calendar');
-    function onRemove(err, id) {
-      self._saveCalendar(newName);
-    }
-    store.remove(id, onRemove);
+    store.remove(id, (err, id) => {
+      this._saveCalendar(newName, timeStamp);
+    });
   },
 
   _deleteCalendar: function() {
-    var self = this;
     var id = this._currentCalendar.getAttribute('calendar-id');
-    function onRemove(err, id) {
-      self.dialogController.close();
-    }
     var store = this.app.store('Calendar');
-    store.remove(id, onRemove);
+    store.remove(id, (err, id) => {
+      this.dialogController.close();
+    });
   },
 
   _getLocalCalendars: function() {
@@ -356,9 +357,13 @@ SetupCalendar.prototype = {
     this._updateLocalCalendarDOM();
   },
 
-  _calendarTemplate: function(id, name, color){
+  _calendarTemplate: function(id, remote){
+    var name = remote.name;
+    var color = remote.color;
+    var timeStamp = remote.timeStamp;
     var html = `
-      <li role="presentation" tabindex="0" calendar-id=${id}>
+      <li role="presentation" tabindex="0" calendar-id=${id}
+        time-stamp=${timeStamp}>
         <div class="on-off-line-calendar">
           <div class="indicator"
             style="background-color: ${color} !important;"></div>
@@ -371,13 +376,21 @@ SetupCalendar.prototype = {
   },
 
   _updateLocalCalendarDOM: function() {
-    this.localCalendars.innerHTML = '';
-    for (var key in this.localCalendarList) {
-      var id = this.localCalendarList[key]._id;
-      var remote = this.localCalendarList[key].remote;
-      this.localCalendars.insertAdjacentHTML('beforeend',
-        this._calendarTemplate(id, remote.name, remote.color));
+    // Order the list according to timeStamps
+    function stampSorts(a, b) {
+      return a.remote.timeStamp - b.remote.timeStamp;
     }
+
+    this.localCalendars.innerHTML = '';
+    Object.keys(this.localCalendarList).map(key => {
+      return this.localCalendarList[key];
+    }).sort(stampSorts).forEach(calendar => {
+      var id = calendar._id;
+      var remote = calendar.remote;
+      this.localCalendars.insertAdjacentHTML('beforeend',
+        this._calendarTemplate(id, remote));
+    });
+
     var elements = this.localCalendars.querySelectorAll('li[tabindex="0"]');
     Array.prototype.slice.call(elements).forEach((element) => {
       var calendarId = element.getAttribute('calendar-id');
