@@ -203,6 +203,29 @@ h5-check-box[focused] {
 #modify-event-view #calendarIdSpan {
   color: var(--highlight-color);
   display: block;
-  width: 32rem;
+  width: 100%;
   border-bottom: 0.1rem solid var(--secondary-info-color);
+}
+
+#modify-event-view li.calendar-id {
+  padding: 0;
+  display: block;
+}
+
+#modify-event-view li[focus] span#calendarIdSpan {
+  border-bottom: 0.1rem solid var(--white-color, white);
+}
+
+#modify-event-view li.calendar-id a {
+  float: left;
+  display: block;
+  width: 30rem;
+  padding: 1.5rem 0 0 1.4rem;
+}
+
+#modify-event-view #calIndicator {
+  width: 0.4rem;
+  height: 8.2rem;
+  display: block;
+  float: left;
 }

@@ -746,6 +746,8 @@ ModifyEvent.prototype = {
         return console.error(err);
       }
       var disSpan = self.element.querySelector('#calendarIdSpan');
+      self.element.querySelector('#calIndicator').style.backgroundColor =
+        owners.calendar.remote.color;
       disSpan.textContent = _('account-calendar-format', {
         account: _('preset-' + owners.account.preset),
         calendar: owners.calendar.remote.name
