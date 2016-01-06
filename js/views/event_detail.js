@@ -12,10 +12,6 @@ require('dom!event-detail-view');
 
 function EventDetail(options) {
   EventBase.apply(this, arguments);
-  this.store = this.app.store('Event');
-  this.deleteController = this.app.deleteController;
-  this.dialogController = this.app.dialogController;
-  this.optionMenuController = this.app.optionMenuController;
 }
 module.exports = EventDetail;
 
@@ -82,100 +78,6 @@ EventDetail.prototype = {
   _initEvents: function() {
   },
 
-  _openConfirmDialog: function(deleteSingleOnly) {
-    var option = {
-      message: navigator.mozL10n.get('delete-event-confirmation'),
-      dialogType: 'confirm',
-      softKeysHandler: {
-        lsk: {
-          name: 'cancel',
-          action: () => {
-            this.dialogController.close();
-            return false;
-          }
-        },
-        dpe: {},
-        rsk: {
-          name: 'delete',
-          action: () => {
-            this.dialogController.close();
-            this.deleteEvent(deleteSingleOnly, this.busytimeId,
-              function(err, evt) {
-                router.go(this.returnTo());
-              }.bind(this)
-            );
-            return false;
-          }
-        }
-      }
-    };
-
-    this.dialogController.once('opened', function() {
-    }.bind(this));
-
-    this.dialogController.once('closed', function() {
-      this.element.focus();
-      this.element.spatialNavigator.focus();
-    }.bind(this));
-
-    this.dialogController.show(option);
-  },
-
-  _showOptionMenu: function(method) {
-    if (method !== 'delete' && method !== 'edit') {
-      return console.error('method must be delete or edit.');
-    }
-    if (!this.busytimeId) {
-      return console.error('Illegal busytimeId!');
-    }
-
-    var items = [
-      {
-        title: _(method + '-this-only'),
-        key: method + '-this-only'
-      },
-      {
-        title: _(method + '-all'),
-        key: method + '-all'
-      }
-    ];
-
-    this.optionMenuController.once('closed', function() {
-      this.element.focus();
-      this.element.spatialNavigator.focus();
-    }.bind(this));
-
-    this.optionMenuController.once('selected', function(optionKey) {
-      switch(optionKey) {
-        case 'delete-this-only':
-          this.deleteEvent(true, this.busytimeId,
-            function(err, evt) {
-              router.go(this.returnTo());
-            }.bind(this)
-          );
-          break;
-        case 'delete-all':
-          this.deleteEvent(false, this.busytimeId,
-            function(err, evt) {
-              router.go(this.returnTo());
-            }.bind(this)
-          );
-          break;
-        case 'edit-this-only':
-          router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
-          break;
-        case 'edit-all':
-          router.go('/event/edit/' + this.busytimeId + '/edit-all');
-          break;
-      }
-    }.bind(this));
-
-    this.optionMenuController.show({
-      header: _('repeat-event-header'),
-      items: items
-    });
-  },
-
   _resetUI: function() {
     this.title.textContent = '';
     this.location.textContent = '';
@@ -226,7 +128,7 @@ EventDetail.prototype = {
         isAllDay: model.isAllDay,
         isRecurring: model.isRecurring,
         repeat: model.repeat,
-        selectedDate: this.app.timeController.selectedDay
+        selectedDate: this.timeController.selectedDay
       });
     this.durationTime.innerHTML = durationTimeContent;
 
@@ -301,21 +203,76 @@ EventDetail.prototype = {
         dpe: {
           name: 'edit',
           action: () => {
-            if (model.remote.isRecurring) {
-              this._showOptionMenu('edit');
-            } else {
-              router.go('/event/edit/' + this.busytimeId);
-            }
-            return false;
+            router.go('/event/edit/' + this.busytimeId);
           }
         },
         rsk: {
           name: 'delete',
           action: () => {
             if (model.remote.isRecurring) {
-              this._showOptionMenu('delete');
+              this.optionMenuController.once('closed', () => {
+                this.element.focus();
+                this.element.spatialNavigator.focus();
+              });
+
+              this.optionMenuController.once('selected', (optionKey) => {
+                switch(optionKey) {
+                  case 'delete-this-only':
+                    this.deleteSingleEvent(this.busytimeId, (err, evt) => {
+                        router.go(this.returnTo());
+                    });
+                    break;
+                  case 'delete-all-future':
+                    this.deleteFutureEvents(this.busytimeId, (err, evt) => {
+                        router.go(this.returnTo());
+                    });
+                    break;
+                }
+              });
+
+              this.optionMenuController.show({
+                header: _('repeat-event-header'),
+                items: [
+                  {
+                    title: _('delete-this-only'),
+                    key: 'delete-this-only'
+                  },
+                  {
+                    title: _('delete-all-future'),
+                    key: 'delete-all-future'
+                  }
+                ]
+              });
             } else {
-              this._openConfirmDialog(false);
+              this.dialogController.once('closed', () => {
+                this.element.focus();
+                this.element.spatialNavigator.focus();
+              });
+
+              this.dialogController.show({
+                message: navigator.mozL10n.get('delete-event-confirmation'),
+                dialogType: 'confirm',
+                softKeysHandler: {
+                  lsk: {
+                    name: 'cancel',
+                    action: () => {
+                      this.dialogController.close();
+                      return false;
+                    }
+                  },
+                  dpe: {},
+                  rsk: {
+                    name: 'delete',
+                    action: () => {
+                      this.dialogController.close();
+                      this.deleteEvent(this.busytimeId, (err, evt) => {
+                        router.go(this.returnTo());
+                      });
+                      return false;
+                    }
+                  }
+                }
+              });
             }
             return false;
           }

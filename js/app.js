@@ -9,7 +9,6 @@ var Db = require('db');
 var ErrorController = require('controllers/error');
 var PendingManager = require('pending_manager');
 var RecurringEventsController = require('controllers/recurring_events');
-var DeleteController = require('controllers/delete');
 var OptionMenuController = require('controllers/option_menu');
 var DialogController = require('controllers/dialog');
 var DBListener = require('store/listener');
@@ -194,7 +193,6 @@ module.exports = {
 
     router.state('/event/add/', 'ModifyEvent');
     router.state('/event/edit/:id', 'ModifyEvent');
-    router.state('/event/edit/:id/:editType', 'ModifyEvent');
     router.state('/event/show/:id', 'ViewEvent');
     router.state('/event/list/', 'EventsList');
     router.state('/event/list/:busytimeId', 'EventsList');
@@ -232,8 +230,6 @@ module.exports = {
     var recurringEventsController = new RecurringEventsController(this);
     recurringEventsController.observe();
     this.recurringEventsController = recurringEventsController;
-
-    this.deleteController = new DeleteController(this);
 
     this.optionMenuController = new OptionMenuController(this);
     this.toast = new Toast(this);

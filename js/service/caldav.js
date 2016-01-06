@@ -50,6 +50,7 @@ Service.prototype = {
       'findCalendars',
       'getCalendar',
       'streamEvents',
+      'streamEventsFromLocal',
       'expandComponents',
       'expandRecurringEvent',
       'deleteEvent',
@@ -321,11 +322,11 @@ Service.prototype = {
     var attendees = event.attendees;
     var i = 0;
     var len = attendees.length;
-    var resultAttendees = new Array();
+    var resultAttendees = [];
 
     for (; i < len; i++) {
       var value = attendees[i].getFirstValue();
-      resultAttendees.push(value)
+      resultAttendees.push(value);
     }
 
     var result = {
@@ -773,6 +774,113 @@ Service.prototype = {
             eventId: result.id,
             lastRecurrenceId: lastRecurrenceId,
             ical: ical,
+            iterator: iter
+          });
+        }
+
+        callback(null);
+      });
+    });
+  },
+
+  _formatEventFromLocal: function(option, event) {
+    var self = this;
+    var exceptions = null;
+    var key;
+
+    if (event.exceptions) {
+      exceptions = [];
+      for (key in event.exceptions) {
+        exceptions.push(this._formatEventFromLocal(
+          option,
+          event.exceptions[key]
+        ));
+      }
+
+      if (!exceptions.length) {
+        exceptions = null;
+      }
+    }
+
+    var rid = event.recurrenceId;
+
+    if (rid) {
+      rid = this.formatICALTime(rid);
+    }
+
+    var resultAlarms = [];
+    var alarms = event.component.getAllSubcomponents('valarm');
+    alarms.forEach(function(instance) {
+      var action = instance.getFirstPropertyValue('action');
+      if (action && action === 'DISPLAY') {
+        var triggers = instance.getAllProperties('trigger');
+        var i = 0;
+        var len = triggers.length;
+
+        for (; i < len; i++) {
+          var trigger = triggers[i];
+          resultAlarms.push({
+            action: action,
+            trigger: self._formatTrigger(trigger, event.startDate)
+          });
+        }
+      }
+    });
+
+    var result = {
+      alarms: resultAlarms,
+      id: event.uid,
+      title: event.summary,
+      recurrenceId: rid,
+      isRecurring: event.isRecurring(),
+      repeat: event.isRecurring() ? option.repeat : 'never',
+      description: event.description,
+      location: event.location,
+      start: this.formatICALTime(event.startDate),
+      end: this.formatICALTime(event.endDate),
+      timeStamp: new Date().getTime(),
+      exceptions: exceptions
+    };
+
+    return result;
+  },
+
+  streamEventsFromLocal: function(account, calendar, option, stream, callback) {
+    var self = this;
+    this.parseEvent(option.ical, function(err, event) {
+
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      var result = self._formatEventFromLocal(option, event);
+      stream.emit('event', result);
+
+      var options = {
+        maxDate: self._defaultMaxDate(),
+        now: ICAL.Time.fromJSDate(new Date(), true)
+      };
+
+      self.expandRecurringEvent(event, options, stream,
+                                function(err, iter, lastRecurrenceId) {
+
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        if (!event.isRecurring()) {
+          stream.emit('component', {
+            eventId: result.id,
+            isRecurring: false,
+            ical: option.ical
+          });
+        } else {
+          stream.emit('component', {
+            eventId: result.id,
+            lastRecurrenceId: lastRecurrenceId,
+            ical: option.ical,
             iterator: iter
           });
         }

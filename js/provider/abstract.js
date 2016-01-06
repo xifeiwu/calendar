@@ -3,6 +3,9 @@ define(function(require, exports, module) {
 
 var denodeifyAll = require('promise').denodeifyAll;
 var nextTick = require('next_tick');
+var Calc = require('calc');
+var CaldavPullEvents = require('./caldav_pull_events');
+var mutations = require('event_mutations');
 
 function Abstract(options) {
   var key;
@@ -12,6 +15,13 @@ function Abstract(options) {
     }
   }
 
+  // TODO: Get rid of this when app global is gone.
+  mutations.app = this.app;
+  this.service = this.app.serviceController;
+  this.accounts = this.app.store('Account');
+  this.busytimes = this.app.store('Busytime');
+  this.events = this.app.store('Event');
+  this.icalComponents = this.app.store('IcalComponent');
 
   denodeifyAll(this, [
     'eventCapabilities',
@@ -90,7 +100,135 @@ Abstract.prototype = {
    * @param {Function} callback [err, requiredExpansion].
    *  first argument is error, second indicates if any expansion was done.
    */
-  ensureRecurrencesExpanded: function(date, callback) {},
+
+  /**
+   * XXX:
+   *  since local provider need to calculate recurring events too,
+   *  so move the implementation from caldav provider to abstract.
+   */
+  /**
+   * See abstract for contract details...
+   *
+   * Finds all ical components that have not been expanded
+   * beyond the given point and expands / persists them.
+   *
+   * @param {Date} maxDate maximum date to expand to.
+   * @param {Function} callback [err, didExpand].
+   */
+  ensureRecurrencesExpanded: function(maxDate, callback) {
+    var self = this;
+    this.icalComponents.findRecurrencesBefore(maxDate,
+                                              function(err, results) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      if (!results.length) {
+        callback(null, false);
+        return;
+      }
+
+      // CaldavPullRequest is based on a calendar/account combination
+      // so we must group all of the outstanding components into
+      // their calendars before we can begin expanding them.
+      var groups = Object.create(null);
+      results.forEach(function(comp) {
+        var calendarId = comp.calendarId;
+        if (!(calendarId in groups)) {
+          groups[calendarId] = [];
+        }
+
+        groups[calendarId].push(comp);
+      });
+
+      var pullGroups = [];
+      var pending = 0;
+      var options = {
+        maxDate: Calc.dateToTransport(maxDate)
+      };
+
+      function next(err, pull) {
+        if (!err && pull) {
+          pullGroups.push(pull);
+        }
+        if (!(--pending)) {
+          var trans = self.app.db.transaction(
+            ['icalComponents', 'alarms', 'busytimes'],
+            'readwrite'
+          );
+
+          trans.oncomplete = function() {
+            callback(null, true);
+          };
+
+          trans.onerror = function(event) {
+            callback(event.result.error.name);
+          };
+
+          pullGroups.forEach(function(pull) {
+            pull.commit(trans);
+          });
+        }
+      }
+
+      for (var calendarId in groups) {
+        pending++;
+        self._expandComponents(
+          calendarId,
+          groups[calendarId],
+          options,
+          next
+        );
+      }
+
+    });
+  },
+
+  _expandComponents: function(calendarId, comps, options, callback) {
+    var calStore = this.app.store('Calendar');
+
+    calStore.ownersOf(calendarId, function(err, owners) {
+      if (err) {
+        return callback(err);
+      }
+      // Donot check it for now
+      // if (owners.account.providerType !== 'Caldav') {
+      //   return callback('Not Caldav provider');
+      // }
+
+      var calendar = owners.calendar;
+      var account = owners.account;
+
+      var stream = this.service.stream(
+        'caldav',
+        'expandComponents',
+        comps,
+        options
+      );
+
+      var pull = new CaldavPullEvents(
+        stream,
+        {
+          account: account,
+          calendar: calendar,
+          app: this.app,
+          stores: [
+            'busytimes', 'alarms', 'icalComponents'
+          ]
+        }
+      );
+
+      stream.request(function(err) {
+        if (err) {
+          callback(err);
+          return;
+        }
+        callback(null, pull);
+      });
+
+    }.bind(this));
+  },
 
   /**
    * Update an event

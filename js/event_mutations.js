@@ -95,47 +95,46 @@ Create.prototype = {
 
     eventStore.persist(this.event, trans);
 
-    if (!this.excludeBusy) {
-      if (!this.busytime) {
-        this.busytime = createBusytime(this.event);
-      }
-      busytimeStore.persist(this.busytime, trans);
-
-      var alarms = this.event.remote.alarms;
-      if (alarms && alarms.length) {
-        var i = 0;
-        var len = alarms.length;
-        var now = Date.now();
-
-        var alarmTrans = alarmStore.db.transaction(
-          ['alarms'],
-          'readwrite'
-        );
-
-        for (; i < len; i++) {
-
-          var alarm = {
-            startDate: {
-              offset: this.busytime.start.offset,
-              utc: this.busytime.start.utc + (alarms[i].trigger * 1000),
-              tzid: this.busytime.start.tzid
-            },
-            eventId: this.busytime.eventId,
-            busytimeId: this.busytime._id
-          };
-
-          var alarmDate = Calc.dateFromTransport(this.busytime.end).valueOf();
-          if (alarmDate < now) {
-            continue;
-          }
-
-          alarmStore.persist(alarm, alarmTrans);
-        }
-      }
+    if (!this.busytime) {
+      this.busytime = createBusytime(this.event);
     }
+
+    busytimeStore.persist(this.busytime, trans);
 
     if (this.icalComponent) {
       componentStore.persist(this.icalComponent, trans);
+    }
+
+    var alarms = this.event.remote.alarms;
+    if (alarms && alarms.length) {
+      var i = 0;
+      var len = alarms.length;
+      var now = Date.now();
+
+      var alarmTrans = alarmStore.db.transaction(
+        ['alarms'],
+        'readwrite'
+      );
+
+      for (; i < len; i++) {
+
+        var alarm = {
+          startDate: {
+            offset: this.busytime.start.offset,
+            utc: this.busytime.start.utc + (alarms[i].trigger * 1000),
+            tzid: this.busytime.start.tzid
+          },
+          eventId: this.busytime.eventId,
+          busytimeId: this.busytime._id
+        };
+
+        var alarmDate = Calc.dateFromTransport(this.busytime.end).valueOf();
+        if (alarmDate < now) {
+          continue;
+        }
+
+        alarmStore.persist(alarm, alarmTrans);
+      }
     }
   }
 
@@ -149,18 +148,24 @@ Update.prototype = {
   commit: function(callback) {
     var app = exports.app;
     var busytimeStore = app.store('Busytime');
+    var componentStore = app.store('IcalComponent');
 
     var self = this;
 
-    // required so UI knows to refresh even in the
-    // case where the start/end times are the same.
-    busytimeStore.removeEvent(this.event._id, function(err) {
+    componentStore.remove(self.event._id, function(err) {
       if (err) {
         callback(err);
         return;
       }
-
-      Create.prototype.commit.call(self, callback);
+      // required so UI knows to refresh even in the
+      // case where the start/end times are the same.
+      busytimeStore.removeEvent(self.event._id, function(err) {
+        if (err) {
+          callback(err);
+          return;
+        }
+        Create.prototype.commit.call(self, callback);
+      });
     });
   }
 };
