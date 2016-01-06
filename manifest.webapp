@@ -43,5 +43,8 @@
   "icons": {
     "90": "/style/icons/calendar_90.png"
   },
-  "orientation": "default"
+  "orientation": "default",
+  "chrome": {
+    "statusbar": "overlap"
+  }
 }
