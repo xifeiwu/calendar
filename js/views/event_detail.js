@@ -32,6 +32,7 @@ EventDetail.prototype = {
     location: '#event-detail-location',
     durationTime: '#event-detail-duration-time',
     currentCalendar: '#event-detail-current-calendar',
+    indicator: '#event-detail-view li div .indicator',
     alarms: '#event-detail-alarms',
     description: '#event-detail-description',
     invitationFrom:'#event-detail-invitation-from',
@@ -72,6 +73,10 @@ EventDetail.prototype = {
 
   get invitees() {
     return this._findElement('invitees');
+  },
+
+  get indicator() {
+    return this._findElement('indicator');
   },
 
   _initEvents: function() {
@@ -176,6 +181,7 @@ EventDetail.prototype = {
     this.invitees.innerHTML = '';
     this.durationTime.innerHTML = '';
     this.currentCalendar.textContent = '';
+    this.indicator.style.backgroundColor = '';
     this.alarms.innerHTML = '';
     this.description.innerHTML = '';
   },
@@ -220,6 +226,7 @@ EventDetail.prototype = {
       if (err) {
         this.currentCalendar.textContent = '';
       } else {
+        this.indicator.style.backgroundColor = calendar.remote.color;
         this.app.store('Account').get(calendar.accountId, (err, account) => {
           if (err) {
             this.currentCalendar.textContent = calendar.remote.name;
