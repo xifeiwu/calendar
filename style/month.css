@@ -178,6 +178,7 @@ section.month .icon-calendar-dot:before {
 
 #empty-message {
   display: none;
+  padding: 0.5rem 0 0 1.5rem;
 }
 
 #empty-message.active {
@@ -191,10 +192,7 @@ section.month .icon-calendar-dot:before {
 }
 
 #empty-message.active span{
-  position: absolute;
-  top: 50%;
-  left: 1.4rem;
-  transform: translatey(-80%);
+  line-height: 2.5rem;
 }
 
 #month-day-agenda #event-list {
@@ -206,6 +204,7 @@ section.month .icon-calendar-dot:before {
   height: 100%;
   margin: 0;
   position: relative;
+  text-decoration: none;
 }
 
 #month-day-agenda .event:active,
@@ -299,9 +298,7 @@ section.month .icon-calendar-dot:before {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: absolute;
-  top: 40%;
-  transform: translatey(-80%);
+  padding-top: 0.5rem;
   width: 28rem;
 }
 
