@@ -169,6 +169,13 @@ ModifyEvent.prototype = {
   onfirstseen: function() {
     Promise.all([this._getAccounts(), this._getCalendars()]).then(() => {
       this._updateCalendarIdSelector();
+      // Content of CalendarId Selector is append in this callback function,
+      // so the Selector may be blank when _updateUI is called. The if statement
+      // below is used to fix this problem by updating the presentation of Selector.
+      if (this.event && this.event.calendarId) {
+        this.getEl('calendarId').value = this.event.calendarId;
+        this.calendarDis();
+      }
     })
     .catch((err) => {
       return console.error('Error fetching datebase.', err);
@@ -729,6 +736,9 @@ ModifyEvent.prototype = {
 
   calendarDis: function () {
     var _calId = this.getEl('calendarId').value;
+    if (!_calId.length) {
+      return;
+    }
     var calStore = this.app.store('Calendar');
     var self = this;
     calStore.ownersOf(_calId, function (err, owners) {
