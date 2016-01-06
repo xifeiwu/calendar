@@ -4,7 +4,7 @@
 
 #modify-event-view form {
   overflow-Y: auto;
-  height: -moz-calc(100% - 5rem);
+  height: -moz-calc(100% - 6.2rem);
 }
 
 #modify-event-view form ul {
@@ -105,6 +105,7 @@
 }
 
 #modify-event-view .delete {
+  display: none;
   width: calc(100% - 3rem);
   margin: 0 auto;
 }
