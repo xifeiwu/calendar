@@ -26,12 +26,12 @@ module.exports = Store;
  * Remote calendar colors
  */
 Store.REMOTE_COLORS = [
-  '#7515BF', '#9115BF', '#A115BF',
-  '#154DBF', '#1531BF', '#2515BF',
-  '#3D15BF', '#12CBC4', '#12A2CB',
-  '#1585BF', '#1579BF', '#2CCB12',
-  '#12CB46', '#12CB7A', '#12CBA6',
-  '#D6CF1B', '#B9D713', '#94D713',
+  '#154DBF', '#12CBC4', '#2CCB12',
+  '#D6CF1B', '#7515BF', '#1531BF',
+  '#12A2CB', '#12CB46', '#B9D713',
+  '#9115BF', '#2515BF', '#1585BF',
+  '#12CB7A', '#94D713', '#A115BF',
+  '#3D15BF', '#1579BF', '#12CBA6',
   '#66D713'
 ];
 
