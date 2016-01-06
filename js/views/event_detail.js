@@ -275,8 +275,8 @@ EventDetail.prototype = {
             router.go('/event/list/' + this.busytimeId);
           }
         },
-        dpe: {},
-        rsk: {}
+        dpe: {name: ''},
+        rsk: {name: ''}
       });
     } else {
       SoftkeyHandler.register(this.rootElement, {
