@@ -87,7 +87,7 @@ module.exports = {
         break;
       }
 
-      if (!min || current.compare(min) > 0) {
+      if (!min || current.compare(min) >= 0) {
         // sent should be inside the loop to guard against
         // the possibility that the resume functionality breaking.
         sent++;
