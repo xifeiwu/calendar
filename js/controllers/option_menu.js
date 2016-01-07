@@ -27,6 +27,7 @@ OptionMenuController.prototype = {
     });
 
     this.optionMenu.on('h5options:closed', function() {
+      this.removeAllEventListeners('selected');
       this.emit('closed');
     }.bind(this));
 

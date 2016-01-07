@@ -468,7 +468,13 @@ SetupCalendar.prototype = {
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
-      router.go('/create-account/' + optionKey);
+      switch (optionKey) {
+        case 'google':
+        case 'yahoo':
+        case 'caldav':
+          router.go('/create-account/' + optionKey);
+          break;
+      }
     }.bind(this));
 
     document.querySelector('#setup-calendar-view').classList.
