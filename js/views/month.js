@@ -8,7 +8,6 @@ var SingleMonth = require('./single_month');
 var View = require('view');
 var dateFromId = Calc.dateFromId;
 var monthStart = Calc.monthStart;
-var isSameDate = Calc.isSameDate;
 var performance = require('performance');
 var router = require('router');
 var debug = require('debug')('month');
@@ -98,20 +97,7 @@ Month.prototype = {
 
   _resetFocus: function() {
     navigationHandler.initMonthView();
-    var currentFocus = this.element.querySelector('.focus');
-    var currentDate = null;
-    if (currentFocus){
-      currentDate = dateFromId(currentFocus.dataset.date);
-      debug('currentFocus:' + currentFocus.dataset.date);
-    }
-    if (currentDate) {
-      if (this.app.timeController.selectedDay &&
-          !isSameDate(this.app.timeController.selectedDay, currentDate)) {
-        this._goToDay('local-day', this.app.timeController.selectedDay);
-      }
-    } else {
-      this._goToDay('local-day', this.app.timeController.selectedDay);
-    }
+    this._goToDay('local-day', this.app.timeController.selectedDay);
   },
 
   _onswipe: function(data) {
