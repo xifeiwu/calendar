@@ -1,6 +1,11 @@
 /* TODO(gareth): Why are these namespaced under
  *     #time-views if they already have ids?
  */
+
+#time-views {
+  background-color: var(--color-gs85);
+}
+
 #time-views #month-view {
   background-color: var(--color-gs85);
   height: auto;
