@@ -337,6 +337,10 @@ EventsList.prototype = {
               ele.classList.add('sk-events-list-item');
             } else {
               ele.classList.add('sk-events-list-item-online');
+              // since online events don't have color field, so use
+              // the calendar's color which the event belongs to
+              ele.querySelector('div.indicator').style.backgroundColor =
+                owners.calendar.remote.color;
             }
           });
         resolve();
