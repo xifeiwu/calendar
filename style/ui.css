@@ -347,3 +347,9 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
 div[contenteditable] {
   line-height: 2.1rem;
 }
+
+#calendar-toast {
+  width: calc(100% - 2rem);
+  left: 50%;
+  transform: translateX(-50%);
+}
