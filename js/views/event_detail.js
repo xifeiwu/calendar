@@ -29,6 +29,7 @@ EventDetail.prototype = {
     element: '#event-detail-view',
     header: '#event-detail-header',
     title: '#event-detail-title',
+    locationContainer: '#event-detail-view li.location',
     location: '#event-detail-location',
     durationTime: '#event-detail-duration-time',
     currentCalendar: '#event-detail-current-calendar',
@@ -45,6 +46,10 @@ EventDetail.prototype = {
 
   get title() {
     return this._findElement('title');
+  },
+
+  get locationContainer() {
+    return this._findElement('locationContainer');
   },
 
   get location() {
@@ -113,7 +118,7 @@ EventDetail.prototype = {
 
     this.dialogController.once('closed', function() {
       this.rootElement.focus();
-      this.rootElement.spatialNavigator.focus(location);
+      this.rootElement.spatialNavigator.focus();
     }.bind(this));
 
     this.dialogController.show(option);
@@ -140,7 +145,7 @@ EventDetail.prototype = {
 
     this.optionMenuController.once('closed', function() {
       this.rootElement.focus();
-      this.rootElement.spatialNavigator.focus(location);
+      this.rootElement.spatialNavigator.focus();
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
@@ -177,6 +182,7 @@ EventDetail.prototype = {
   _resetUI: function() {
     this.title.textContent = '';
     this.location.textContent = '';
+    this.locationContainer.style.display = 'none';
     this.invitationFrom.textContent = '';
     this.invitees.innerHTML = '';
     this.durationTime.innerHTML = '';
@@ -192,7 +198,12 @@ EventDetail.prototype = {
   _updateUI: function() {
     var model = this.event;
     this.title.textContent = model.title;
-    this.location.textContent = model.location;
+    if (model.location) {
+      this.locationContainer.style.display = '';
+      this.location.textContent = model.location;
+    } else {
+      this.locationContainer.style.display = 'none';
+    }
 
     if (model.remote.attendees && model.remote.attendees.length > 0) {
       var organizer = model.remote.organizer;
@@ -264,7 +275,7 @@ EventDetail.prototype = {
     this.description.innerHTML = model.description;
 
     this.rootElement.focus();
-    this.rootElement.spatialNavigator.focus(location);
+    this.rootElement.spatialNavigator.focus();
 
     if ((model.remote.attendees && model.remote.attendees.length > 0) ||
         !this.isLocal) {
