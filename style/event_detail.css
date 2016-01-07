@@ -104,7 +104,7 @@ li.current-calendar div.indicator{
 }
 
 #event-detail-view .event-detail-current-calendar-div-top {
-  padding-top: 2.5rem;
+  padding: 2rem 0 1rem 0;
   color: var(--color-gs65);
 }
 
