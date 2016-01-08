@@ -15,7 +15,7 @@ html, body {
   height: 100%;
   line-height: 100%;
   overflow: hidden;
-  background-color: var(--color-gs90);
+  background-color: #000;
 }
 
 h1,
@@ -32,11 +32,6 @@ section {
 
 section {
   width: 100%;
-}
-
-section[role="region"] {
-  height: cacl(100% - 3rem);
-  padding-top: 3rem;
 }
 
 ol,
