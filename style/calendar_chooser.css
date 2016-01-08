@@ -4,7 +4,8 @@
   width: calc(100% - 2rem);
   position: absolute;
   box-sizing: border-box;
-  background-color: #EDEFF3;
+  background-color: var(--color-gs85-contrast);
+  color: var(--color-gs20-contrast);
   display: none;
   z-index: 1000;
   max-height: 100%;
@@ -20,7 +21,6 @@
 
 #calendar-chooser-view .calendar-chooser-header {
   position: relative;
-  background-color: #d5d7dd;
   height: 6.2rem;
 }
 
@@ -36,11 +36,12 @@
 }
 
 #calendar-chooser-view h5-separator {
-  background-color: #EDEFF3 !important;
+  background-color: var(--color-gs20) !important;
+  color: var(--color-gs20-contrast);
 }
 
 #calendar-chooser-view ul li {
-  background-color: #EDEFF3;
+  background-color: var(--color-gs85-contrast);
   padding:0;
 }
 
@@ -61,7 +62,6 @@
   float: left;
   width: 0.4rem;
   height: 8.2rem;
-  background-color: red;
 }
 
 #calendar-chooser-view ul li label {
