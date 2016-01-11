@@ -31,7 +31,10 @@ var spanOfMonth = Calc.spanOfMonth;
 var DISPATCH_DELAY = 25;
 
 // maximum amount of months to keep in the cache
-var MAX_CACHED_MONTHS = 5;
+// TODO: XXX
+// Workaround: Enlarge 5 to 12. Since an allday event would be missed if it's
+// span beyond MAX_CACHED_MONTHS.
+var MAX_CACHED_MONTHS = 12;
 
 // stores busytimes by Id
 // {key:id, value:Busytime}
