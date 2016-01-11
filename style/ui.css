@@ -353,4 +353,6 @@ div[contenteditable] {
   width: calc(100% - 2rem);
   left: 50%;
   transform: translateX(-50%);
+  background-color: var(--color-gs85-contrast);
+  color: var(--color-gs20-contrast);
 }
