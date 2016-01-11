@@ -340,6 +340,12 @@ ModifyEvent.prototype = {
       return;
     }
 
+    if (this.event.remote.start.utc < 0) {
+      this.app.toast.show({message: _('error-prior-to-1970')});
+      router.go(this.returnTo());
+      return;
+    }
+
     // can't create without a calendar id
     // because of defaults this should be impossible.
     if (!data.calendarId) {
