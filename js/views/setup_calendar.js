@@ -216,6 +216,8 @@ SetupCalendar.prototype = {
 
   _openDialog: function(option) {
     this.dialogController.once('opened', () => {
+      var diaInput = document.activeElement;
+      diaInput.setSelectionRange(diaInput.value.length, diaInput.value.length);
     });
     this.dialogController.once('closed', () => {
       this.rootElement.focus();
