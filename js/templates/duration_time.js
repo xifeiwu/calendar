@@ -75,9 +75,29 @@ module.exports = create({
       endDate: formatDateEventDetail(endDate)
     });
 
+      function repeatTrans (repeat) {
+        if (!repeat) {
+          return;
+        }
+        switch (repeat) {
+          case 'every-day':
+            return 'every-day-event-detail';
+          case 'every-week':
+            return 'every-week-event-detail';
+          case 'every-2-weeks':
+            return 'every-2-weeks-event-detail';
+          case 'every-month':
+            return 'every-month-event-detail';
+          case 'every-year':
+            return 'every-year-event-detail';
+          default:
+            break;
+        }
+      }
+
     if (isRecurring) {
       content += l10n.get('event-detail-repeat', {
-        repeat: repeat ? l10n.get(repeat) : l10n.get('repeating-event')
+        repeat: repeat ? l10n.get(repeatTrans(repeat)) : l10n.get('repeating-event')
       });
     }
 
