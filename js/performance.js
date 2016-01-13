@@ -127,12 +127,16 @@ exports.pendingReady = function() {
  * events from DB and recurring events expansion).
  */
 function dispatchAppLoad() {
-  if (!exports._isVisuallyActive || !exports._isPendingReady) {
-    // to avoid race conditions (in case this is called before month view
-    // is built), should not happen, but maybe in the future when IDB gets
-    // faster this might be possible.
-    return;
-  }
+  // In feature-phone, after killing the app from the background, opening it
+  // again from the notifications list will take too much time thus we can
+  // never get dispatch('moz-app-loaded'), this is the reason why we comment
+  // the following codes.
+  // if (!exports._isVisuallyActive || !exports._isPendingReady) {
+  //   // to avoid race conditions (in case this is called before month view
+  //   // is built), should not happen, but maybe in the future when IDB gets
+  //   // faster this might be possible.
+  // return;
+  //}
 
   // PERFORMANCE EVENT (5): moz-app-loaded
   // Designates that the app is *completely* loaded and all relevant

@@ -191,7 +191,7 @@ module.exports = {
     router.state('/advanced-settings/', 'AdvancedSettings');
     router.state('/setup-calendar/', 'SetupCalendar');
 
-    router.state('/alarm-display/:id', 'ViewEvent', { path: false });
+    router.state('/alarm-display/:id', 'EventDetail', { path: false });
 
     router.state('/event/add/', 'ModifyEvent');
     router.state('/event/edit/:id', 'ModifyEvent');
@@ -275,6 +275,7 @@ module.exports = {
     this.observeDateLocalization();
 
     this.timeController.move(new Date());
+    this.timeController.selectedDay = new Date();
 
     this.view('TimeHeader', (header) => header.render());
 
