@@ -1,3 +1,4 @@
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -5,8 +6,6 @@ var AlarmTemplate = require('templates/alarm');
 var View = require('view');
 var router = require('router');
 var Local = require('provider/local');
-var nextTick = require('next_tick');
-var debug = require('debug')('advanced_settings');
 var _ = navigator.mozL10n.get;
 
 require('dom!advanced-settings-view');
@@ -274,11 +273,12 @@ AdvancedSettings.prototype = {
   },
 
   initHeader: function() {
-    SoftkeyHandler.register(this.setupCalendar, {
+    softkeyHandler.register(this.setupCalendar, {
       dpe: {
         name: 'select',
         action: () => {
           router.go('/setup-calendar/');
+          return false;
         }
       }
     });

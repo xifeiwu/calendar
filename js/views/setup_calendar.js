@@ -1,4 +1,4 @@
-/* global SoftkeyHandler KeyEvent */
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -7,7 +7,6 @@ var providerFactory = require('provider/provider_factory');
 var router = require('router');
 var template = require('templates/account');
 var Local = require('provider/local');
-var debug = require('debug')('setup_calendar');
 var nextTick = require('next_tick');
 var _ = navigator.mozL10n.get;
 require('dom!setup-calendar-view');
@@ -86,17 +85,19 @@ SetupCalendar.prototype = {
     account.on('preRemove', this._removeAccount.bind(this));
     account.on('remove', this._removeAccount.bind(this));
 
-    SoftkeyHandler.register(this.addLocalCalendar, {
+    softkeyHandler.register(this.addLocalCalendar, {
       lsk: {
         name: 'back',
         action: () => {
           this._goToAdvancedSettings();
+          return false;
         }
       },
       dpe: {
         name: 'select',
         action: () => {
           this._popUpDialog('add');
+          return false;
         }
       }
     });
@@ -169,6 +170,7 @@ SetupCalendar.prototype = {
               name: 'cancel',
               action: () => {
                 this.dialogController.close();
+                return false;
               }
             },
             rsk: {
@@ -180,6 +182,7 @@ SetupCalendar.prototype = {
                   this._currentDialogAction = '';
                 }
                 this.dialogController.close();
+                return false;
               }
             }
           }
@@ -316,7 +319,9 @@ SetupCalendar.prototype = {
     var store = this.app.store('Calendar');
     store.remove(id, (err, id) => {
       if (!err) {
-        nextTick(() => {this._saveCalendar(newName, timeStamp)});
+        nextTick(() => {
+          this._saveCalendar(newName, timeStamp);
+        });
       } else {
         this.dialogController.close();
       }
@@ -409,32 +414,36 @@ SetupCalendar.prototype = {
     Array.prototype.slice.call(elements).forEach((element) => {
       var calendarId = element.getAttribute('calendar-id');
       if (calendarId === Local.calendarId) {
-        SoftkeyHandler.register(element, {
+        softkeyHandler.register(element, {
           lsk: {
             name: 'back',
             action: () => {
               this._goToAdvancedSettings();
+              return false;
             }
           }
         });
       } else {
-        SoftkeyHandler.register(element, {
+        softkeyHandler.register(element, {
           lsk: {
             name: 'back',
             action: () => {
               this._goToAdvancedSettings();
+              return false;
             }
           },
           dpe: {
             name: 'rename',
             action: () => {
               this._popUpDialog('rename', element);
+              return false;
             }
           },
           rsk: {
             name: 'delete',
             action: () => {
               this._popUpDialog('delete', element);
+              return false;
             }
           }
         });
@@ -443,17 +452,19 @@ SetupCalendar.prototype = {
   },
 
   initHeader: function() {
-    SoftkeyHandler.register(this.createAccount, {
+    softkeyHandler.register(this.createAccount, {
       lsk: {
         name: 'back',
         action: () => {
           this._goToAdvancedSettings();
+          return false;
         }
       },
       dpe: {
         name: 'select',
         action: () => {
           this._showOptionMenu();
+          return false;
         }
       }
     });
@@ -519,11 +530,12 @@ SetupCalendar.prototype = {
     }
 
     var accountElement = document.getElementById('account-' + id);
-    SoftkeyHandler.register(accountElement, {
+    softkeyHandler.register(accountElement, {
       lsk: {
         name: 'back',
         action: () => {
           this._goToAdvancedSettings();
+          return false;
         }
       },
       dpe: {
@@ -531,6 +543,7 @@ SetupCalendar.prototype = {
         action: () => {
           var accountId = this._parseAccountId();
           router.go('/account/detail/' + accountId);
+          return false;
         }
       },
       rsk: {
@@ -538,6 +551,7 @@ SetupCalendar.prototype = {
         action: () => {
           this._deleteRecord(this._parseAccountId());
           this.showNotices([{name: 'remove-account'}]);
+          return false;
         }
       }
     });

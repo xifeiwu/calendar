@@ -1,4 +1,4 @@
-/* global SoftkeyHandler */
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -348,11 +348,12 @@ Month.prototype = {
             var progress = document.getElementById('progress-indicator');
             this.app.syncController.once('syncStart', function() {
               progress.focus();
-              SoftkeyHandler.register(progress, {
+              softkeyHandler.register(progress, {
                 lsk: {
                   name: 'cancel',
                   action: () => {
                     this.app.syncController.interrupt();
+                    return false;
                   }
                 },
                 dpe: {},

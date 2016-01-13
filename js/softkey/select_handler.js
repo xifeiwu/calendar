@@ -1,6 +1,6 @@
 /* global define */
 
-define(function() {
+(function(exports) {
 'use strict';
 
 var CLICK_ANIMATION_DURATION = 350;
@@ -81,9 +81,7 @@ window.addEventListener('blur', function onBlur(evt) {
       elem = elem.parentElement;
     }
     if (elem) {
-      setTimeout(function() {
-        elem.focus();
-      });
+      elem.focus();
     }
   }
 }, true);
@@ -111,4 +109,4 @@ observer.observe(document.body, {
   attributeFilter: ['disabled']
 });
 
-});
+})(window);

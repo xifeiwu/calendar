@@ -1,10 +1,9 @@
-/* globals SoftkeyHandler */
+/* globals softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
 var CalendarTemplate = require('templates/calendar_chooser');
 var View = require('view');
-var debug = require('debug')('calendar_chooser');
 var forEach = require('object').forEach;
 var Responder = require('responder');
 require('dom!calendar-chooser-view');
@@ -112,17 +111,19 @@ CalendarChooser.prototype = {
       this._checkBoxs = Array.prototype.slice.call(result);
       this._checkBoxs.forEach((checkbox) => {
         this._checkState[checkbox.value] = checkbox.checked;
-        SoftkeyHandler.register(checkbox, {
+        softkeyHandler.register(checkbox, {
           lsk: {
             name: 'cancel',
             action: () => {
               self.hide();
+              return false;
             }
           },
           rsk: {
             name: 'ok',
             action: () => {
               self._onSelectCalendar();
+              return false;
             }
           }
         });

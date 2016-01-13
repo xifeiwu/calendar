@@ -1,4 +1,4 @@
-/* global SoftkeyHandler */
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -6,7 +6,6 @@ var EventBase = require('./event_base');
 var DurationTime = require('templates/duration_time');
 var alarmTemplate = require('templates/alarm');
 var router = require('router');
-var dayObserver = require('day_observer');
 var _ = navigator.mozL10n.get;
 
 require('dom!event-detail-view');
@@ -96,6 +95,7 @@ EventDetail.prototype = {
           name: 'cancel',
           action: () => {
             this.dialogController.close();
+            return false;
           }
         },
         dpe: {},
@@ -108,6 +108,7 @@ EventDetail.prototype = {
                 router.go(this.returnTo());
               }.bind(this)
             );
+            return false;
           }
         }
       }
@@ -279,22 +280,24 @@ EventDetail.prototype = {
 
     if ((model.remote.attendees && model.remote.attendees.length > 0) ||
         !this.isLocal) {
-      SoftkeyHandler.register(this.rootElement, {
+      softkeyHandler.register(this.rootElement, {
         lsk: {
           name: 'back',
           action: () => {
             router.go('/event/list/' + this.busytimeId);
+            return false;
           }
         },
         dpe: {name: ''},
         rsk: {name: ''}
       });
     } else {
-      SoftkeyHandler.register(this.rootElement, {
+      softkeyHandler.register(this.rootElement, {
         lsk: {
           name: 'back',
           action: () => {
             router.go('/event/list/' + this.busytimeId);
+            return false;
           }
         },
         dpe: {
@@ -305,6 +308,7 @@ EventDetail.prototype = {
             } else {
               router.go('/event/edit/' + this.busytimeId);
             }
+            return false;
           }
         },
         rsk: {
@@ -315,6 +319,7 @@ EventDetail.prototype = {
             } else {
               this._openConfirmDialog(false);
             }
+            return false;
           }
         }
       });
