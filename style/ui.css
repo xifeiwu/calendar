@@ -355,4 +355,8 @@ div[contenteditable] {
   transform: translateX(-50%);
   background-color: var(--color-gs85-contrast);
   color: var(--color-gs20-contrast);
+  display: flex;
+  height: 8.2rem;
+  align-items: center;
+  justify-content: center;
 }
