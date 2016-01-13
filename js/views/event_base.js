@@ -323,7 +323,7 @@ EventBase.prototype = {
     var self = this;
     function completeDispatch() {
       if (self.ondispatch) {
-        self.ondispatch();
+        self.ondispatch(data.params);
       }
     }
 
@@ -349,7 +349,7 @@ EventBase.prototype = {
         );
         nextTick(completeDispatch);
       } else if (/^\/event\/list\//.test(router.canonicalPath)) {
-        nextTick(completeDispatch);
+        completeDispatch();
       }
     }
 

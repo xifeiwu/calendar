@@ -20,8 +20,6 @@ function EventsList(options) {
   this.optionMenuController = this.app.optionMenuController;
   this.dialogController = this.app.dialogController;
   this.store = this.app.store('Event');
-  this.selBusytimeId = null;
-  this.lastFocusedEvent = null;
   this.recordsCount = 0;
   // key => busytimeId, value => event
   this.records = {};
@@ -47,7 +45,7 @@ EventsList.prototype = {
     element: '#events-list-view',
     header: '#events-list-header',
     currentDate: '#events-list-header-date',
-    events: '#events-list'
+    events: '#events-list-view #events-list'
   },
 
   get rootElement() {
@@ -81,32 +79,19 @@ EventsList.prototype = {
   },
 
   findAndFocus: function() {
-    this.rootElement.focus();
-    if (this.recordsCount > 0) {
-      var events = this.events.querySelectorAll('li');
-
-      if (events && events.length > 0) {
-        var found = false;
-        if (this.busytimeId) {
-          for (var i = 0; i < events.length; i++) {
-            if (events[i].getAttribute('busytimeId') ===
-                this.busytimeId) {
-              events[i].focus();
-              found = true;
-              this.busytimeId = null;
-              break;
-            }
-          }
+    var busytimes = this.events.querySelectorAll('li[busytimeid]');
+    if (busytimes.length) {
+      var toFocus = null;
+      for (var i = 0; i < busytimes.length; i++) {
+        if (busytimes[i].getAttribute('busytimeid') === this.busytimeId) {
+          toFocus = busytimes[i];
+          break;
         }
-
-        if (!found) {
-          if (this.lastFocusedEvent &&
-              this.events.contains(this.lastFocusedEvent)) {
-            this.lastFocusedEvent.focus();
-          } else {
-            events[0].focus();
-          }
-        }
+      }
+      if (toFocus) {
+        toFocus.focus();
+      } else {
+        busytimes[0].focus();
       }
     } else {
       router.go('/month/');
@@ -120,10 +105,10 @@ EventsList.prototype = {
         if (!this.isDialogOpened) {
           var eventElement = document.activeElement;
           if (!!eventElement && eventElement.hasAttribute('busytimeId')) {
-            this.selBusytimeId = eventElement.getAttribute('busytimeId');
-            router.go('/event/detail/' + this.selBusytimeId);
+            this.busytimeId = eventElement.getAttribute('busytimeId');
+            router.go('/event/detail/' + this.busytimeId);
           } else {
-            this.selBusytimeId = null;
+            this.busytimeId = null;
           }
         }
         break;
@@ -140,12 +125,11 @@ EventsList.prototype = {
             // XXX: only support options for local events for now
             if (element.getAttribute('providerType') === 'Local') {
               element.setAttribute('cacheFocus','');
-              this.selBusytimeId = element.getAttribute('busytimeId');
-              this.lastFocusedEvent = element;
+              this.busytimeId = element.getAttribute('busytimeId');
               this._showOptionMenu();
             }
           } else {
-            this.selBusytimeId = null;
+            this.busytimeId = null;
           }
         }
         break;
@@ -167,6 +151,7 @@ EventsList.prototype = {
     // locale might change while the app is still open
     this.currentDate.dataset.date = date;
     this.currentDate.dataset.l10nDateFormat = formatId;
+    this.findAndFocus();
   },
 
   _showOptionMenu: function() {
@@ -178,7 +163,7 @@ EventsList.prototype = {
       title: _('edit'),
       key: 'edit'
     };
-    if (this.records[this.selBusytimeId].remote.isRecurring) {
+    if (this.records[this.busytimeId].remote.isRecurring) {
       deleteItem.options = {
         header: _('repeat-event-header'),
         items: [
@@ -220,19 +205,19 @@ EventsList.prototype = {
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
-      if (!this.selBusytimeId) {
+      if (!this.busytimeId) {
         return console.error('Illegal busytimeId!');
       }
 
       switch(optionKey) {
         case 'edit':
-          router.go('/event/edit/' + this.selBusytimeId);
+          router.go('/event/edit/' + this.busytimeId);
           break;
         case 'edit-this-only':
-          router.go('/event/edit/' + this.selBusytimeId + '/edit-this-only');
+          router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
           break;
         case 'edit-all':
-          router.go('/event/edit/' + this.selBusytimeId + '/edit-all');
+          router.go('/event/edit/' + this.busytimeId + '/edit-all');
           break;
         case 'delete':
           this._showDialog({
@@ -250,7 +235,7 @@ EventsList.prototype = {
                 name: 'delete',
                 action: () => {
                   this.dialogController.close();
-                  this.deleteEvent(true, this.selBusytimeId,
+                  this.deleteEvent(true, this.busytimeId,
                     function(err, evt) {}
                   );
                 }
@@ -259,10 +244,10 @@ EventsList.prototype = {
           });
           break;
         case 'delete-all':
-          this.deleteEvent(false, this.selBusytimeId, function(err, evt) {});
+          this.deleteEvent(false, this.busytimeId, function(err, evt) {});
           break;
         case 'delete-this-only':
-          this.deleteEvent(true, this.selBusytimeId, function(err, evt) {});
+          this.deleteEvent(true, this.busytimeId, function(err, evt) {});
           break;
       }
     }.bind(this));
@@ -373,6 +358,10 @@ EventsList.prototype = {
       endTime: endDate,
       isAllDay: isAllDay(this.date, startDate, endDate)
     });
+  },
+
+  ondispatch: function(params) {
+    this.busytimeId = params.busytimeId;
   }
 };
 
