@@ -656,6 +656,14 @@ Service.prototype = {
 
       function occuranceHandler(next) {
         var details = event.getOccurrenceDetails(next);
+        if (details.endDate.zone.tzid !== now.zone.tzid) {
+          if (details.endDate.zone.tzid ===
+              ICAL.Timezone.localTimezone.tzid) {
+            now = ICAL.Time.fromJSDate(new Date(), false);
+          } else {
+            now = ICAL.Time.fromJSDate(new Date(), true);
+          }
+        }
         var inFuture = details.endDate.compare(now);
 
         debug('alarm time',
