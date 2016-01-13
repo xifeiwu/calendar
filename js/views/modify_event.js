@@ -433,11 +433,12 @@ ModifyEvent.prototype = {
           // not exist. if the previous page is eventDetail, we will need
           // to refresh the location of previous using new busytime id.
           var pathToGo = self.returnTo();
-          if (/^\/event\/detail\//.test(pathToGo) &&
-              typeof(busytimeOrId) === 'object') {
-            pathToGo = '/event/detail/' + busytimeOrId._id;
-          } else if (!busytimeOrId) {
-            pathToGo = '/event/list/';
+          if (typeof(busytimeOrId) === 'object') {
+            if (/^\/event\/detail\//.test(pathToGo)) {
+              pathToGo = '/event/detail/' + busytimeOrId._id;
+            } else if (/^\/event\/list\//.test(pathToGo)) {
+              pathToGo = '/event/list/' + busytimeOrId._id;
+            }
           }
           router.go(pathToGo);
 
@@ -955,7 +956,11 @@ ModifyEvent.prototype = {
   _keyDownEvent: function(evt) {
     switch(evt.key) {
       case 'AcaSoftLeft':
-        this.cancel();
+        if (/^\/event\/list\//.test(this.returnTo())) {
+          router.go('/event/list/' + this.busytimeId);
+        } else {
+          this.cancel();
+        }
         evt.preventDefault();
         break;
       case 'Enter':
