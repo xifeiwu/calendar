@@ -31,6 +31,12 @@ module.exports = AccountCreation;
 
 AccountCreation.prototype = {
   __proto__: Responder.prototype,
+  _cancelStore: false,
+
+  cancel: function() {
+    this._cancelStore = true;
+  },
+
 
   /**
    * Sends a request to create an account.
@@ -43,8 +49,26 @@ AccountCreation.prototype = {
     var accountStore = this.app.store('Account');
     var calendarStore = this.app.store('Calendar');
 
+    var checkCancel = function() {
+      var needCancel = false;
+      if (this._cancelStore) {
+        callback(null);
+        this._cancelStore = false;
+        accountStore.remove(model._id, function(err, store) {
+          if (err) {
+            console.error('remove online account error: ', err);
+          }
+        });
+        needCancel = true;
+      }
+      return needCancel;
+    }.bind(this);
+
     // begin by persisting the account
-    accountStore.verifyAndPersist(model, function(accErr, id, result) {
+    accountStore.verifyAndPersist(model, (accErr, id, result) => {
+      if (checkCancel()) {
+        return;
+      }
 
       if (accErr) {
         // we bail when we cannot create the account
@@ -62,6 +86,9 @@ AccountCreation.prototype = {
       // has some calendars. This should not take
       // too long (compared to event sync).
       accountStore.sync(result, function(syncErr) {
+        if (checkCancel()) {
+          return;
+        }
         if (syncErr) {
           self.emit('calendarSyncError', syncErr);
           callback(syncErr);

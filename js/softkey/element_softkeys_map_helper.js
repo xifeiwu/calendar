@@ -74,15 +74,6 @@
         },
         'sk-modify-event-end-time': {
           keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
-        },
-        'sk-modify-account-username': {
-          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
-        },
-        'sk-modify-account-password': {
-          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
-        },
-        'sk-modify-account-url': {
-          keys: {lsk: 'cancel', dpe: 'select', rsk: 'save'}
         }
       }
     },

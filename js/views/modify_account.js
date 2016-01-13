@@ -46,7 +46,7 @@ ModifyAccount.prototype = {
 
   selectors: {
     element: '#modify-account-view',
-    form: '.modify-account-form',
+    form: '#modify-account-view .modify-account-form',
     fields: '*[name]',
     saveButton: '#modify-account-view .save',
     deleteButton: '#modify-account-view .delete-confirm',
@@ -57,9 +57,9 @@ ModifyAccount.prototype = {
     errors: '#modify-account-view .errors',
     oauth2Window: '#oauth2',
     oauth2SignIn: '#modify-account-view .force-oauth2',
-    username: '#modify-account-view .sk-modify-account-username',
-    password: '#modify-account-view .sk-modify-account-password',
-    url: '#modify-account-view .sk-modify-account-url'
+    username: '#modify-account-view .modify-account-username',
+    password: '#modify-account-view .modify-account-password',
+    url: '#modify-account-view .modify-account-url'
   },
 
   progressClass: 'in-progress',
@@ -438,27 +438,13 @@ ModifyAccount.prototype = {
   },
 
   initHeader: function() {
-    SoftkeyHandler.register(this.username, {
-      rsk: {
-        name: 'save',
+    SoftkeyHandler.register(this.form, {
+      lsk: {
+        name: 'cancel',
         action: () => {
-          this.save({
-            updateModel: true
-          });
+          this.accountHandler.cancel();
         }
-      }
-    });
-    SoftkeyHandler.register(this.password, {
-      rsk: {
-        name: 'save',
-        action: () => {
-          this.save({
-            updateModel: true
-          });
-        }
-      }
-    });
-    SoftkeyHandler.register(this.url, {
+      },
       rsk: {
         name: 'save',
         action: () => {
