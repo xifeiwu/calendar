@@ -7,7 +7,7 @@
   background-color: var(--color-gs85-contrast);
   color: var(--color-gs20-contrast);
   display: none;
-  z-index: 1000;
+  z-index: 1500;
   max-height: 100%;
 }
 

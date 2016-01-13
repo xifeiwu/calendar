@@ -29,7 +29,6 @@ function Month() {
   }.bind(this));
   this.datePicker.addEventListener('blur', function(evt) {
     navigationHandler.getCurItem().focus();
-    document.querySelector('#time-views').classList.remove('option-menu-bg');
   }.bind(this));
 
   this.calendarChooser = new CalendarChooser({ app: this.app });
@@ -323,8 +322,6 @@ Month.prototype = {
           document.activeElement.getAttribute('id') !==
           'progress-indicator') {
         navigationHandler.getCurItem().focus();
-        document.querySelector('#time-views').classList.
-          remove('option-menu-bg');
       }
     }.bind(this));
     this.app.optionMenuController.once('selected', function(optionKey) {
@@ -370,7 +367,6 @@ Month.prototype = {
           break;
       }
     }.bind(this));
-    document.querySelector('#time-views').classList.add('option-menu-bg');
     this.app.optionMenuController.show({
       items: items
     });

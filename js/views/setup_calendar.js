@@ -467,8 +467,6 @@ SetupCalendar.prototype = {
     ];
 
     this.optionMenuController.once('closed', function() {
-      document.querySelector('#setup-calendar-view').classList.
-        remove('option-menu-bg');
       this.rootElement.focus();
     }.bind(this));
 
@@ -482,8 +480,6 @@ SetupCalendar.prototype = {
       }
     }.bind(this));
 
-    document.querySelector('#setup-calendar-view').classList.
-      add('option-menu-bg');
     this.optionMenuController.show({
       items: items
     });
