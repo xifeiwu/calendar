@@ -83,6 +83,7 @@ SetupCalendar.prototype = {
     account.on('add', this._addAccount.bind(this));
     account.on('update', this._updateAccount.bind(this));
     account.on('preRemove', this._removeAccount.bind(this));
+    account.on('remove', this._removeAccount.bind(this));
 
     SoftkeyHandler.register(this.addLocalCalendar, {
       lsk: {
