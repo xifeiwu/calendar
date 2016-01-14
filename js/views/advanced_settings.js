@@ -25,6 +25,8 @@ AdvancedSettings.prototype = {
   selectors: {
     element: '#advanced-settings-view',
     setupCalendar: '#advanced-settings-view .sk-advs-setup-calendar',
+    syncFrequencyContainer:
+      '#advanced-settings-view .sk-advs-sync-frequency',
     syncFrequency: '#setting-sync-frequency',
     header: '#advanced-settings-header',
     standardAlarmLabel: '#default-event-alarm',
@@ -40,6 +42,10 @@ AdvancedSettings.prototype = {
 
   get syncFrequency() {
     return this._findElement('syncFrequency');
+  },
+
+  get syncFrequencyContainer() {
+    return this._findElement('syncFrequencyContainer');
   },
 
   get standardAlarmLabel() {
@@ -81,7 +87,12 @@ AdvancedSettings.prototype = {
     setting.on('syncFrequencyChange', this);
     setting.on('defaultCalendarChange', this);
 
-    this.syncFrequency.addEventListener('change', this);
+    // XXX: disable sync function for now
+    if (!this.app.isOnlineModificationEnable()) {
+      this.syncFrequencyContainer.style.display = 'none';
+    } else {
+      this.syncFrequency.addEventListener('change', this);
+    }
 
     this.standardAlarmLabel.addEventListener('change', this);
     this.alldayAlarmLabel.addEventListener('change', this);
