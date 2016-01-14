@@ -8,6 +8,7 @@ var router = require('router');
 var template = require('templates/account');
 var Local = require('provider/local');
 var debug = require('debug')('setup_calendar');
+var nextTick = require('next_tick');
 var _ = navigator.mozL10n.get;
 require('dom!setup-calendar-view');
 
@@ -150,11 +151,7 @@ SetupCalendar.prototype = {
               }
             },
             dpe: {
-              name: 'ok',
-              action: () => {
-                var content = this.dialogController.getInputValue().trim();
-                this._saveCalendar(content);
-              }
+              name: 'ok'
             }
           }
         };
@@ -180,6 +177,7 @@ SetupCalendar.prototype = {
                 if (this._currentDialogAction &&
                     this._currentDialogAction === 'delete') {
                   this._deleteCalendar();
+                  this._currentDialogAction = '';
                 }
                 this.dialogController.close();
               }
@@ -202,11 +200,7 @@ SetupCalendar.prototype = {
               }
             },
             dpe: {
-              name: 'ok',
-              action: () => {
-                var content = this.dialogController.getInputValue().trim();
-                this._renameCalendar(content);
-              }
+              name: 'ok'
             }
           }
         };
@@ -219,15 +213,24 @@ SetupCalendar.prototype = {
     this.dialogController.once('opened', () => {
       var diaInput = document.activeElement;
       if (diaInput.tagName === 'INPUT') {
-        diaInput.setSelectionRange(diaInput.value.length, diaInput.value.length);
+        var pos = diaInput.value.length;
+        diaInput.setSelectionRange(pos, pos);
       }
     });
     this.dialogController.once('closed', () => {
       this.rootElement.focus();
     });
     this.dialogController.once('input-blur', () => {
-      this.dialogController.close();
-      this.rootElement.focus();
+      var content = this.dialogController.getInputValue().trim();
+      switch(this._currentDialogAction) {
+        case 'add':
+          this._saveCalendar(content);
+          break;
+        case 'rename':
+          this._renameCalendar(content);
+          break;
+      }
+      this._currentDialogAction = '';
     });
     this.dialogController.show(option);
   },
@@ -264,6 +267,7 @@ SetupCalendar.prototype = {
 
   _saveCalendar: function(name, timeStamp) {
     if (name.length === 0) {
+      this.dialogController.close();
       return;
     }
 
@@ -299,6 +303,7 @@ SetupCalendar.prototype = {
 
   _renameCalendar: function(newName) {
     if (newName.length === 0) {
+      this.dialogController.close();
       return;
     }
     if (this._checkCalendarName(newName)) {
@@ -310,7 +315,11 @@ SetupCalendar.prototype = {
     var timeStamp = this._currentCalendar.getAttribute('time-stamp');
     var store = this.app.store('Calendar');
     store.remove(id, (err, id) => {
-      this._saveCalendar(newName, timeStamp);
+      if (!err) {
+        nextTick(() => {this._saveCalendar(newName, timeStamp)});
+      } else {
+        this.dialogController.close();
+      }
     });
   },
 
