@@ -346,14 +346,11 @@ div[contenteditable] {
   line-height: 2.1rem;
 }
 
-#calendar-toast {
-  width: calc(100% - 2rem);
+#calendar-toast-container {
+  position: absolute;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--color-gs85-contrast);
-  color: var(--color-gs20-contrast);
-  display: flex;
-  height: 8.2rem;
-  align-items: center;
-  justify-content: center;
+  pointer-events: none;
+  z-index: 1000;
 }
