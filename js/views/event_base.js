@@ -4,7 +4,6 @@ define(function(require, exports, module) {
 var Event = require('models/event');
 var View = require('view');
 var dayObserver = require('day_observer');
-var isToday = require('calc').isToday;
 var nextTick = require('next_tick');
 var providerFactory = require('provider/provider_factory');
 var router = require('router');
@@ -36,19 +35,12 @@ EventBase.prototype = {
 
   DEFAULT_VIEW: '/month/',
 
-  _initEvents: function() {
-    this.header.addEventListener('action', this.cancel);
-    this.primaryButton.addEventListener('click', this.primary);
-  },
+  _initEvents: function() {},
 
   uiSelector: '.%',
 
   get header() {
     return this._findElement('header');
-  },
-
-  get primaryButton() {
-    return this._findElement('primaryButton');
   },
 
   get fieldRoot() {

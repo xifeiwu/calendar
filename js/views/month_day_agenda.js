@@ -28,10 +28,6 @@ MonthDayAgenda.prototype = {
     emptyMessage: '#empty-message'
   },
 
-  get element() {
-    return this._findElement('element');
-  },
-
   get events() {
     return this._findElement('events');
   },

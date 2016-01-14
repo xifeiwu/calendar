@@ -1,15 +1,6 @@
 <element name="modify-event" extends="section">
   <template>
-    <gaia-header id="modify-event-header" action="close">
-      <h1 data-l10n-id="new-event-header" class="save-text"></h1>
-      <h1 data-l10n-id="edit-event-header" class="done-text"></h1>
-      <button class="save">
-        <span data-l10n-id="save" class="save-text">Save</span>
-        <span data-l10n-id="done" class="done-text">Done</span>
-      </button>
-    </gaia-header>
-
-    <h5-header>
+    <h5-header id="modify-event-header">
       <h1 data-l10n-id="new-event-header" class="save-text"></h1>
       <h1 data-l10n-id="edit-event-header" class="done-text"></h1>
     </h5-header>
@@ -119,16 +110,6 @@
           </h5-input-wrapper>
         </li>
       </ul>
-
-      <div class="delete">
-        <a role="button" data-l10n-id="event-delete" class="danger delete-record bb-button">
-          Delete Event
-        </a>
-      </div>
-
-      <section role="status">
-        <p class="errors"></p>
-      </section>
     </form>
   </template>
 </element>

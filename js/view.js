@@ -37,9 +37,6 @@ function View(options) {
       }
     }
   }
-
-  this.hideErrors = this.hideErrors.bind(this);
-  this.hideNotices = this.hideNotices.bind(this);
 }
 module.exports = View;
 
@@ -48,23 +45,13 @@ View.ACTIVE = 'active';
 View.prototype = {
   seen: false,
   activeClass: View.ACTIVE,
-  errorVisible: false,
-  noticeVisible: false,
 
   get element() {
     return this._findElement('element');
   },
 
-  get status() {
-    return this._findElement('status');
-  },
-
-  get errors() {
-    return this._findElement('errors');
-  },
-
-  get notices() {
-    return this._findElement('notices');
+  get header() {
+    return this._findElement('header');
   },
 
   /**
@@ -206,12 +193,7 @@ View.prototype = {
       errors += _('error-' + name) || _(DEFAULT_ERROR_ID);
     }
 
-    // populate error and display it.
-    this.errors.textContent = errors;
-    this.errorVisible = true;
-    this.status.classList.add(this.activeClass);
-
-    this.status.addEventListener('animationend', this.hideErrors);
+    this.showToast(errors);
   },
 
   showNotices: function(list) {
@@ -230,34 +212,16 @@ View.prototype = {
       notices += _('notice-' + name);
     }
 
-    this.notices.textContent = notices;
-    this.noticeVisible = true;
-    this.status.classList.add(this.activeClass);
-
-    this.status.addEventListener('animationend', this.hideNotices);
+    this.showToast(notices);
   },
 
-  hideErrors: function() {
-    this.status.classList.remove(this.activeClass);
-    this.status.removeEventListener('animationend', this.hideErrors);
-    this.errorVisible = false;
-  },
-
-  hideNotices: function() {
-    this.status.classList.remove(this.activeClass);
-    this.status.removeEventListener('animationend', this.hideNotices);
-    this.noticeVisible = false;
+  showToast: function(message) {
+    this.app.toast.show({
+      message: message
+    });
   },
 
   onactive: function() {
-    if (this.errorVisible) {
-      this.hideErrors();
-    }
-
-    if (this.noticeVisible) {
-      this.hideNotices();
-    }
-
     // seen can be set to anything other than false to override this behaviour
     if (this.seen === false) {
       this.onfirstseen();

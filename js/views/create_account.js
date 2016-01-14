@@ -32,10 +32,6 @@ CreateAccount.prototype = {
     return this._findElement('accounts');
   },
 
-  get header() {
-    return this._findElement('header');
-  },
-
   _initEvents: function() {
     var self = this;
     var store = this.app.store('Account');
@@ -48,8 +44,6 @@ CreateAccount.prototype = {
 
     store.on('remove', render);
     store.on('add', render);
-
-    this.header.addEventListener('action', this.cancel);
   },
 
   render: function() {
