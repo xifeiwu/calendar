@@ -58,3 +58,7 @@
   width: 28rem;
   white-space: nowrap;
 }
+
+#advanced-settings-view ul li[focus] span[name="defaultCalendar-locale"] {
+  border-bottom: 0.1rem solid var(--white-color);
+}
