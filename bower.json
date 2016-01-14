@@ -50,6 +50,7 @@
     "h5-dialog": "gaia-components/h5-dialog#~0.0.5",
     "h5-list-button": "gaia-components/h5-list-button#~0.0.2",
     "h5-icons": "gaia-components/h5-icons#~0.1.5",
-    "h5-progress": "gaia-components/h5-progress#~0.0.1"
+    "h5-progress": "gaia-components/h5-progress#~0.0.1",
+    "h5-toast": "gaia-components/h5-toast#~0.0.3"
   }
 }

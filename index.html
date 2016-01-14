@@ -67,6 +67,7 @@
 <script defer src="shared/h5-two-line-li/h5-two-line-li.js"></script>
 <script defer src="shared/h5-list-button/h5-list-button.js"></script>
 <script defer src="shared/h5-progress/h5-progress.js"></script>
+<script defer src="shared/h5-toast/h5-toast.js"></script>
 
 <!-- Icons are lazy loaded by gaia-header -->
 <!-- <link rel="stylesheet" type="text/css" href="shared/gaia-icons/gaia-icons.css" /> -->
@@ -96,8 +97,8 @@
 
 <body role="application" class="loading theme-calendar">
 
-<section id="calendar-toast" role="status" aria-live="assertive" aria-atomic="true">
-  <p class="message"></p>
+<section id="calendar-toast-container" aria-live="assertive" aria-atomic="true">
+  <h5-toast id="calendar-toast-message" timeout="3000"></h5-toast>
 </section>
 <section is="errors" id="errors" role="status" aria-live="assertive" aria-atomic="true"></section>
 <section is="settings" id="settings" role="region"></section>
