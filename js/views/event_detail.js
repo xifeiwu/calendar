@@ -39,10 +39,6 @@ EventDetail.prototype = {
     invitees:'#event-detail-invitees'
   },
 
-  get rootElement() {
-    return this._findElement('element');
-  },
-
   get title() {
     return this._findElement('title');
   },
@@ -118,8 +114,8 @@ EventDetail.prototype = {
     }.bind(this));
 
     this.dialogController.once('closed', function() {
-      this.rootElement.focus();
-      this.rootElement.spatialNavigator.focus();
+      this.element.focus();
+      this.element.spatialNavigator.focus();
     }.bind(this));
 
     this.dialogController.show(option);
@@ -145,8 +141,8 @@ EventDetail.prototype = {
     ];
 
     this.optionMenuController.once('closed', function() {
-      this.rootElement.focus();
-      this.rootElement.spatialNavigator.focus();
+      this.element.focus();
+      this.element.spatialNavigator.focus();
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
@@ -275,12 +271,12 @@ EventDetail.prototype = {
 
     this.description.innerHTML = model.description;
 
-    this.rootElement.focus();
-    this.rootElement.spatialNavigator.focus();
+    this.element.focus();
+    this.element.spatialNavigator.focus();
 
     if ((model.remote.attendees && model.remote.attendees.length > 0) ||
         !this.isLocal) {
-      softkeyHandler.register(this.rootElement, {
+      softkeyHandler.register(this.element, {
         lsk: {
           name: 'back',
           action: () => {
@@ -292,7 +288,7 @@ EventDetail.prototype = {
         rsk: {name: ''}
       });
     } else {
-      softkeyHandler.register(this.rootElement, {
+      softkeyHandler.register(this.element, {
         lsk: {
           name: 'back',
           action: () => {

@@ -16,7 +16,6 @@ var _ = navigator.mozL10n.get;
 require('dom!modify-event-view');
 
 function ModifyEvent(options) {
-  this.deleteRecord = this.deleteRecord.bind(this);
   this._toggleAllDay = this._toggleAllDay.bind(this);
   EventBase.apply(this, arguments);
   this._keyDownHandler = this._keyDownEvent.bind(this);
@@ -45,10 +44,6 @@ ModifyEvent.prototype = {
     startTimeLocale: '#start-time-locale',
     endDateLocale: '#end-date-locale',
     endTimeLocale: '#end-time-locale',
-    status: '#modify-event-view section[role="status"]',
-    errors: '#modify-event-view .errors',
-    primaryButton: '#modify-event-view .save',
-    deleteButton: '#modify-event-view .delete-record',
     header: '#modify-event-header'
   },
 
@@ -60,7 +55,6 @@ ModifyEvent.prototype = {
   _initEvents: function() {
     EventBase.prototype._initEvents.apply(this, arguments);
 
-    this.deleteButton.addEventListener('click', this.deleteRecord);
     this.form.addEventListener('click', this.focusHandler);
     this.form.addEventListener('submit', this.primary);
     var calEvent = this.getEl('calendarId');
@@ -171,7 +165,8 @@ ModifyEvent.prototype = {
       this._updateCalendarIdSelector();
       // Content of CalendarId Selector is append in this callback function,
       // so the Selector may be blank when _updateUI is called. The if statement
-      // below is used to fix this problem by updating the presentation of Selector.
+      // below is used to fix this problem by updating the presentation of
+      // Selector.
       if (this.event && this.event.calendarId) {
         this.getEl('calendarId').value = this.event.calendarId;
         this.calendarDis();
@@ -304,10 +299,6 @@ ModifyEvent.prototype = {
 
   get form() {
     return this._findElement('form');
-  },
-
-  get deleteButton() {
-    return this._findElement('deleteButton');
   },
 
   get fieldRoot() {
@@ -458,45 +449,6 @@ ModifyEvent.prototype = {
   },
 
   /**
-   * Deletes current record if provider is present and has the capability.
-   */
-  deleteRecord: function(event) {
-    if (event) {
-      event.preventDefault();
-    }
-
-    if (this.isSaved()) {
-      var self = this;
-      var handleDelete = function me_handleDelete() {
-        self.provider.deleteEvent(self.event.data, function(err) {
-          if (err) {
-            self.showErrors(err);
-            return;
-          }
-
-          // If we edit a view our history stack looks like:
-          //   /week -> /event/view -> /event/save -> /event/view
-          // We need to return all the way to the top of the stack
-          // We can remove this once we have a history stack
-          self.app.view('ViewEvent', function(view) {
-            router.go(view.returnTop());
-          });
-        });
-      };
-
-      this.provider.eventCapabilities(this.event.data, function(err, caps) {
-        if (err) {
-          return console.error('Error fetching event capabilities', this.event);
-        }
-
-        if (caps.canDelete) {
-          handleDelete();
-        }
-      });
-    }
-  },
-
-  /**
    * Persist current model.
    */
   primary: function(event) {
@@ -611,11 +563,10 @@ ModifyEvent.prototype = {
   },
 
   enablePrimary: function() {
-    this.primaryButton.removeAttribute('aria-disabled');
+    this._saveEnable = true;
   },
 
   disablePrimary: function() {
-    this.primaryButton.setAttribute('aria-disabled', 'true');
     this._saveEnable = false;
   },
 

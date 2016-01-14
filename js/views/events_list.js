@@ -48,10 +48,6 @@ EventsList.prototype = {
     events: '#events-list-view #events-list'
   },
 
-  get rootElement() {
-    return this._findElement('element');
-  },
-
   get currentDate() {
     return this._findElement('currentDate');
   },
@@ -73,9 +69,6 @@ EventsList.prototype = {
     }
     this.date = null;
     window.removeEventListener('keydown', this._keyDownHandler);
-  },
-
-  _initEvents: function() {
   },
 
   findAndFocus: function() {

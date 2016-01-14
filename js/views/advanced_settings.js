@@ -34,10 +34,6 @@ AdvancedSettings.prototype = {
       'span[name="defaultCalendar-locale"]'
   },
 
-  get rootElement() {
-    return this._findElement('element');
-  },
-
   get setupCalendar() {
     return this._findElement('setupCalendar');
   },
@@ -52,10 +48,6 @@ AdvancedSettings.prototype = {
 
   get alldayAlarmLabel() {
     return this._findElement('alldayAlarmLabel');
-  },
-
-  get header() {
-    return this._findElement('header');
   },
 
   get standardAlarm() {
@@ -288,11 +280,11 @@ AdvancedSettings.prototype = {
     View.prototype.onactive.apply(this, arguments);
     this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
-    this.rootElement.focus();
+    this.element.focus();
   },
 
   oninactive: function() {
-    View.prototype.oninactive.call(this);
+    View.prototype.oninactive.call(this, arguments);
     window.removeEventListener('keydown', this._keyDownHandler);
   },
 

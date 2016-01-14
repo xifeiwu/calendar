@@ -34,10 +34,6 @@ CalendarChooser.prototype = {
     calendars: '#calendar-chooser-view .calendars',
   },
 
-  get header() {
-    return this._findElement('header');
-  },
-
   get calendars() {
     return this._findElement('calendars');
   },
@@ -244,7 +240,7 @@ CalendarChooser.prototype = {
   },
 
   oninactive: function() {
-    View.prototype.oninactive.call(this);
+    View.prototype.oninactive.call(this, arguments);
   },
 };
 

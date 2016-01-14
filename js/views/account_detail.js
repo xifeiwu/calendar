@@ -28,14 +28,6 @@ AccountDetail.prototype = {
     calendars: '#calendar-list'
   },
 
-  get rootElement() {
-    return this._findElement('element');
-  },
-
-  get header() {
-    return this._findElement('header');
-  },
-
   get calendars() {
     return this._findElement('calendars');
   },
@@ -82,7 +74,7 @@ AccountDetail.prototype = {
   },
 
   _focus: function() {
-    this.rootElement.focus();
+    this.element.focus();
     if (this.count > 0) {
       var events = this.calendars.querySelectorAll('li');
       if (events && events.length > 0) {
