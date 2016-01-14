@@ -37,24 +37,29 @@ function Month() {
     navigationHandler.getCurItem().focus();
   });
 
-  // get and observe syncFrequency to determine
-  // whether to show 'Sync Calendar' or not
-  this.needShowSyncCalendar = false;
-  var setting = this.app.store('Setting');
-  setting.getValue('syncFrequency', function(err, value) {
-    if (!err && (value === 0)) {
-      this.needShowSyncCalendar = true;
-    } else {
-      this.needShowSyncCalendar = false;
-    }
-  }.bind(this));
-  setting.on('syncFrequencyChange', function(syncFreq) {
-    if (syncFreq === 0) {
-      this.needShowSyncCalendar = true;
-    } else {
-      this.needShowSyncCalendar = false;
-    }
-  }.bind(this));
+  // XXX: disable sync function for now
+  if (this.app.isOnlineModificationEnable()) {
+    // get and observe syncFrequency to determine
+    // whether to show 'Sync Calendar' or not
+    this.needShowSyncCalendar = false;
+    var setting = this.app.store('Setting');
+    setting.getValue('syncFrequency', function(err, value) {
+      if (!err && (value === 0)) {
+        this.needShowSyncCalendar = true;
+      } else {
+        this.needShowSyncCalendar = false;
+      }
+    }.bind(this));
+    setting.on('syncFrequencyChange', function(syncFreq) {
+      if (syncFreq === 0) {
+        this.needShowSyncCalendar = true;
+      } else {
+        this.needShowSyncCalendar = false;
+      }
+    }.bind(this));
+  } else {
+    this.needShowSyncCalendar = false;
+  }
 
   this._keyDownHandler = this._keyDownEvent.bind(this);
 }
