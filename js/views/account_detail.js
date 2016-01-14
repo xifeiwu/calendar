@@ -1,4 +1,4 @@
-/* global SoftkeyHandler */
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -16,8 +16,6 @@ function AccountDetail(options) {
   this.calendarStore = this.app.store('Calendar');
   this.accountId = null;
   this.count = 0;
-
-  this._keyDownHandler = this._keyDownHandler.bind(this);
 }
 module.exports = AccountDetail;
 
@@ -93,22 +91,16 @@ AccountDetail.prototype = {
     }
   },
 
-  _keyDownHandler: function(evt) {
-    switch (evt.key) {
-      case 'AcaSoftLeft':
-        router.go('/setup-calendar/');
-        evt.preventDefault();
-        break;
-    }
-  },
-
   onactive: function() {
     View.prototype.onactive.apply(this, arguments);
     this._updateUI();
-    window.addEventListener('keydown', this._keyDownHandler, false);
-    SoftkeyHandler.register(this.calendars, {
+    softkeyHandler.register(this.calendars, {
       lsk: {
-        name: 'back'
+        name: 'back',
+        action: () => {
+          router.go('/setup-calendar/');
+          return false;
+        }
       },
       dpe: {},
       rsk: {}
@@ -117,7 +109,6 @@ AccountDetail.prototype = {
 
   oninactive: function() {
     View.prototype.oninactive.apply(this, arguments);
-    window.removeEventListener('keydown', this._keyDownHandler);
   },
 
   dispatch: function(data) {

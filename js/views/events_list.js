@@ -226,6 +226,7 @@ EventsList.prototype = {
                 name: 'cancel',
                 action: () => {
                   this.dialogController.close();
+                  return false;
                 }
               },
               dpe: {},
@@ -236,6 +237,7 @@ EventsList.prototype = {
                   this.deleteEvent(true, this.busytimeId,
                     function(err, evt) {}
                   );
+                  return false;
                 }
               }
             }

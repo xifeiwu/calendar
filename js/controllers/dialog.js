@@ -1,4 +1,4 @@
-/* global SoftkeyHandler */
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -29,10 +29,10 @@ DialogController.prototype = {
     }
 
     if (option.softKeysHandler) {
-      SoftkeyHandler.register(this.dialog, option.softKeysHandler);
+      softkeyHandler.register(this.dialog, option.softKeysHandler);
     }
     if (option.inputSoftKeysHandler) {
-      SoftkeyHandler.register(this.dialog.dialogTextInput,
+      softkeyHandler.register(this.dialog.dialogTextInput,
         option.inputSoftKeysHandler);
     }
 

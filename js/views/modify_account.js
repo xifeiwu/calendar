@@ -1,3 +1,4 @@
+/* global softkeyHandler */
 define(function(require, exports, module) {
 'use strict';
 
@@ -438,11 +439,12 @@ ModifyAccount.prototype = {
   },
 
   initHeader: function() {
-    SoftkeyHandler.register(this.form, {
+    softkeyHandler.register(this.form, {
       lsk: {
         name: 'cancel',
         action: () => {
           this.accountHandler.cancel();
+          return false;
         }
       },
       rsk: {
@@ -451,6 +453,7 @@ ModifyAccount.prototype = {
           this.save({
             updateModel: true
           });
+          return false;
         }
       }
     });
