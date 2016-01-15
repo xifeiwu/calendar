@@ -272,7 +272,9 @@ EventDetail.prototype = {
     this.description.innerHTML = model.description;
 
     this.element.focus();
-    this.element.spatialNavigator.focus();
+    if (this.element.spatialNavigator) {
+      this.element.spatialNavigator.focus();
+    }
 
     if ((model.remote.attendees && model.remote.attendees.length > 0) ||
         !this.isLocal) {
