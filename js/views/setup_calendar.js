@@ -38,13 +38,7 @@ SetupCalendar.prototype = {
     createAccount: '#setup-calendar-view .sk-add-account',
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',
     localCalendars: '#setup-calendar-view .local-calendars',
-    errors: '#setup-calendar-view .errors',
-    status: '#setup-calendar-view section[role="status"]',
-    notices: '#setup-calendar-view .notices'
-  },
-
-  get rootElement() {
-    return this._findElement('element');
+    onlineContainer: '#setup-calendar-view #calendar-online-container'
   },
 
   get createAccount() {
@@ -101,13 +95,17 @@ SetupCalendar.prototype = {
         }
       }
     });
+
+    if (!this.app.isOnlineModificationEnable()) {
+      this._findElement('onlineContainer').style.display = 'none';
+    }
   },
 
   onactive: function() {
     View.prototype.onactive.apply(this, arguments);
     this._keyDownHandler = this.handleKeyDownEvent.bind(this);
     window.addEventListener('keydown', this._keyDownHandler, false);
-    this.rootElement.focus();
+    this.element.focus();
   },
 
   oninactive: function() {
@@ -221,7 +219,7 @@ SetupCalendar.prototype = {
       }
     });
     this.dialogController.once('closed', () => {
-      this.rootElement.focus();
+      this.element.focus();
     });
     this.dialogController.once('input-blur', () => {
       var content = this.dialogController.getInputValue().trim();
@@ -487,7 +485,7 @@ SetupCalendar.prototype = {
     ];
 
     this.optionMenuController.once('closed', function() {
-      this.rootElement.focus();
+      this.element.focus();
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
