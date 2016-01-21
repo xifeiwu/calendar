@@ -1,3 +1,7 @@
+:root {
+  font-family: var(--default-font-family);
+}
+
 * {
   -moz-box-sizing: border-box;
   /* By default do not allow any user text selection, only enable for certain
