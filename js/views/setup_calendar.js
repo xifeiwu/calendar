@@ -227,19 +227,20 @@ SetupCalendar.prototype = {
     this.dialogController.once('closed', () => {
       this.element.focus();
     });
-    this.dialogController.once('input-blur', () => {
-      var content = this.dialogController.getInputValue().trim();
-      switch(this._currentDialogAction) {
-        case 'add':
-          this._saveCalendar(content);
-          break;
-        case 'rename':
-          this._renameCalendar(content);
-          break;
-      }
-      this._currentDialogAction = '';
-    });
+    this.dialogController.once('input-blur', this.dealAction.bind(this));
     this.dialogController.show(option);
+  },
+
+  dealAction: function() {
+    var content = this.dialogController.getInputValue().trim();
+    switch(this._currentDialogAction) {
+      case 'add':
+        this._saveCalendar(content);
+        break;
+      case 'rename':
+        this._renameCalendar(content);
+        break;
+    }
   },
 
   _checkCalendarName: function(name) {
@@ -254,17 +255,11 @@ SetupCalendar.prototype = {
   },
 
   _saveCalendar: function(name, timeStamp) {
-    if (name.length === 0) {
-      this.dialogController.close();
+    if (!this.nameCheck(name)) {
       return;
     }
 
-    if (this._checkCalendarName(name)) {
-      this.dialogController.close();
-      this.showNotices([{name: 'name-already-exist'}]);
-      return;
-    }
-
+    this.dialogController.clearMessage();
     var calendarStore = this.app.store('Calendar');
     var calendar = {
       accountId: this.dbListener.getLocalAccountId(),
@@ -280,20 +275,17 @@ SetupCalendar.prototype = {
       if (err) {
         console.error('Cannot save calendar', err);
       }
+      this._currentDialogAction = '';
       this.dialogController.close();
     });
   },
 
   _renameCalendar: function(newName) {
-    if (newName.length === 0) {
-      this.dialogController.close();
+    if (!this.nameCheck(newName)) {
       return;
     }
-    if (this._checkCalendarName(newName)) {
-      this.dialogController.close();
-      this.showNotices([{name: 'name-already-exist'}]);
-      return;
-    }
+
+    this.dialogController.clearMessage();
     var id = this._currentCalendar.getAttribute('calendar-id');
     var timeStamp = this._currentCalendar.getAttribute('time-stamp');
     var store = this.app.store('Calendar');
@@ -303,9 +295,39 @@ SetupCalendar.prototype = {
           this._saveCalendar(newName, timeStamp);
         });
       } else {
+        this._currentDialogAction = '';
         this.dialogController.close();
       }
     });
+  },
+
+  nameCheck: function(newName) {
+    var self = this;
+    if (newName.length === 0) {
+      this._currentDialogAction = '';
+      this.dialogController.close();
+      return false;
+    }
+    if (this._checkCalendarName(newName)) {
+      this.dialogController.setMessage(_('notice-name-already-exist'));
+      nextTick(() => {
+        this.dialogController.dialog.dialogTextInput.focus();
+        this.dialogController.once('input-blur', this.dealAction.bind(self));
+      });
+      var inputContent = this.dialogController.dialog.dialogTextInput;
+      inputContent.addEventListener('keydown',
+        function _clearMessage () {
+          nextTick(() => {
+            if (!self._checkCalendarName(inputContent.value)) {
+              self.dialogController.clearMessage();
+              inputContent.removeEventListener('keydown', _clearMessage);
+            }
+          });
+        }
+      );
+      return false;
+    }
+    return true;
   },
 
   _deleteCalendar: function() {
