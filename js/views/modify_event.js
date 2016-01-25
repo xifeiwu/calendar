@@ -420,7 +420,7 @@ ModifyEvent.prototype = {
       location: this.getEl('location').value,
       repeat: this.getEl('repeat').value,
       calendarId: this.getEl('calendarId').value,
-      description: this.getEl('description').innerHTML,
+      description: this.getEl('description').value,
       isAllDay: this.getEl('allday').checked,
       recurrenceId: ''
     };
@@ -598,7 +598,7 @@ ModifyEvent.prototype = {
       this.getEl('repeat').value = model.repeat;
     }
 
-    this.getEl('description').innerHTML = model.description;
+    this.getEl('description').value = model.description;
 
     // update calendar id
     this.getEl('calendarId').value = model.calendarId;
