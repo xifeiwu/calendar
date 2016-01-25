@@ -6,6 +6,7 @@ var View = require('view');
 var providerFactory = require('provider/provider_factory');
 var router = require('router');
 var template = require('templates/account');
+var calendarTemplate = require('templates/calendar');
 var Local = require('provider/local');
 var nextTick = require('next_tick');
 var _ = navigator.mozL10n.get;
@@ -18,16 +19,21 @@ function SetupCalendar(options) {
   this.optionMenuController = this.app.optionMenuController;
   this._initEvents();
   this.initHeader();
-  this.localCalendarList = {};
   this.dialogController = this.app.dialogController;
+
+  this.dbListener = this.app.dbListener;
+  this.allCalendars = this.dbListener.getLocalCalendars();
+  this._updateLocalCalendarDOM();
+  this.dbListener.on('local-calendar-change', (calendars) => {
+    this.allCalendars = calendars;
+    this._updateLocalCalendarDOM();
+  });
 }
 module.exports = SetupCalendar;
 
 SetupCalendar.prototype = {
   __proto__: View.prototype,
 
-  localCalendarList: null,
-  localAccountId: '',
   _currentDialogAction: '',
   _currentCalendar: null,
 
@@ -236,29 +242,10 @@ SetupCalendar.prototype = {
     this.dialogController.show(option);
   },
 
-  _getLocalAccountId: function() {
-    return new Promise((resolve, reject) => {
-      if (this.localAccountId.length) {
-        resolve();
-      } else {
-        var accountStore = this.app.store('Account');
-        accountStore.all().then((accounts) => {
-          for (var key in accounts) {
-            if (accounts[key].preset === 'local') {
-              this.localAccountId = accounts[key]._id;
-              break;
-            }
-          }
-          resolve();
-        });
-      }
-    });
-  },
-
   _checkCalendarName: function(name) {
     var _isNameExist = false;
-    for (var key in this.localCalendarList) {
-      if (name === this.localCalendarList[key].remote.name) {
+    for (var key in this.allCalendars) {
+      if (name === this.allCalendars[key].remote.name) {
         _isNameExist = true;
         break;
       }
@@ -278,26 +265,21 @@ SetupCalendar.prototype = {
       return;
     }
 
-    this._getLocalAccountId().then(() => {
-      var calendarStore = this.app.store('Calendar');
-      var calendar = {
-        accountId: this.localAccountId,
-        remote: Local.defaultCalendar()
-      };
-      calendar.remote.name = name;
-      if (timeStamp) {
-        calendar.remote.timeStamp = timeStamp;
-      } else {
-        calendar.remote.timeStamp = new Date().getTime();
+    var calendarStore = this.app.store('Calendar');
+    var calendar = {
+      accountId: this.dbListener.getLocalAccountId(),
+      remote: Local.defaultCalendar()
+    };
+    calendar.remote.name = name;
+    if (timeStamp) {
+      calendar.remote.timeStamp = timeStamp;
+    } else {
+      calendar.remote.timeStamp = new Date().getTime();
+    }
+    calendarStore.persist(calendar, (err, id, model) => {
+      if (err) {
+        console.error('Cannot save calendar', err);
       }
-      calendarStore.persist(calendar, (err, id, model) => {
-        if (err) {
-          console.error('Cannot save calendar', err);
-        }
-        this.dialogController.close();
-      });
-    }).catch((err) => {
-      console.error('Error in _saveCalendar.', err);
       this.dialogController.close();
     });
   },
@@ -334,81 +316,20 @@ SetupCalendar.prototype = {
     });
   },
 
-  _getLocalCalendars: function() {
-    return new Promise((resolve, reject) => {
-      if (this.localCalendarList &&
-        Object.keys(this.localCalendarList).length) {
-        resolve();
-      } else {
-        var store = this.app.store('Calendar');
-        store.all().then((calendars) => {
-          for (var key in calendars) {
-            if (calendars[key].accountId === this.localAccountId) {
-              this.localCalendarList[key] = calendars[key];
-            }
-          }
-          this._observeLocalCalendarStore();
-          resolve();
-        });
-      }
-    });
-  },
-
-  _observeLocalCalendarStore: function() {
-    var store = this.app.store('Calendar');
-    // calendar store events
-    store.on('add', this._dbListener.bind(this, 'add'));
-    store.on('update', this._dbListener.bind(this, 'update'));
-    store.on('remove', this._dbListener.bind(this, 'remove'));
-  },
-
-  _dbListener: function(operation, id, model) {
-    if (model && this.localAccountId !== model.accountId) {
-      return;
-    }
-    if (operation === 'add' || operation === 'update') {
-      this.localCalendarList[id] = model;
-    } else if (operation === 'remove') {
-      delete this.localCalendarList[id];
-    }
-    this._updateLocalCalendarDOM();
-  },
-
-  _calendarTemplate: function(id, remote){
-    var name = remote.name;
-    var color = remote.color;
-    var timeStamp = remote.timeStamp;
-    var html = `
-      <li role="presentation" tabindex="0" calendar-id=${id}
-        time-stamp=${timeStamp}>
-        <div class="on-off-line-calendar">
-          <div class="indicator"
-            style="background-color: ${color} !important;"></div>
-            <div class="setup-calendar-id">
-              <p class="setup-calendar-p">${name}</p>
-            </div>
-          </div>
-      </li>`;
-    return html;
-  },
-
   _updateLocalCalendarDOM: function() {
-    // Order the list according to timeStamps
-    function stampSorts(a, b) {
-      return a.remote.timeStamp - b.remote.timeStamp;
-    }
-
     this.localCalendars.innerHTML = '';
-    Object.keys(this.localCalendarList).map(key => {
-      return this.localCalendarList[key];
-    }).sort(stampSorts).forEach(calendar => {
-      var id = calendar._id;
-      var remote = calendar.remote;
+    this.allCalendars.forEach(calendar => {
       this.localCalendars.insertAdjacentHTML('beforeend',
-        this._calendarTemplate(id, remote));
+        calendarTemplate.calendarLi.render({
+          id: calendar._id,
+          name: calendar.remote.name,
+          color: calendar.remote.color,
+          timeStamp: calendar.remote.timeStamp,
+        }));
     });
 
-    var elements = this.localCalendars.querySelectorAll('li[tabindex="0"]');
+    var sleector = 'li[tabindex="0"][calendar-id]';
+    var elements = this.localCalendars.querySelectorAll(sleector);
     Array.prototype.slice.call(elements).forEach((element) => {
       var calendarId = element.getAttribute('calendar-id');
       if (calendarId === Local.calendarId) {
@@ -612,14 +533,6 @@ SetupCalendar.prototype = {
 
     var accounts = this.app.store('Account');
     accounts.all(renderAccounts);
-
-    this._getLocalAccountId().then(() => {
-      return this._getLocalCalendars();
-    }).then(()=> {
-      return this._updateLocalCalendarDOM();
-    }).catch((error) => {
-      console.error('init local calendar list Error.', error);
-    });
   }
 };
 

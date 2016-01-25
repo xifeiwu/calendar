@@ -31,7 +31,25 @@ module.exports = create({
           <span ${l10n} class="name" dir="auto">${name}</span>
         </label>
       </li>`;
-  }
+  },
+
+  calendarLi: function() {
+    var id = this.s('id');
+    var name = this.s('name');
+    var color = this.s('color');
+    var timeStamp = this.s('timeStamp');
+    return `
+      <li role="presentation" tabindex="0" calendar-id=${id}
+        time-stamp=${timeStamp}>
+        <div class="on-off-line-calendar">
+          <div class="indicator"
+            style="background-color: ${color} !important;"></div>
+            <div class="setup-calendar-id">
+              <p class="setup-calendar-p">${name}</p>
+            </div>
+          </div>
+      </li>`;
+  },
 });
 
 });

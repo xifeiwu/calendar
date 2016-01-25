@@ -12,6 +12,7 @@ var RecurringEventsController = require('controllers/recurring_events');
 var DeleteController = require('controllers/delete');
 var OptionMenuController = require('controllers/option_menu');
 var DialogController = require('controllers/dialog');
+var DBListener = require('store/listener');
 var Toast = require('controllers/toast');
 var router = require('router');
 var ServiceController = require('controllers/service');
@@ -411,6 +412,7 @@ module.exports = {
       // are not visible. this also makes sure we load the calendars as soon as
       // possible
       this.store('Calendar').all(() => dayObserver.init());
+      this.dbListener = new DBListener(this);
 
       // we init the UI after the db.load to increase perceived performance
       // (will feel like busytimes are displayed faster)

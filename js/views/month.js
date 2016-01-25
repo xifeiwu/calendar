@@ -31,12 +31,6 @@ function Month() {
     navigationHandler.getCurItem().focus();
   }.bind(this));
 
-  this.calendarChooser = new CalendarChooser({ app: this.app });
-  this.calendarChooser.event.on('hide', function() {
-    document.querySelector('#time-views').classList.remove('cal-chooser-bg');
-    navigationHandler.getCurItem().focus();
-  });
-
   // XXX: disable sync function for now
   if (this.app.isOnlineModificationEnable()) {
     // get and observe syncFrequency to determine
@@ -82,6 +76,7 @@ Month.prototype = {
   /** @type {DOMElement} used to detect if dbltap happened on same date */
   _lastTarget: null,
 
+  calendarChooser: null,
   /**
    * store current, previous and next months
    * we load them beforehand and keep on the cache to speed up swipes
@@ -314,6 +309,7 @@ Month.prototype = {
     if (this.needShowSyncCalendar) {
       keys.push('month-view-sync-calendar');
     }
+    var currentAction = '';
     var items = [];
     keys.forEach(function(name) {
       items.push({
@@ -325,11 +321,13 @@ Month.prototype = {
       if (document.activeElement.getAttribute('id') !==
           'month-view-date-picker' &&
           document.activeElement.getAttribute('id') !==
-          'progress-indicator') {
+          'progress-indicator' &&
+          currentAction !== 'month-view-calendars-to-display') {
         navigationHandler.getCurItem().focus();
       }
     }.bind(this));
     this.app.optionMenuController.once('selected', function(optionKey) {
+      currentAction = optionKey;
       switch(optionKey) {
         case 'month-view-current-date':
           this._goToDay('current-day');
@@ -340,6 +338,13 @@ Month.prototype = {
           this.datePicker.focus();
           break;
         case 'month-view-calendars-to-display':
+          if (!this.calendarChooser) {
+            this.calendarChooser = new CalendarChooser({ app: this.app });
+            this.calendarChooser.event.on('hide', function() {
+              document.querySelector('#time-views').classList.remove('cal-chooser-bg');
+              navigationHandler.getCurItem().focus();
+            });
+          }
           this.calendarChooser.show();
           document.querySelector('#time-views').classList.add('cal-chooser-bg');
           break;

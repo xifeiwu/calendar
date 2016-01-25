@@ -20,8 +20,18 @@ function ModifyEvent(options) {
   EventBase.apply(this, arguments);
   this._keyDownHandler = this._keyDownEvent.bind(this);
 
-  this.calendarList = null;
-  this.accountList = null;
+  this.dbListener = this.app.dbListener;
+  this.allAccounts = this.dbListener.getAllAccounts();
+  this.allCalendars = this.dbListener.getAllCalendars();
+  this._renderCalendarSelector();
+  this.dbListener.on('calendar-change', (calendars) => {
+    this.allCalendars = calendars;
+    this._renderCalendarSelector();
+  });
+  this.dbListener.on('account-change', (accounts) => {
+    this.allAccounts = accounts;
+    this._renderCalendarSelector();
+  });
 }
 module.exports = ModifyEvent;
 
@@ -157,123 +167,37 @@ ModifyEvent.prototype = {
       return !!this.provider;
   },
 
-  /**
-   * Build the initial list of calendar ids.
-   */
-  onfirstseen: function() {
-    Promise.all([this._getAccounts(), this._getCalendars()]).then(() => {
-      this._updateCalendarIdSelector();
-      // Content of CalendarId Selector is append in this callback function,
-      // so the Selector may be blank when _updateUI is called. The if statement
-      // below is used to fix this problem by updating the presentation of
-      // Selector.
-      if (this.event && this.event.calendarId) {
-        this.getEl('calendarId').value = this.event.calendarId;
-        this.calendarDis();
-      }
-    })
-    .catch((err) => {
-      return console.error('Error fetching datebase.', err);
-    });
-  },
-
-  _observeAccountStore: function() {
-    var store = this.app.store('Account');
-    // account store events
-    store.on('add', this._dbListener.bind(this, 'account', 'add'));
-    store.on('remove', this._dbListener.bind(this, 'account', 'remove'));
-  },
-
-  _observeCalendarStore: function() {
-    var store = this.app.store('Calendar');
-    // calendar store events
-    store.on('add', this._dbListener.bind(this, 'calendar', 'add'));
-    store.on('update', this._dbListener.bind(this, 'calendar', 'update'));
-    store.on('remove', this._dbListener.bind(this, 'calendar', 'remove'));
-  },
-
-  _dbListener: function(dbName, operation, id, model) {
-    switch (dbName) {
-      case 'calendar':
-        if (operation === 'add' || operation === 'update') {
-          this.calendarList[id] = model;
-        } else if (operation === 'remove') {
-          delete this.calendarList[id];
-        }
-        break;
-      case 'account':
-        if (operation === 'add') {
-          this.accountList[id] = model;
-        } else if (operation === 'remove') {
-          delete this.accountList[id];
-        }
-        break;
+  _renderCalendarSelector: function() {
+    function genOptGroup(account) {
+      var optGroup = document.createElement('optgroup');
+      optGroup.setAttribute('account-id', account._id);
+      optGroup.label = _('preset-' + account.preset);
+      return optGroup;
     }
-    this._updateCalendarIdSelector();
-  },
-
-  _getAccounts: function() {
-    return new Promise((resolve, reject) => {
-      var store = this.app.store('Account');
-      store.all().then((accounts) => {
-        this.accountList = accounts;
-        this._observeAccountStore();
-        resolve();
-      });
-    });
-  },
-
-  _getCalendars: function() {
-    return new Promise((resolve, reject) => {
-      var store = this.app.store('Calendar');
-      store.all().then((calendars) => {
-        this.calendarList = calendars;
-        this._observeCalendarStore();
-        resolve();
-      });
-    });
-  },
-
-  _updateCalendarIdSelector: function() {
-    var calendarListNode = this.getEl('calendarId');
-    calendarListNode.innerHTML = '';
-    var key = '';
-    var groupNode = null;
-    for (key in this.accountList) {
-      var name = this.accountList[key].preset;
-      groupNode = document.createElement('optgroup');
-      groupNode.setAttribute('name', name);
-      groupNode.label = _('preset-' + name);
-      if (name === 'local') {
-        calendarListNode.insertBefore(groupNode, calendarListNode.firstChild);
-      } else {
-        // XXX: ignore online account for now
-        if (!this.app.isOnlineModificationEnable()) {
-          continue;
-        }
-        calendarListNode.appendChild(groupNode);
-      }
-    }
-
-    var optionNode = null;
-    for (key in this.calendarList) {
-      var calendar = this.calendarList[key];
-      var accountName = this.accountList[calendar.accountId].preset;
-      // XXX: ignore online calendar for now
-      if (accountName !== 'local' && !this.app.isOnlineModificationEnable()) {
-        continue;
-      }
-
-      optionNode = document.createElement('option');
-      optionNode.value = calendar._id;
+    function genOption(calendar) {
+      var option = document.createElement('option');
+      option.value = calendar._id;
       if (calendar._id === Local.calendarId) {
-        optionNode.text = navigator.mozL10n.get('calendar-local');
-        optionNode.setAttribute('data-l10n-id', 'calendar-local');
+        option.text = navigator.mozL10n.get('calendar-local');
+        option.setAttribute('data-l10n-id', 'calendar-local');
       } else {
-        optionNode.text = calendar.remote.name;
+        option.text = calendar.remote.name;
       }
-      calendarListNode.querySelector('optgroup[name="' + accountName + '"]')
-        .appendChild(optionNode);
+      return option;
+    }
+    var calendarSelect = this.getEl('calendarId');
+    if (calendarSelect) {
+      calendarSelect.innerHTML = '';
+      this.allAccounts.forEach(account => {
+        calendarSelect.appendChild(genOptGroup(account));
+      });
+      this.allCalendars.forEach(calendar => {
+        var selector = 'optgroup[account-id="' + calendar.accountId + '"]';
+        var optgroup = calendarSelect.querySelector(selector);
+        if (optgroup) {
+          optgroup.appendChild(genOption(calendar));
+        }
+      });
     }
   },
 
