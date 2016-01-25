@@ -5,7 +5,7 @@ var Local = require('provider/local');
 var create = require('template').create;
 
 module.exports = create({
-  item: function() {
+  calendar: function() {
     var id = this.h('_id');
     var color = this.h('color');
     var l10n = '';
@@ -32,6 +32,20 @@ module.exports = create({
           </div>
         </div>
       </li>`;
+  },
+
+  account: function() {
+    var id = this.s('_id');
+    var name = this.s('preset');;
+    var upperCaseName = name.toUpperCase();
+    var localesName = 'preset-' + name;
+    return `
+      <div account-id=${id}>
+        <h5-separator data-l10n-id=${localesName}>
+          ${upperCaseName}</h5-separator>
+        <ul>
+        </ul>
+      </div>`;
   }
 });
 

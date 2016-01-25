@@ -12,10 +12,22 @@ require('dom!advanced-settings-view');
 
 function AdvancedSettings(options) {
   View.apply(this, arguments);
+  this.settingStore = this.app.store('Setting');
   this._initEvents();
   this.initHeader();
-  this.calendarList = null;
-  this.accountList = null;
+
+  this.dbListener = this.app.dbListener;
+  this.allAccounts = this.dbListener.getAllAccounts();
+  this.allCalendars = this.dbListener.getAllCalendars();
+  this._renderCalendarSelector();
+  this.dbListener.on('calendar-change', (calendars) => {
+    this.allCalendars = calendars;
+    this._renderCalendarSelector();
+  });
+  this.dbListener.on('account-change', (accounts) => {
+    this.allAccounts = accounts;
+    this._renderCalendarSelector();
+  });
 }
 module.exports = AdvancedSettings;
 
@@ -83,9 +95,8 @@ AdvancedSettings.prototype = {
   },
 
   _initEvents: function() {
-    var setting = this.app.store('Setting');
-    setting.on('syncFrequencyChange', this);
-    setting.on('defaultCalendarChange', this);
+    this.settingStore.on('syncFrequencyChange', this);
+    this.settingStore.on('defaultCalendarChange', this);
 
     // XXX: disable sync function for now
     if (!this.app.isOnlineModificationEnable()) {
@@ -99,119 +110,60 @@ AdvancedSettings.prototype = {
     this.defaultCalendar.addEventListener('change', this);
   },
 
-  _getAccounts: function() {
-    return new Promise((resolve, reject) => {
-      var store = this.app.store('Account');
-      store.all().then((accounts) => {
-        this.accountList = accounts;
-        this._observeAccountStore();
-        resolve();
-      });
-    });
-  },
-
-  _getCalendars: function() {
-    return new Promise((resolve, reject) => {
-      var store = this.app.store('Calendar');
-      store.all().then((calendars) => {
-        this.calendarList = calendars;
-        this._observeCalendarStore();
-        resolve();
-      });
-    });
-  },
-
-  _observeAccountStore: function() {
-    var store = this.app.store('Account');
-    // account store events
-    store.on('add', this._dbListener.bind(this, 'account', 'add'));
-    store.on('remove', this._dbListener.bind(this, 'account', 'remove'));
-  },
-
-  _observeCalendarStore: function() {
-    var store = this.app.store('Calendar');
-    // calendar store events
-    store.on('add', this._dbListener.bind(this, 'calendar', 'add'));
-    store.on('update', this._dbListener.bind(this, 'calendar', 'update'));
-    store.on('remove', this._dbListener.bind(this, 'calendar', 'remove'));
-  },
-
-  _dbListener: function(dbName, operation, id, model) {
-    switch (dbName) {
-      case 'calendar':
-        if (operation === 'add' || operation === 'update') {
-          this.calendarList[id] = model;
-        } else if (operation === 'remove') {
-          delete this.calendarList[id];
-          this.app.store('Setting').set('defaultCalendar', Local.calendarId);
-        }
-        break;
-      case 'account':
-        if (operation === 'add') {
-          this.accountList[id] = model;
-        } else if (operation === 'remove') {
-          delete this.accountList[id];
-        }
-        break;
-    }
-    this._renderCalendarSelector();
+  _renderCalendarLocale: function(value) {
+    var selector = 'option[value="' + value + '"]';
+    var optionSelected = this.defaultCalendar.querySelector(selector);
+    this.defaultCalendarLocale.innerHTML =
+      optionSelected.getAttribute('full-name');
   },
 
   _renderCalendarSelector: function() {
-    this.defaultCalendar.innerHTML = '';
-    var key = '';
-    var groupNode = null;
-    var name = '';
-    for (key in this.accountList) {
-      name = this.accountList[key].preset;
-      groupNode = document.createElement('optgroup');
-      groupNode.setAttribute('name', name);
-      groupNode.label = _('preset-' + name);
-      if (name === 'local') {
-        this.defaultCalendar.insertBefore(groupNode,
-          this.defaultCalendar.firstChild);
-      } else {
-        // XXX: ignore online account for now
-        if (!this.app.isOnlineModificationEnable()) {
-          continue;
-        }
-        this.defaultCalendar.appendChild(groupNode);
-      }
+    function genOptGroup(account) {
+      var optGroup = document.createElement('optgroup');
+      optGroup.setAttribute('account-id', account._id);
+      optGroup.label = _('preset-' + account.preset);
+      return optGroup;
     }
-
-    var accountName = '';
-    var accountSelector = '';
-    var accountNode = null;
-    var optionNode = null;
-    var calendar = null;
-    for (key in this.calendarList) {
-      calendar = this.calendarList[key];
-      accountName = this.accountList[calendar.accountId].preset;
-      // XXX: ignore online calendar for now
-      if (accountName !== 'local' && !this.app.isOnlineModificationEnable()) {
-        continue;
-      }
-      accountSelector = 'optgroup[name="' + accountName + '"]';
-      accountNode = this.defaultCalendar.querySelector(accountSelector);
-
-      optionNode = document.createElement('option');
-      optionNode.value = calendar._id;
+    function genOption(calendar) {
+      var option = document.createElement('option');
+      option.value = calendar._id;
       if (calendar._id === Local.calendarId) {
-        name = _('calendar-local');
-        optionNode.setAttribute('data-l10n-id', 'calendar-local');
+        option.text = navigator.mozL10n.get('calendar-local');
+        option.setAttribute('data-l10n-id', 'calendar-local');
       } else {
-        name = calendar.remote.name;
+        option.text = calendar.remote.name;
       }
-      optionNode.text = name;
-      optionNode.setAttribute('full-name', accountNode.label + ' - ' + name);
-      accountNode.appendChild(optionNode);
+      return option;
     }
-    this.app.store('Setting').getValue('defaultCalendar', (err, value) => {
+    this.defaultCalendar.innerHTML = '';
+    this.allAccounts.forEach(account => {
+      this.defaultCalendar.appendChild(genOptGroup(account));
+    });
+    this.allCalendars.forEach(calendar => {
+      var selector = 'optgroup[account-id="' + calendar.accountId + '"]';
+      var optgroup = this.defaultCalendar.querySelector(selector);
+      if (optgroup) {
+        var option = genOption(calendar);
+        option.setAttribute('full-name',
+          optgroup.label + ' - ' + calendar.remote.name);
+        optgroup.appendChild(option);
+      }
+    });
+    this.settingStore.getValue('defaultCalendar', (err, value) => {
       if (err) {
         value = Local.calendarId;
       }
-      this.defaultCalendar.value = value;
-      this._renderCalendarLocale(value);
+      var defaultExist = this.allCalendars.some(calendar => {
+        return calendar._id == value;
+      });
+      if (!defaultExist) {
+        this.settingStore.set('defaultCalendar', Local.calendarId, () => {
+          this.defaultCalendar.value = Local.calendarId;
+        });
+      } else {
+        this.defaultCalendar.value = value;
+        this._renderCalendarLocale(value);
+      }
     });
   },
 
@@ -227,7 +179,6 @@ AdvancedSettings.prototype = {
   },
 
   handleSettingUiChange: function(type, value) {
-    var store = this.app.store('Setting');
     // basic conversions
     if (value === 'null') {
       value = null;
@@ -240,10 +191,10 @@ AdvancedSettings.prototype = {
         if (value !== null) {
           value = parseInt(value);
         }
-        store.set(type, value);
+        this.settingStore.set(type, value);
         break;
       case 'defaultCalendar':
-        store.set(type, value);
+        this.settingStore.set(type, value);
         break;
     }
   },
@@ -299,13 +250,6 @@ AdvancedSettings.prototype = {
     window.removeEventListener('keydown', this._keyDownHandler);
   },
 
-  _renderCalendarLocale: function(value) {
-    var selector = 'option[value="' + value + '"]';
-    var optionSelected = this.defaultCalendar.querySelector(selector);
-    this.defaultCalendarLocale.innerHTML =
-      optionSelected.getAttribute('full-name');
-  },
-
   render: function() {
     var self = this;
     var pending = 4;
@@ -345,18 +289,9 @@ AdvancedSettings.prototype = {
       };
     }
 
-    var settings = this.app.store('Setting');
-
-    settings.getValue('syncFrequency', renderSyncFrequency);
-    settings.getValue('standardAlarmDefault', renderAlarmDefault('standard'));
-    settings.getValue('alldayAlarmDefault', renderAlarmDefault('allday'));
-
-    Promise.all([this._getAccounts(), this._getCalendars()]).then(() => {
-      this._renderCalendarSelector();
-    })
-    .catch((err) => {
-      return console.error('Error fetching datebase.', err);
-    });
+    this.settingStore.getValue('syncFrequency', renderSyncFrequency);
+    this.settingStore.getValue('standardAlarmDefault', renderAlarmDefault('standard'));
+    this.settingStore.getValue('alldayAlarmDefault', renderAlarmDefault('allday'));
   }
 };
 
