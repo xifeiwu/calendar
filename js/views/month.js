@@ -11,7 +11,6 @@ var monthStart = Calc.monthStart;
 var performance = require('performance');
 var router = require('router');
 var debug = require('debug')('month');
-var navigationHandler = require('navigation_handler');
 var InputParser = require('shared/input_parser/input_parser');
 var CalendarChooser = require('views/calendar_chooser');
 var _ = navigator.mozL10n.get;
@@ -28,7 +27,7 @@ function Month() {
     this._goToDay('selected-day', new Date(evt.target.value));
   }.bind(this));
   this.datePicker.addEventListener('blur', function(evt) {
-    navigationHandler.getCurItem().focus();
+    this._getCurFocus().focus();
   }.bind(this));
 
   // XXX: disable sync function for now
@@ -84,6 +83,9 @@ Month.prototype = {
    */
   frames: null,
 
+  SPANOFDAY: Calc.HOUR * 24,
+  SPANOFWEEK: Calc.HOUR * 24 * 7,
+
   onactive: function() {
     View.prototype.onactive.apply(this, arguments);
     this.app.timeController.scale = this.SCALE;
@@ -91,12 +93,7 @@ Month.prototype = {
       this.currentFrame.activate();
     }
     this.element.addEventListener('keydown', this._keyDownHandler);
-    this._resetFocus();
-  },
-
-  _resetFocus: function() {
-    navigationHandler.initMonthView();
-    this._goToDay('local-day', this.app.timeController.selectedDay);
+    this._goToDay('default-day');
   },
 
   _onswipe: function(data) {
@@ -148,7 +145,6 @@ Month.prototype = {
      */
     this.gd = new GestureDetector(this.element);
     this.gd.startDetecting();
-    navigationHandler.start();
   },
 
   _goToDay: function(type, date) {
@@ -161,117 +157,67 @@ Month.prototype = {
         newDate = new Date(date.getTime() +
           date.getTimezoneOffset() * 60 * 1000);
         break;
-      case 'local-day':
-        newDate = date;
+      case 'default-day':
+        newDate = this.controller.selectedDay;
+        if (!newDate) {
+          newDate = this.controller.position;
+        }
+        break;
     }
     if (newDate) {
       this.controller.move(newDate);
       this.controller.selectedDay = newDate;
-      var evt = new CustomEvent('h5os-date-changed', {
-        detail: {
-          toDate: newDate
-        },
-        bubbles: true,
-        cancelable: false
-      });
-      document.dispatchEvent(evt);
+      this.changeFocus(newDate);
     }
   },
 
-  _postMonthChanged: function(delta) {
-    var item = navigationHandler.getCurItem();
-    var currentDate = dateFromId(item.dataset.date);
-    var nextDate  = this._getDay(currentDate, delta);
-
-    this.controller.move(nextDate);
-    this.controller.selectedDay = nextDate;
-    var evt = new CustomEvent('h5os-date-changed', {
-      detail: {
-        toDate: nextDate
-      },
-      bubbles: true,
-      cancelable: false
-    });
-
-    document.dispatchEvent(evt);
-  },
-
-  _getDay: function(date , count) {
-    var yesterdayAllMilliseconds = date.getTime() - count * 1000 * 60 * 60 * 24;
-    var today = new Date();
-    today.setTime(yesterdayAllMilliseconds);
-    var tempHour = today.getHours();
-    var tempDate = today.getDate();
-    if (tempHour >= 12) {
-      today.setDate(tempDate + 1);
-      today.setHours(0);
+  _changeSelectedDay: function(direction) {
+    var curDay = this.app.timeController.selectedDay;
+    var dstDay = null;
+    switch (direction) {
+      case 'ArrowRight':
+        dstDay = new Date(curDay.getTime() + this.SPANOFDAY);
+        break;
+      case 'ArrowLeft':
+        dstDay = new Date(curDay.getTime() - this.SPANOFDAY);
+        break;
+      case 'ArrowDown':
+        dstDay = new Date(curDay.getTime() + this.SPANOFWEEK);
+        break;
+      case 'ArrowUp':
+        dstDay = new Date(curDay.getTime() - this.SPANOFWEEK);
+        break;
     }
-    return today;
+    this.controller.move(dstDay);
+    this.controller.selectedDay = dstDay;
+    this.changeFocus(dstDay);
   },
 
   _keyDownEvent: function(evt) {
-    var postMonthChanged = false;
-    if (this.app.softKey === undefined) {
-      debug('_keyDownEvent, ' + evt.target.id + ': ' + evt.key);
-      switch(evt.key) {
-        case 'BrowserBack':
-          window.close();
-          break;
-        case 'ArrowLeft':
-          if (evt.target.style.getPropertyValue('--pre-month-1')) {
-            this._postMonthChanged(1);
-            postMonthChanged = true;
-          }
-          break;
-        case 'ArrowRight':
-          if (evt.target.style.getPropertyValue('--next-month-1')) {
-            this._postMonthChanged(-1);
-            postMonthChanged = true;
-          }
-          break;
-        case 'ArrowDown':
-          if (evt.target.style.getPropertyValue('--next-month-7')) {
-            this._postMonthChanged(-7);
-            postMonthChanged = true;
-          }
-          break;
-        case 'ArrowUp':
-          if (evt.target.style.getPropertyValue('--pre-month-7')) {
-            this._postMonthChanged(7);
-            postMonthChanged = true;
-          }
-          break;
-        case 'AcaSoftLeft':
-          if (!this.app.syncController.isRunning) {
-            router.go('/event/add/');
-          }
-          evt.preventDefault();
-          break;
-        case 'Enter':
-          debug('View Event List.');
-          var emptyList = document.activeElement.getAttribute('role');
-          if (emptyList == 'gridcell') {
-            router.go('/event/list/');
-          }
-          break;
-        case 'AcaSoftRight':
-          this._showOptionMenu();
-          break;
-      }
-    } else {
-      switch (evt.key) {
-        case 'BrowserBack':
-          break;
-        case 'Enter':
-        case 'Accept':
-          break;
-      }
+    switch (evt.key) {
+      case 'AcaSoftLeft':
+        if (!this.app.syncController.isRunning) {
+          router.go('/event/add/');
+        }
+        evt.preventDefault();
+        break;
+      case 'Enter':
+        debug('View Event List.');
+        var emptyList = document.activeElement.getAttribute('role');
+        if (emptyList === 'gridcell') {
+          router.go('/event/list/');
+        }
+        break;
+      case 'AcaSoftRight':
+        this._showOptionMenu();
+        break;
+      case 'ArrowLeft':
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case 'ArrowUp':
+        this._changeSelectedDay(evt.key);
+        break;
     }
-    if (!postMonthChanged) {
-      navigationHandler.handleKeyEvent(evt);
-    }
-    var date = dateFromId(navigationHandler.getCurItem().dataset.date);
-    this.controller.selectedDay = date;
     evt.stopPropagation();
   },
 
@@ -323,7 +269,7 @@ Month.prototype = {
           document.activeElement.getAttribute('id') !==
           'progress-indicator' &&
           currentAction !== 'month-view-calendars-to-display') {
-        navigationHandler.getCurItem().focus();
+        this._getCurFocus().focus();
       }
     }.bind(this));
     this.app.optionMenuController.once('selected', function(optionKey) {
@@ -340,9 +286,9 @@ Month.prototype = {
         case 'month-view-calendars-to-display':
           if (!this.calendarChooser) {
             this.calendarChooser = new CalendarChooser({ app: this.app });
-            this.calendarChooser.event.on('hide', function() {
+            this.calendarChooser.event.on('hide', () => {
               document.querySelector('#time-views').classList.remove('cal-chooser-bg');
-              navigationHandler.getCurItem().focus();
+              this._getCurFocus().focus();
             });
           }
           this.calendarChooser.show();
@@ -371,7 +317,7 @@ Month.prototype = {
               });
             }.bind(this));
             this.app.syncController.once('syncComplete', function() {
-              navigationHandler.getCurItem().focus();
+              this._getCurFocus().focus();
             }.bind(this));
             this.app.syncController.all();
           }
@@ -462,6 +408,22 @@ Month.prototype = {
     // Watch for changed value from transition of a locale to another
     this.destroy();
     this.changeDate(this.controller.month);
+  },
+
+  _getCurFocus: function() {
+    return this.element.querySelector('li.focus');
+  },
+
+  changeFocus: function(dstDay) {
+    var focused = this.element.querySelectorAll('li.focus');
+    for (var i = 0; i < focused.length; i++) {
+      focused[i].classList.remove('focus');
+    }
+    var dayId = Calc.getDayId(dstDay);
+    var selector = `section.month.active li[data-date="${dayId}"]`;
+    var dstNode = this.element.querySelector(selector);
+    dstNode.classList.add('focus');
+    dstNode.focus();
   }
 
 };
