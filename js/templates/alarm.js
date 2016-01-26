@@ -85,7 +85,7 @@ var Alarm = create({
         }
       }
 
-      if (!selected && trigger && options[i] === trigger) {
+      if (!selected && options[i] === trigger) {
         selected = true;
         foundSelected = true;
       }
