@@ -20,6 +20,7 @@ function ModifyEvent(options) {
   EventBase.apply(this, arguments);
   this._keyDownHandler = this._keyDownEvent.bind(this);
 
+  this.dialogController = this.app.dialogController;
   this.dbListener = this.app.dbListener;
   this.allAccounts = this.dbListener.getAllAccounts();
   this.allCalendars = this.dbListener.getAllCalendars();
@@ -665,15 +666,12 @@ ModifyEvent.prototype = {
         this._setEndDateTimeWithCurrentDuration();
       } else if (this._getEndDateTime() <= this._getStartDateTime()) {
         this._setEndDateTimeWithCurrentDuration();
-        this.showErrors({
-          name: type === 'date' ?
-            'start-date-after-end-date' :
-            'start-time-after-end-time'
-        });
+        this._showNotice(type === 'date' ?
+          'error-start-date-after-end-date' :
+          'error-start-time-after-end-time');
       }
       this._duration = this._getEndDateTime() - this._getStartDateTime();
     }.bind(this));
-
 
     srcElement.addEventListener('blur', function(e) {
       var date = targetElement.dataset.date;
@@ -681,6 +679,27 @@ ModifyEvent.prototype = {
         this.value = new Date(date).toLocaleFormat('%Y-%m-%d');
       } else if (type === 'time') {
         this.value = new Date(date).toLocaleFormat('%H:%M:%S');
+      }
+    });
+  },
+
+  _showNotice: function(message) {
+    this.dialogController.once('closed', () => {
+      this.element.focus();
+    });
+    this.dialogController.show({
+      message: _(message),
+      dialogType: 'confirm',
+      softKeysHandler: {
+        rsk: {
+          name: 'ok',
+          action: () => {
+            this.dialogController.close();
+            return false;
+          }
+        },
+        lsk: {},
+        dpe: {}
       }
     });
   },
