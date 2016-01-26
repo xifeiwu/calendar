@@ -28,6 +28,7 @@ function Month() {
   }.bind(this));
   this.datePicker.addEventListener('blur', function(evt) {
     this._getCurFocus().focus();
+    this.datePicker.setAttribute('tabindex', '-1');
   }.bind(this));
 
   // XXX: disable sync function for now
@@ -281,6 +282,7 @@ Month.prototype = {
         case 'month-view-go-to-date':
           this.datePicker.value =
             InputParser.exportDate(this.controller.selectedDay);
+          this.datePicker.setAttribute('tabindex', '0');
           this.datePicker.focus();
           break;
         case 'month-view-calendars-to-display':
