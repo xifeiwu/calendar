@@ -38,7 +38,7 @@ MonthDay.prototype = {
     var el = document.createElement('li');
     el.setAttribute('role', 'gridcell');
     el.id = id;
-    el.tabindex = 0;
+    el.setAttribute('tabindex', 1);
     el.setAttribute(
       'aria-describedby',
       `${id}-busy-indicator ${id}-description`
