@@ -8,6 +8,7 @@ var createDay = require('calc').createDay;
 var isAllDay = require('calc').isAllDay;
 var template = require('templates/events_list_item');
 var router = require('router');
+var nextTick = require('next_tick');
 var _ = navigator.mozL10n.get;
 
 require('dom!events-list-view');
@@ -211,29 +212,31 @@ EventsList.prototype = {
           router.go('/event/edit/' + this.busytimeId + '/edit-all');
           break;
         case 'delete':
-          this._showDialog({
-            message: _('delete-event-confirmation'),
-            dialogType: 'confirm',
-            softKeysHandler: {
-              lsk: {
-                name: 'cancel',
-                action: () => {
-                  this.dialogController.close();
-                  return false;
-                }
-              },
-              dpe: {},
-              rsk: {
-                name: 'delete',
-                action: () => {
-                  this.dialogController.close();
-                  this.deleteEvent(true, this.busytimeId,
-                    function(err, evt) {}
-                  );
-                  return false;
+          nextTick(() => {
+            this._showDialog({
+              message: _('delete-event-confirmation'),
+              dialogType: 'confirm',
+              softKeysHandler: {
+                lsk: {
+                  name: 'cancel',
+                  action: () => {
+                    this.dialogController.close();
+                    return false;
+                  }
+                },
+                dpe: {},
+                rsk: {
+                  name: 'delete',
+                  action: () => {
+                    this.dialogController.close();
+                    this.deleteEvent(true, this.busytimeId,
+                      function(err, evt) {}
+                    );
+                    return false;
+                  }
                 }
               }
-            }
+            });
           });
           break;
         case 'delete-all':
