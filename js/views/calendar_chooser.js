@@ -10,7 +10,6 @@ require('dom!calendar-chooser-view');
 
 function CalendarChooser(options) {
   View.apply(this, arguments);
-  this._updateTimeouts = Object.create(null);
   this._checkBoxs = [];
   this._checkState = {};
   this.event = new Responder();
@@ -48,38 +47,7 @@ CalendarChooser.prototype = {
     return this._findElement('contents');
   },
 
-  _persistCalendarDisplay: function(id, displayed) {
-    var store = this.app.store('Calendar');
-    var self = this;
-
-    // clear timeout id
-    delete this._updateTimeouts[id];
-
-    function persist(err, id, model) {
-      if (err) {
-        return console.error('Cannot save calendar', err);
-      }
-
-      if (self.ondisplaypersist) {
-        self.ondisplaypersist(model);
-      }
-    }
-
-    function fetch(err, calendar) {
-      if (err) {
-        return console.error('Cannot fetch calendar', id);
-      }
-
-      calendar.localDisplayed = displayed;
-      store.persist(calendar, persist);
-    }
-
-    store.get(id, fetch);
-  },
-
   _render: function() {
-    var self = this;
-
     this.contents.innerHTML = '';
     this.allAccounts.forEach(account => {
       this.contents.insertAdjacentHTML('beforeend',
@@ -97,6 +65,7 @@ CalendarChooser.prototype = {
 
     var result = this.contents.querySelectorAll('h5-checkbox');
     if (result) {
+      this._checkState = {};
       this._checkBoxs = Array.prototype.slice.call(result);
       this._checkBoxs.forEach((checkbox) => {
         this._checkState[checkbox.value] = checkbox.checked;
@@ -104,20 +73,36 @@ CalendarChooser.prototype = {
           lsk: {
             name: 'cancel',
             action: () => {
-              self.hide();
+              this.hide();
               return false;
             }
           },
           rsk: {
             name: 'ok',
             action: () => {
-              self._onSelectCalendar();
+              this._onSelectCalendar();
               return false;
             }
           }
         });
       });
     }
+  },
+
+  _persistCalendarDisplay: function(id, displayed) {
+    var store = this.app.store('Calendar');
+    store.get(id, (err, calendar) => {
+      if (err) {
+        return console.error('Cannot fetch calendar', id);
+      }
+      calendar.localDisplayed = displayed;
+      store.persist(calendar, (err, id, model) => {
+        if (err) {
+          return console.error('Cannot save calendar', err);
+        }
+        this._checkState[id] = displayed;
+      });
+    });
   },
 
   _onSelectCalendar: function() {
@@ -131,6 +116,13 @@ CalendarChooser.prototype = {
     this.hide();
   },
 
+  _updateCheckBoxState: function() {
+    for (var key in this._checkState) {
+      var selector = 'h5-checkbox[value="' + key + '"]';
+      this.contents.querySelector(selector).checked = this._checkState[key];
+    }
+  },
+
   show: function() {
     this.onactive();
   },
@@ -139,6 +131,7 @@ CalendarChooser.prototype = {
     View.prototype.onactive.apply(this, arguments);
     this.contents.style.maxHeight = (document.body.clientHeight -
       this.header.getBoundingClientRect().height) + 'px';
+    this._updateCheckBoxState();
     this.contents.focus();
   },
 
