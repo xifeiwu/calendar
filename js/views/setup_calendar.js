@@ -13,6 +13,8 @@ var _ = navigator.mozL10n.get;
 require('dom!setup-calendar-view');
 
 var ACCOUNT_PREFIX = 'account-';
+const NAME_IS_BLANK = 1;
+const NAME_HAS_EXIST = 2;
 
 function SetupCalendar(options) {
   View.apply(this, arguments);
@@ -28,6 +30,9 @@ function SetupCalendar(options) {
     this.allCalendars = calendars;
     this._updateLocalCalendarDOM();
   });
+
+  this._keyDownHandler = this.handleKeyDownEvent.bind(this);
+  this._dialogInputHandler = this._handleDialogInputEvent.bind(this);
 }
 module.exports = SetupCalendar;
 
@@ -36,6 +41,7 @@ SetupCalendar.prototype = {
 
   _currentDialogAction: '',
   _currentCalendar: null,
+  _nameState: null,
 
   selectors: {
     element: '#setup-calendar-view',
@@ -109,14 +115,17 @@ SetupCalendar.prototype = {
 
   onactive: function() {
     View.prototype.onactive.apply(this, arguments);
-    this._keyDownHandler = this.handleKeyDownEvent.bind(this);
-    window.addEventListener('keydown', this._keyDownHandler, false);
+    this.element.addEventListener('keydown', this._keyDownHandler, false);
+    this.dialogController.dialog.dialogTextInput.addEventListener('keyup',
+      this._dialogInputHandler);
     this.element.focus();
   },
 
   oninactive: function() {
     View.prototype.oninactive.call(this);
-    window.removeEventListener('keydown', this._keyDownHandler);
+    this.element.removeEventListener('keydown', this._keyDownHandler);
+    this.dialogController.dialog.dialogTextInput.removeEventListener('keyup',
+      this._dialogInputHandler);
   },
 
   _goToAdvancedSettings: function() {
@@ -136,6 +145,34 @@ SetupCalendar.prototype = {
       case 'AcaSoftRight':
         break;
       }
+  },
+
+  _handleDialogInputEvent: function(evt) {
+    if (evt.keyCode === KeyboardEvent.DOM_VK_RETURN) {
+      return;
+    }
+    if (this._nameState) {
+      var inputValue = this.dialogController.getInputValue().trim();
+      var state = this._checkNameValidation(inputValue);
+      if (!state) {
+        this.dialogController.clearMessage();
+      } else {
+        switch (this._nameState.errorCode) {
+          case NAME_IS_BLANK:
+            if (state.errorCode !== NAME_IS_BLANK) {
+              this.dialogController.clearMessage();
+              this._nameState = null;
+            }
+            break;
+          case NAME_HAS_EXIST:
+            if (state.errorCode !== NAME_HAS_EXIST) {
+              this.dialogController.clearMessage();
+              this._nameState = null;
+            }
+            break;
+        }
+      }
+    }
   },
 
   _popUpDialog: function(action, element) {
@@ -225,6 +262,7 @@ SetupCalendar.prototype = {
       }
     });
     this.dialogController.once('closed', () => {
+      this.dialogController.clearMessage();
       this.element.focus();
     });
     this.dialogController.once('input-blur', this.dealAction.bind(this));
@@ -243,19 +281,8 @@ SetupCalendar.prototype = {
     }
   },
 
-  _checkCalendarName: function(name) {
-    var _isNameExist = false;
-    for (var key in this.allCalendars) {
-      if (name === this.allCalendars[key].remote.name) {
-        _isNameExist = true;
-        break;
-      }
-    }
-    return _isNameExist;
-  },
-
   _saveCalendar: function(name, timeStamp) {
-    if (!this.nameCheck(name)) {
+    if (!this._checkNameAndRefocus(name)) {
       return;
     }
 
@@ -281,7 +308,7 @@ SetupCalendar.prototype = {
   },
 
   _renameCalendar: function(newName) {
-    if (!this.nameCheck(newName)) {
+    if (!this._checkNameAndRefocus(newName)) {
       return;
     }
 
@@ -301,30 +328,33 @@ SetupCalendar.prototype = {
     });
   },
 
-  nameCheck: function(newName) {
-    var self = this;
-    if (newName.length === 0) {
-      this._currentDialogAction = '';
-      this.dialogController.close();
-      return false;
+  _checkNameValidation: function(name) {
+    if (name.length === 0) {
+      return {
+        errorCode: NAME_IS_BLANK,
+        errorMessage: _('notice-name-is-empty')
+      };
+    } else {
+      for (var key in this.allCalendars) {
+        if (name === this.allCalendars[key].remote.name) {
+          return {
+            errorCode: NAME_HAS_EXIST,
+            errorMessage: _('notice-name-already-exist')
+          };
+        }
+      }
+      return null;
     }
-    if (this._checkCalendarName(newName)) {
-      this.dialogController.setMessage(_('notice-name-already-exist'));
+  },
+
+  _checkNameAndRefocus: function(newName) {
+    this._nameState = this._checkNameValidation(newName);
+    if (this._nameState) {
+      this.dialogController.setMessage(this._nameState.errorMessage);
       nextTick(() => {
         this.dialogController.dialog.dialogTextInput.focus();
-        this.dialogController.once('input-blur', this.dealAction.bind(self));
+        this.dialogController.once('input-blur', this.dealAction.bind(this));
       });
-      var inputContent = this.dialogController.dialog.dialogTextInput;
-      inputContent.addEventListener('keydown',
-        function _clearMessage () {
-          nextTick(() => {
-            if (!self._checkCalendarName(inputContent.value)) {
-              self.dialogController.clearMessage();
-              inputContent.removeEventListener('keydown', _clearMessage);
-            }
-          });
-        }
-      );
       return false;
     }
     return true;
