@@ -28,6 +28,11 @@ OptionMenuController.prototype = {
 
     this.optionMenu.on('h5options:closed', function() {
       this.removeAllEventListeners('selected');
+      // The following translate will be set to half height of a will-be-opened
+      // option menu, in this case, resetting this translate to 0 is required
+      // since we try to open a option-menu of a different height
+      this.optionMenu.querySelector('.inner-container').style.transform =
+        'translateY(0%)';
       this.emit('closed');
     }.bind(this));
 
