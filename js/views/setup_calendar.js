@@ -115,7 +115,7 @@ SetupCalendar.prototype = {
 
   onactive: function() {
     View.prototype.onactive.apply(this, arguments);
-    this.element.addEventListener('keydown', this._keyDownHandler, false);
+    window.addEventListener('keydown', this._keyDownHandler, false);
     this.dialogController.dialog.dialogTextInput.addEventListener('keyup',
       this._dialogInputHandler);
     this.element.focus();
@@ -123,7 +123,7 @@ SetupCalendar.prototype = {
 
   oninactive: function() {
     View.prototype.oninactive.call(this);
-    this.element.removeEventListener('keydown', this._keyDownHandler);
+    window.removeEventListener('keydown', this._keyDownHandler);
     this.dialogController.dialog.dialogTextInput.removeEventListener('keyup',
       this._dialogInputHandler);
   },
