@@ -281,7 +281,7 @@ SetupCalendar.prototype = {
     }
   },
 
-  _saveCalendar: function(name, timeStamp) {
+  _saveCalendar: function(name) {
     if (!this._checkNameAndRefocus(name)) {
       return;
     }
@@ -290,14 +290,10 @@ SetupCalendar.prototype = {
     var calendarStore = this.app.store('Calendar');
     var calendar = {
       accountId: this.dbListener.getLocalAccountId(),
-      remote: Local.defaultCalendar()
+      remote: {}
     };
     calendar.remote.name = name;
-    if (timeStamp) {
-      calendar.remote.timeStamp = timeStamp;
-    } else {
-      calendar.remote.timeStamp = new Date().getTime();
-    }
+    calendar.remote.timeStamp = new Date().getTime();
     calendarStore.persist(calendar, (err, id, model) => {
       if (err) {
         console.error('Cannot save calendar', err);
@@ -314,17 +310,19 @@ SetupCalendar.prototype = {
 
     this.dialogController.clearMessage();
     var id = this._currentCalendar.getAttribute('calendar-id');
-    var timeStamp = this._currentCalendar.getAttribute('time-stamp');
     var store = this.app.store('Calendar');
-    store.remove(id, (err, id) => {
-      if (!err) {
-        nextTick(() => {
-          this._saveCalendar(newName, timeStamp);
-        });
-      } else {
-        this._currentDialogAction = '';
+    store.get(id, (err, calendar) => {
+      if (err) {
         this.dialogController.close();
+        return console.error('Cannot fetch calendar', id);
       }
+      calendar.remote.name = newName;
+      store.persist(calendar, (err, id, model) => {
+        if (err) {
+          console.error('Cannot save calendar', err);
+        }
+        this.dialogController.close();
+      });
     });
   },
 
