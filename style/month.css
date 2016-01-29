@@ -306,7 +306,7 @@ section.month .icon-calendar-dot:before {
   color: var(--color-gs20);
   font-size: 2.1rem;
   font-weight: normal;
-  height: 2.5rem;
+  height: 3rem;
   line-height: 2.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
