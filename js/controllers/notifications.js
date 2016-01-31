@@ -61,24 +61,21 @@ function issueNotification(alarm) {
     var now = new Date();
 
     var alarmType = begins > now ?
-      'alarm-start-notice' :
-      'alarm-started-notice';
+      'alarm-start-notice-time' :
+      'alarm-started-notice-time';
 
     var l10n = navigator.mozL10n;
-    var title = l10n.get(alarmType, {
-      title: event.remote.title,
+    var title = l10n.get('alarm-start-notice-title', {
+      title: event.remote.title
+    });
+    var body = l10n.get(alarmType, {
       distance: distance
     });
 
-    var body = event.remote.description || '';
-
-    // When users store a multi-line note, the notification will display <br> when
-    // there are line-breaks, to avoid this, the following code is introduced.
-    var bodyOneLine = body.replace(/<br>/g, ' ');
     debug('Will send event notification with title:', title, 'body:', body);
     return notification.sendNotification(
       title,
-      bodyOneLine,
+      body,
       `/alarm-display/${busytime._id}`
     );
   });
