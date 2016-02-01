@@ -440,6 +440,7 @@ SetupCalendar.prototype = {
   },
 
   _showOptionMenu: function() {
+    var selectKey = false;
     var items = [
       {
         title: _('preset-google'),
@@ -456,7 +457,10 @@ SetupCalendar.prototype = {
     ];
 
     this.optionMenuController.once('closed', function() {
-      this.element.focus();
+      if (!selectKey) {
+        this.element.focus();
+      }
+      selectKey = false;
     }.bind(this));
 
     this.optionMenuController.once('selected', function(optionKey) {
@@ -464,6 +468,7 @@ SetupCalendar.prototype = {
         case 'google':
         case 'yahoo':
         case 'caldav':
+          selectKey = true;
           router.go('/create-account/' + optionKey);
           break;
       }

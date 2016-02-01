@@ -270,7 +270,7 @@ body[data-path^='/settings'] #settings {
 }
 
 /* for accessiblity only, fonts should not be visible */
-gaia-header > a > span {
+h5-header > a > span {
   font-size: 0;
 }
 

@@ -16,7 +16,6 @@
     "component_utils": "shared/component_utils#~0.0.1",
     "confirm": "shared/confirm#~0.0.1",
     "date_time_helper": "shared/date_time_helper#~0.0.1",
-    "gaia-header": "shared/gaia-header#~0.0.1",
     "gaia_subheader": "shared/gaia_subheader#~0.0.1",
     "gesture_detector": "shared/gesture_detector#~0.0.1",
     "html_imports": "shared/html_imports#~0.0.1",

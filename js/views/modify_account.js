@@ -49,11 +49,9 @@ ModifyAccount.prototype = {
     element: '#modify-account-view',
     form: '#modify-account-view .modify-account-form',
     fields: '*[name]',
-    saveButton: '#modify-account-view .save',
     deleteButton: '#modify-account-view .delete-confirm',
     deleteRecordButton: '.delete-record',
     cancelDeleteButton: '#modify-account-view .delete-cancel',
-    header: '#modify-account-header',
     status: '#modify-account-view section[role="status"]',
     errors: '#modify-account-view .errors',
     oauth2Window: '#oauth2',
@@ -96,14 +94,6 @@ ModifyAccount.prototype = {
 
   get cancelDeleteButton() {
     return this._findElement('cancelDeleteButton');
-  },
-
-  get header() {
-    return this._findElement('header');
-  },
-
-  get saveButton() {
-    return this._findElement('saveButton');
   },
 
   get form() {
@@ -327,8 +317,6 @@ ModifyAccount.prototype = {
     }
 
     this.form.addEventListener('submit', this._boundSaveUpdateModel);
-    this.saveButton.addEventListener('click', this._boundSaveUpdateModel);
-    this.header.addEventListener('action', this.cancel);
     this.deleteRecordButton.addEventListener('click', this.hideHeaderAndForm);
 
     if (this.model._id) {
@@ -357,7 +345,6 @@ ModifyAccount.prototype = {
       }
 
       this.fields.user.disabled = true;
-      this.saveButton.disabled = true;
     }
 
     this.form.reset();
@@ -366,8 +353,6 @@ ModifyAccount.prototype = {
     var usernameType = this.model.usernameType;
     this.fields.user.type = (usernameType === undefined) ?
         'text' : usernameType;
-
-    this.header.runFontFitSoon();
   },
 
   destroy: function() {
@@ -382,7 +367,6 @@ ModifyAccount.prototype = {
     list.remove(this.removeDialogClass);
 
     this.fields.user.disabled = false;
-    this.saveButton.disabled = false;
 
     this._fields = null;
     this.form.reset();
@@ -390,11 +374,8 @@ ModifyAccount.prototype = {
     this.deleteRecordButton.removeEventListener('click',
       this.hideHeaderAndForm);
     this.oauth2SignIn.removeEventListener('click', this.displayOAuth2);
-    this.saveButton.removeEventListener('click', this._boundSaveUpdateModel);
     this.deleteButton.removeEventListener('click', this.deleteRecord);
     this.cancelDeleteButton.removeEventListener('click', this.cancelDelete);
-    this.header.removeEventListener('action',
-                                    this.cancel);
     this.form.removeEventListener('submit', this._boundSaveUpdateModel);
   },
 
