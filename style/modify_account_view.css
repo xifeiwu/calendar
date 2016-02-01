@@ -116,7 +116,7 @@
   display: block;
 }
 
-#oauth2 gaia-header h1 {
+#oauth2 h5-header h1 {
   /* should always display the beginning of the URL */
   direction: ltr;
 }
