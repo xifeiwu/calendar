@@ -4,8 +4,16 @@
   color: var(--color-gs20);
 }
 
-#event-detail-view h5-header h1 {
-  text-overflow: ellipsis;
+#event-detail-view #event-detail-header{
+  padding: 2rem 1rem;
+}
+
+#event-detail-view #event-detail-title {
+  color: var(--color-gs20);
+  line-height: 3rem;
+  display: block;
+  word-break: break-all;
+  width: 30rem;
 }
 
 #event-detail {

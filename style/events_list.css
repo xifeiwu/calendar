@@ -113,3 +113,11 @@ div#events-list-agenda::after {
   background-color: var(--highlight-color) !important;
   color: #fff !important;
 }
+
+canvas#calculator {
+  display: none;
+}
+
+#detailDiv {
+  display: none !important;
+}
