@@ -184,20 +184,9 @@ h5-check-box[focused] {
   z-index: -1;
 }
 
-#modify-event-view #calendarIdSpan {
-  color: var(--highlight-color);
-  display: block;
-  width: 100%;
-  border-bottom: 0.1rem solid var(--secondary-info-color);
-}
-
 #modify-event-view li.calendar-id {
   padding: 0;
   display: block;
-}
-
-#modify-event-view li[focus] span#calendarIdSpan {
-  border-bottom: 0.1rem solid var(--white-color, white);
 }
 
 #modify-event-view li.calendar-id a {
