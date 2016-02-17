@@ -8,9 +8,9 @@ var Local = require('provider/local');
 var QueryString = require('querystring');
 var dateFormat = require('date_format');
 var getTimeL10nLabel = require('calc').getTimeL10nLabel;
-var nextTick = require('next_tick');
 var router = require('router');
 var debug = require('debug')('modify_event');
+var Calc = require('calc');
 var _ = navigator.mozL10n.get;
 
 require('dom!modify-event-view');
@@ -20,7 +20,6 @@ function ModifyEvent(options) {
   EventBase.apply(this, arguments);
   this._keyDownHandler = this._keyDownEvent.bind(this);
 
-  this.dialogController = this.app.dialogController;
   this.dbListener = this.app.dbListener;
   this.allAccounts = this.dbListener.getAllAccounts();
   this.allCalendars = this.dbListener.getAllCalendars();
@@ -66,7 +65,6 @@ ModifyEvent.prototype = {
   _initEvents: function() {
     EventBase.prototype._initEvents.apply(this, arguments);
 
-    this.form.addEventListener('click', this.focusHandler);
     this.form.addEventListener('submit', this.primary);
     var calEvent = this.getEl('calendarId');
     calEvent.addEventListener('change',this.calendarDis.bind(this));
@@ -245,29 +243,6 @@ ModifyEvent.prototype = {
    * behaviour (redirect) in the future we may change this.
    */
   _persistEvent: function(method, capability) {
-    // create model data
-    var data = this.formData();
-    var errors;
-
-    // we check explicitly for true, because the alternative
-    // is an error object.
-    if ((errors = this.event.updateAttributes(data)) !== true) {
-      this.showErrors(errors);
-      return;
-    }
-
-    if (this.event.remote.start.utc < 0) {
-      this.app.toast.show({message: _('error-prior-to-1970')});
-      router.go(this.returnTo());
-      return;
-    }
-
-    // can't create without a calendar id
-    // because of defaults this should be impossible.
-    if (!data.calendarId) {
-      return;
-    }
-
     var self = this;
     var provider;
     var calendar;
@@ -295,80 +270,110 @@ ModifyEvent.prototype = {
     }
 
     function persistEvent() {
-      var list = self.element.classList;
-
-      // mark view as 'in progress' so we can style
-      // it via css during that time period
-      list.add(self.PROGRESS);
-
       var moveDate = self.event.startDate;
+      // move the position in the calendar to the added/edited day
+      self.timeController.move(moveDate);
+      // order is important the above method triggers the building
+      // of the dom elements so selectedDay must come after.
+      self.timeController.selectedDay = moveDate;
+
       self.event.remote.color = calendar.remote.color;
 
-      var callback = function(err, busytimeOrId) {
-        list.remove(self.PROGRESS);
-
-        if (err) {
-          self.showErrors(err);
-          return;
-        }
-
-        // move the position in the calendar to the added/edited day
-        self.app.timeController.move(moveDate);
-        // order is important the above method triggers the building
-        // of the dom elements so selectedDay must come after.
-        self.app.timeController.selectedDay = moveDate;
-
-        // we pass the date so we are able to scroll to the event on the
-        // day/week views
-        var state = {
-          eventStartHour: moveDate.getHours()
-        };
-
-        // To 'sync' local account if it's a recurring event just added
-        if (self.event.remote.isRecurring) {
-          nextTick(function() {
-            self.store.ownersOf(self.event, function(err, owners) {
-              if (err) {
-                return console.error('Fetch owners error: ' + err);
+      var pathToGo = self.returnTo();
+      // we pass the date so we are able to scroll to the event on the
+      // day/week views
+      var state = {
+        eventStartHour: moveDate.getHours()
+      };
+      switch (method) {
+        case 'createEvent':
+          provider.createEvent(self.event.data, (err) => {
+            if (err) {
+              self.showErrors(err);
+              return;
+            }
+            self.showToast(_('toast-event-add-success'));
+            router.go(pathToGo, state);
+          });
+          break;
+        case 'updateEvent':
+          // convert normal => recurring
+          if (self.event.data.remote.isRecurring &&
+            self.originalRepeat === 'never') {
+            provider.updateEvent(self.event.data,
+              (err, events, components, busytimes) => {
+                if (err) {
+                  self.showErrors(err);
+                  return;
+                }
+                busytimes.forEach((busytime) => {
+                  if (Calc.isSameDate(new Date(busytime.start.utc), moveDate)) {
+                    if (/^\/event\/detail\//.test(pathToGo)) {
+                      router.go('/event/detail/' + busytime._id, state);
+                    } else if (/^\/event\/list\//.test(pathToGo)) {
+                      router.go('/event/list/' + busytime._id, state);
+                    }
+                  }
+                });
               }
-
-              if (owners.account.providerType === 'Local') {
-                self.app.recurringEventsController.queueExpand(
-                  self.app.timeController.position
-                );
+            );
+          } else {
+            provider.updateEvent(self.event.data, (err, busytime, event) => {
+              if (err) {
+                self.showErrors(err);
+                return;
+              }
+              if (/^\/event\/detail\//.test(pathToGo)) {
+                router.go('/event/detail/' + busytime._id, state);
+              } else if (/^\/event\/list\//.test(pathToGo)) {
+                router.go('/event/list/' + busytime._id, state);
               }
             });
-          });
-        }
-
-        if (method === 'updateEvent' ||
-            method === 'updateEventAll' ||
-            method === 'updateEventThisOnly') {
-          // As updateEvent will change busytime id, if the previous page
-          // is eventDetail. window.history.back() will go to a path that
-          // not exist. if the previous page is eventDetail, we will need
-          // to refresh the location of previous using new busytime id.
-          var pathToGo = self.returnTo();
-          if (typeof(busytimeOrId) === 'object') {
-            if (/^\/event\/detail\//.test(pathToGo)) {
-              pathToGo = '/event/detail/' + busytimeOrId._id;
-            } else if (/^\/event\/list\//.test(pathToGo)) {
-              pathToGo = '/event/list/' + busytimeOrId._id;
-            }
           }
-          router.go(pathToGo);
-
-          return;
-        }
-
-        self.app.toast.show({message: _('toast-event-add-success')});
-        router.go(self.returnTo(), state);
-      };
-
-      if (method === 'createEvent') {
-        provider[method](self.event.data, callback);
-      } else {
-        provider[method](self.event.data, self.busytimeId, callback);
+          break;
+        case 'updateEventAllFuture':
+          provider.updateEventAllFuture(moveDate, self.event.data,
+            self.busytimeId, (err, events, components, busytimes) => {
+              if (err) {
+                self.showErrors(err);
+                return;
+              }
+              busytimes.forEach((busytime) => {
+                if (Calc.isSameDate(new Date(busytime.start.utc), moveDate)) {
+                  if (/^\/event\/detail\//.test(pathToGo)) {
+                    router.go('/event/detail/' + busytime._id, state);
+                  } else if (/^\/event\/list\//.test(pathToGo)) {
+                    router.go('/event/list/' + busytime._id, state);
+                  }
+                }
+              });
+            }
+          );
+          break;
+        case 'updateEventThisOnly':
+          provider.updateEventThisOnly(moveDate, self.event.data,
+            self.busytimeId, (err, events, components, busytimes) => {
+              if (err) {
+                self.showErrors(err);
+                return;
+              }
+              events.forEach((event) => {
+                if (Calc.isSameDate(new Date(event.remote.start.utc),
+                    moveDate)) {
+                  busytimes.forEach((busytime) => {
+                    if (busytime.eventId === event._id) {
+                      if (/^\/event\/detail\//.test(pathToGo)) {
+                        router.go('/event/detail/' + busytime._id, state);
+                      } else if (/^\/event\/list\//.test(pathToGo)) {
+                        router.go('/event/list/' + busytime._id, state);
+                      }
+                    }
+                  });
+                }
+              });
+            }
+          );
+          break;
       }
     }
   },
@@ -381,29 +386,60 @@ ModifyEvent.prototype = {
       event.preventDefault();
     }
 
-    // Disable the button on primary event to avoid race conditions
-    this.disablePrimary();
+    // create model data
+    var data = this.formData();
+    var errors;
+
+    // we check explicitly for true, because the alternative
+    // is an error object.
+    if ((errors = this.event.updateAttributes(data)) !== true) {
+      this.showErrors(errors);
+      return;
+    }
+
+    // can't create without a calendar id
+    // because of defaults this should be impossible.
+    if (!data.calendarId) {
+      return;
+    }
 
     if (this.isSaved()) {
-      if (this.editType === 'edit-all') {
-        this._persistEvent('updateEventAll', 'canUpdate');
-      } else if (this.editType === 'edit-this-only') {
-        this._persistEvent('updateEventThisOnly', 'canUpdate');
+      if (this.event.remote.isRecurring &&
+          this.originalRepeat !== 'never') {
+        this.optionMenuController.once('selected', (optionKey) => {
+          switch(optionKey) {
+            case 'edit-this-only':
+              this._persistEvent('updateEventThisOnly', 'canUpdate');
+              break;
+            case 'edit-all-future':
+              this._persistEvent('updateEventAllFuture', 'canUpdate');
+              break;
+          }
+        });
+
+        this.optionMenuController.once('closed', () => {
+          this.element.focus();
+          this.element.spatialNavigator.focus();
+        });
+
+        this.optionMenuController.show({
+          header: _('repeat-event-header'),
+          items: [
+            {
+              title: _('edit-this-only'),
+              key: 'edit-this-only'
+            },
+            {
+              title: _('edit-all-future'),
+              key: 'edit-all-future'
+            }
+          ]
+        });
       } else {
         this._persistEvent('updateEvent', 'canUpdate');
       }
     } else {
       this._persistEvent('createEvent', 'canCreate');
-    }
-  },
-
-  /**
-   * Enlarges focus areas for .button controls
-   */
-  focusHandler: function(e) {
-    var input = e.target.querySelector('input, select');
-    if (input && e.target.classList.contains('button')) {
-      input.focus();
     }
   },
 
@@ -560,8 +596,7 @@ ModifyEvent.prototype = {
     this.getEl('title').value = model.title;
     this.getEl('location').value = model.location;
     var dateSrc = model;
-    if (model.remote.isRecurring && this.busytime &&
-        this.editType === 'edit-this-only') {
+    if (model.remote.isRecurring && this.busytime) {
       dateSrc = this.busytime;
     }
 
@@ -592,11 +627,8 @@ ModifyEvent.prototype = {
     var endTimeLocale = document.getElementById('end-time-locale');
     this._renderDateTimeLocale(endTimeLocale, endDate);
 
-    if (this.editType === 'edit-this-only') {
-      this.getEl('repeat').value = 'never';
-    } else {
-      this.getEl('repeat').value = model.repeat;
-    }
+    this.getEl('repeat').value = model.repeat;
+    this.originalRepeat = model.repeat ? model.repeat : 'never';
 
     this.getEl('description').value = model.description;
 
@@ -707,20 +739,18 @@ ModifyEvent.prototype = {
   _setEndDateTimeWithCurrentDuration: function() {
     var allday = this.getEl('allday').checked;
     var date = new Date(this._getStartDateTime() + this._duration);
+    var endDateLocale = this._findElement('endDateLocale');
     if (allday){
       date.setDate(date.getDate() - 1);
-      var endDateLocale = this._findElement('endDateLocale');
       this.getEl('endDate').value = InputParser.exportDate(date);
       this._renderDateTimeLocale(endDateLocale, date);
     } else {
-      var endDateLocale = this._findElement('endDateLocale');
       var endTimeLocale = this._findElement('endTimeLocale');
       this.getEl('endDate').value = InputParser.exportDate(date);
       this.getEl('endTime').value = InputParser.exportTime(date);
       this._renderDateTimeLocale(endDateLocale, date);
       this._renderDateTimeLocale(endTimeLocale, date);
     }
-
   },
 
   _getStartDateTime: function() {
@@ -843,6 +873,8 @@ ModifyEvent.prototype = {
     this.busytime = null;
 
     this.alarmList.innerHTML = '';
+
+    this.originalRepeat = 'never';
 
     this.form.reset();
   },

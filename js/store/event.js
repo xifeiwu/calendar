@@ -14,7 +14,8 @@ function Events() {
     'providerFor',
     'findByIds',
     'ownersOf',
-    'eventsForCalendar'
+    'eventsForCalendar',
+    'findExceptionEvent'
   ]);
 }
 module.exports = Events;
@@ -146,6 +147,28 @@ Events.prototype = {
 
     req.onsuccess = function(e) {
       callback(null, e.target.result);
+    };
+
+    req.onerror = function(e) {
+      callback(e);
+    };
+  },
+
+  findExceptionEvent: function(eventId, date, callback) {
+    var trans = this.db.transaction(this._store);
+    var store = trans.objectStore(this._store);
+    var index = store.index('parentId');
+    var key = IDBKeyRange.only(eventId);
+
+    var req = index.mozGetAll(key);
+
+    req.onsuccess = function(e) {
+      e.target.result.forEach((event) => {
+        if (Calc.isSameDate(new Date(event.remote.start.utc), date)) {
+          return callback(null, event);
+        }
+      });
+      callback(null);
     };
 
     req.onerror = function(e) {

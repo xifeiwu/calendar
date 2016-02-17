@@ -53,7 +53,6 @@ ModifyAccount.prototype = {
     deleteRecordButton: '.delete-record',
     cancelDeleteButton: '#modify-account-view .delete-cancel',
     status: '#modify-account-view section[role="status"]',
-    errors: '#modify-account-view .errors',
     oauth2Window: '#oauth2',
     oauth2SignIn: '#modify-account-view .force-oauth2',
     username: '#modify-account-view .modify-account-username',
@@ -219,8 +218,6 @@ ModifyAccount.prototype = {
     }
 
     list.add(this.progressClass);
-
-    this.errors.textContent = '';
 
     if (options && options.updateModel) {
       this.updateModel();

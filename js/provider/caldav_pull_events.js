@@ -383,7 +383,8 @@ PullEvents.prototype = {
 
     trans.addEventListener('complete', function() {
       self._trans = null;
-      callback && callback(null);
+      callback && callback(null, self.eventQueue,
+        this.icalQueue, self.busytimeQueue);
     });
 
     return trans;

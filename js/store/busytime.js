@@ -26,7 +26,9 @@ function Busytime() {
 
   denodeifyAll(this, [
     'removeEvent',
-    'loadSpan'
+    'loadSpan',
+    'busytimesForEvent',
+    'busytimeForEvent'
   ]);
 }
 module.exports = Busytime;
@@ -158,8 +160,46 @@ Busytime.prototype = {
   /* we don't use id based caching for busytimes */
 
   _addToCache: function() {},
-  _removeFromCache: function() {}
+  _removeFromCache: function() {},
 
+  /**
+   * Loads all busytimes for given eventId
+   * and returns results. Does not cache.
+   *
+   * @param {String} eventId to find.
+   * @param {Function} callback node style [err, array of busytimes].
+   */
+  busytimesForEvent: function(eventId, callback) {
+    var trans = this.db.transaction(this._store);
+    var store = trans.objectStore(this._store);
+    var index = store.index('eventId');
+    var key = IDBKeyRange.only(eventId);
+
+    var req = index.mozGetAll(key);
+
+    req.onsuccess = function(e) {
+      callback(null, e.target.result);
+    };
+
+    req.onerror = function(e) {
+      callback(e);
+    };
+  },
+
+  busytimeForEvent: function(eventId, date, callback) {
+    this.busytimesForEvent(eventId, (err, busytimes) => {
+      if (err) {
+        return callback(err);
+      }
+      busytimes.forEach((busytime) => {
+        var bStart = new Date(busytime.start.utc);
+        if (Calc.isSameDate(bStart, date)) {
+          return callback(null, busytime);
+        }
+      });
+      callback(null);
+    });
+  }
 };
 
 });

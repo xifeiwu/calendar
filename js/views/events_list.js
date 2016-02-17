@@ -16,11 +16,7 @@ require('dom!events-list-view');
 function EventsList(options) {
   EventBase.apply(this, arguments);
   this._render = this._render.bind(this);
-  this.controller = this.app.timeController;
-  this.deleteController = this.app.deleteController;
-  this.optionMenuController = this.app.optionMenuController;
-  this.dialogController = this.app.dialogController;
-  this.store = this.app.store('Event');
+
   this.recordsCount = 0;
   // key => busytimeId, value => event
   this.records = {};
@@ -59,7 +55,7 @@ EventsList.prototype = {
 
   onactive: function() {
     EventBase.prototype.onactive.apply(this, arguments);
-    this.initCurrentDate(this.controller.selectedDay);
+    this.initCurrentDate(this.timeController.selectedDay);
     window.addEventListener('keydown', this._keyDownHandler, false);
   },
 
@@ -166,22 +162,8 @@ EventsList.prototype = {
             key: 'delete-this-only'
           },
           {
-            title: _('delete-all'),
-            key: 'delete-all'
-          }
-        ]
-      };
-
-      editItem.options = {
-        header: _('repeat-event-header'),
-        items: [
-          {
-            title: _('edit-this-only'),
-            key: 'edit-this-only'
-          },
-          {
-            title: _('edit-all'),
-            key: 'edit-all'
+            title: _('delete-all-future'),
+            key: 'delete-all-future'
           }
         ]
       };
@@ -191,12 +173,12 @@ EventsList.prototype = {
       deleteItem
     ];
 
-    this.optionMenuController.once('closed', function() {
+    this.optionMenuController.once('closed', () => {
       this.events.querySelector('li[cacheFocus]').removeAttribute('cacheFocus');
       this.findAndFocus();
-    }.bind(this));
+    });
 
-    this.optionMenuController.once('selected', function(optionKey) {
+    this.optionMenuController.once('selected', (optionKey) => {
       if (!this.busytimeId) {
         return console.error('Illegal busytimeId!');
       }
@@ -204,12 +186,6 @@ EventsList.prototype = {
       switch(optionKey) {
         case 'edit':
           router.go('/event/edit/' + this.busytimeId);
-          break;
-        case 'edit-this-only':
-          router.go('/event/edit/' + this.busytimeId + '/edit-this-only');
-          break;
-        case 'edit-all':
-          router.go('/event/edit/' + this.busytimeId + '/edit-all');
           break;
         case 'delete':
           nextTick(() => {
@@ -229,9 +205,7 @@ EventsList.prototype = {
                   name: 'delete',
                   action: () => {
                     this.dialogController.close();
-                    this.deleteEvent(true, this.busytimeId,
-                      function(err, evt) {}
-                    );
+                    this.deleteEvent(this.busytimeId);
                     return false;
                   }
                 }
@@ -239,14 +213,14 @@ EventsList.prototype = {
             });
           });
           break;
-        case 'delete-all':
-          this.deleteEvent(false, this.busytimeId, function(err, evt) {});
+        case 'delete-all-future':
+          this.deleteFutureEvents(this.busytimeId);
           break;
         case 'delete-this-only':
-          this.deleteEvent(true, this.busytimeId, function(err, evt) {});
+          this.deleteSingleEvent(this.busytimeId);
           break;
       }
-    }.bind(this));
+    });
 
     this.optionMenuController.show({
       items: items
@@ -261,14 +235,14 @@ EventsList.prototype = {
       softKeysHandler: options.softKeysHandler
     };
 
-    this.dialogController.once('opened', function() {
+    this.dialogController.once('opened', () => {
       this.isDialogOpened = true;
-    }.bind(this));
+    });
 
-    this.dialogController.once('closed', function() {
+    this.dialogController.once('closed', () => {
       this.isDialogOpened = false;
       this.findAndFocus();
-    }.bind(this));
+    });
 
     this.dialogController.show(option);
   },

@@ -1,25 +1,18 @@
-/* global jstz */
 define(function(require, exports, module) {
 'use strict';
 
 var Abstract = require('./abstract');
 var mutations = require('event_mutations');
 var uuid = require('ext/uuid');
-var Calc = require('calc');
+var ICAL = require('ext/ical');
 var CaldavPullEvents = require('provider/caldav_pull_events');
 var nextTick = require('next_tick');
+var IcalComposer = require('ical/composer');
 
 var LOCAL_CALENDAR_ID = 'local-first';
 
 function Local() {
   Abstract.apply(this, arguments);
-
-  // TODO: Get rid of this when app global is gone.
-  mutations.app = this.app;
-  this.service = this.app.serviceController;
-  this.events = this.app.store('Event');
-  this.busytimes = this.app.store('Busytime');
-  this.alarms = this.app.store('Alarm');
 }
 module.exports = Local;
 
@@ -63,102 +56,24 @@ Local.prototype = {
   },
 
   findCalendars: function(account, callback) {
-    var list = {};
-    list[LOCAL_CALENDAR_ID] = Local.defaultCalendar();
-    callback(null, list);
+    var trans = this.db.transaction('calendars');
+    var store = trans.objectStore('calendars');
+    var index = store.index('accountId');
+    var key = IDBKeyRange.only(account._id);
+
+    var req = index.mozGetAll(key);
+
+    req.onsuccess = function(e) {
+      callback(null, e.target.result);
+    };
+
+    req.onerror = function(e) {
+      callback(e);
+    };
   },
 
   syncEvents: function(account, calendar, cb) {
     cb(null);
-  },
-
-  calTimeOffset: function() {
-    var d = new Date();
-    var offset = d.getTimezoneOffset();
-    var from = '00' + (Math.abs(offset) / 60) + '00';
-    from = from.slice(-4);
-
-    if (offset <= 0) {
-      from = '+' + from;
-    } else {
-      from = '-' + from;
-    }
-
-    return from;
-  },
-
-  jointIcal: function(event) {
-    var rule = '';
-    switch (event.remote.repeat) {
-      case 'every-day':
-        rule = 'FREQ=DAILY;INTERVAL=1';
-        break;
-      case 'every-week':
-        rule = 'FREQ=WEEKLY;INTERVAL=1';
-        break;
-      case 'every-2-weeks':
-        rule = 'FREQ=WEEKLY;INTERVAL=2';
-        break;
-      case 'every-month':
-        rule = 'FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=' +
-          new Date(event.remote.startDate).getDate();
-        break;
-      case 'every-year':
-        // XXX: Since ical.js cannot handle 2.29 in leap year with YEARLY,
-        // so use 12*month here instead of YEARLY as a workaround.
-        rule = 'FREQ=MONTHLY;INTERVAL=12;BYMONTHDAY=' +
-          new Date(event.remote.startDate).getDate();
-        break;
-    }
-    var tzid = jstz.determine().name();
-    var dtstart = new Date(event.remote.startDate).toString('yyyyMMddTHHmmss');
-    var dtend = new Date(event.remote.endDate).toString('yyyyMMddTHHmmss');
-    var dtstamp = new Date().toString('yyyyMMddTHHmmss');
-    var offset = this.calTimeOffset();
-
-    var ical = '';
-    ical += 'BEGIN:VCALENDAR\r\n';
-    ical += 'PRODID:-//H5OS//Calendar 1.0//EN\r\n';
-    ical += 'VERSION:2.0\r\n';
-    ical += 'CALSCALE:GREGORIAN\r\n';
-
-    ical += 'BEGIN:VTIMEZONE\r\n';
-    ical += 'TZID:' + tzid + '\r\n';
-    ical += 'BEGIN:STANDARD\r\n';
-    ical += 'TZOFFSETFROM:' + offset + '\r\n';
-    ical += 'TZOFFSETTO:' + offset + '\r\n';
-    ical += 'DTSTART;TZID=' + tzid + ':' + dtstart + '\r\n';
-    ical += 'END:STANDARD\r\n';
-    ical += 'END:VTIMEZONE\r\n';
-
-    ical += 'BEGIN:VEVENT\r\n';
-    ical += 'DTSTART;TZID=' + tzid + ':' + dtstart + '\r\n';
-    ical += 'DTEND;TZID=' + tzid + ':' + dtend + '\r\n';
-    ical += 'RRULE:' + rule + '\r\n';
-    ical += 'DTSTAMP;TZID=' + tzid + ':' + dtstamp + '\r\n';
-    ical += 'UID:' + event.remote.id + '\r\n';
-    ical += 'DESCRIPTION:' + event.remote.description + '\r\n';
-    ical += 'LOCATION:' + event.remote.location + '\r\n';
-    ical += 'SEQUENCE:1\r\n';
-    ical += 'STATUS:CONFIRMED\r\n';
-    ical += 'SUMMARY:' + event.remote.title + '\r\n';
-    ical += 'TRANSP:TRANSPARENT\r\n';
-
-    event.remote.alarms.forEach(function(alarm) {
-      ical += 'BEGIN:VALARM\r\n';
-      if (alarm.trigger < 0) {
-        ical += 'TRIGGER:-PT' + (Math.abs(alarm.trigger) / 60) + 'M\r\n';
-      } else {
-        ical += 'TRIGGER:PT' + (Math.abs(alarm.trigger) / 60) + 'M\r\n';
-      }
-      ical += 'ACTION:' + alarm.action + '\r\n';
-      ical += 'END:VALARM\r\n';
-    });
-
-    ical += 'END:VEVENT\r\n';
-    ical += 'END:VCALENDAR\r\n';
-
-    return ical;
   },
 
   /**
@@ -176,31 +91,20 @@ Local.prototype = {
       event.remote.id = uuid();
     }
 
-    var create = mutations.create({ event: event });
     if (event.remote.isRecurring) {
-      create.icalComponent = {
-        calendarId: event.calendarId,
-        eventId: event.calendarId + '-' + event.remote.id,
-        lastRecurrenceId: {
-          tzid: jstz.determine().name(),
-          offset: 0,
-          utc: event.remote.start.utc,
-          isDate: true
-        },
-        ical: this.jointIcal(event)
-      };
-      create.excludeBusy = true;
+      this._simulateCaldavProcess(event,
+        IcalComposer.calendar(event), callback);
+    } else {
+      var create = mutations.create({ event: event });
+      create.commit(function(err) {
+        if (err) {
+          return callback(err);
+        }
+        callback(null, create.busytime, create.event);
+      });
+
+      return create;
     }
-
-    create.commit(function(err) {
-      if (err) {
-        return callback(err);
-      }
-
-      callback(null, create.busytime, create.event);
-    });
-
-    return create;
   },
 
   deleteEvent: function(event, busytime, callback) {
@@ -208,12 +112,75 @@ Local.prototype = {
       callback = busytime;
       busytime = null;
     }
+    if (!callback) {
+      callback = function() {};
+    }
 
     this.app.store('Event').remove(event._id, callback);
   },
 
-  deleteBusytime: function(busytimeId, callback) {
-    this.app.store('Busytime').remove(busytimeId, callback);
+  deleteSingleEvent: function(date, event, busytime, callback) {
+    if (typeof(busytime) === 'function') {
+      callback = busytime;
+      busytime = null;
+    }
+    if (!callback) {
+      callback = function() {};
+    }
+
+    this.icalComponents.get(event._id, (err, component) => {
+      if (err) {
+        return callback(err);
+      }
+      var icalComp = ICAL.Component.fromString(component.ical);
+      var eventComp = icalComp.getFirstSubcomponent('vevent');
+      eventComp.addProperty(IcalComposer.exdate(event, date));
+
+      this.deleteEvent(event, (err, evt) => {
+        if (err) {
+          return callback(err);
+        }
+        this._simulateCaldavProcess(event, icalComp.toString(), callback);
+      });
+    });
+  },
+
+  deleteFutureEvents: function(date, event, busytime, callback) {
+    if (typeof(busytime) === 'function') {
+      callback = busytime;
+      busytime = null;
+    }
+    if (!callback) {
+      callback = function() {};
+    }
+
+    this.icalComponents.get(event._id, (err, component) => {
+      if (err) {
+        return callback(err);
+      }
+      var icalComp = ICAL.Component.fromString(component.ical);
+      var eventComp = icalComp.getFirstSubcomponent('vevent');
+      var rRrule = eventComp.getFirstPropertyValue('rrule');
+      // we need to use parse here, since rRrule is not a normal object,
+      // actually it's a json wrapper, we cannot modify it directly
+      var newRrule = JSON.parse(JSON.stringify(rRrule));
+      var until = new Date(date);
+      var startDate = new Date(event.remote.startDate);
+      // until means before
+      until.setDate(until.getDate() - 1);
+      until.setHours(startDate.getHours());
+      until.setMinutes(startDate.getMinutes());
+      until.setSeconds(startDate.getSeconds());
+      newRrule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
+      eventComp.updatePropertyWithValue('rrule', newRrule);
+
+      this.deleteEvent(event, (err, evt) => {
+        if (err) {
+          return callback(err);
+        }
+        this._simulateCaldavProcess(event, icalComp.toString(), callback);
+      });
+    });
   },
 
   /**
@@ -225,198 +192,118 @@ Local.prototype = {
       busytime = null;
     }
 
-    var update = mutations.update({ event: event });
+    // converting a normal event to a recurring event
     if (event.remote.isRecurring) {
-      update.icalComponent = {
-        calendarId: event.calendarId,
-        eventId: event.calendarId + '-' + event.remote.id,
-        lastRecurrenceId: {
-          tzid: jstz.determine().name(),
-          offset: 0,
-          utc: event.remote.start.utc,
-          isDate: true
-        },
-        ical: this.jointIcal(event)
-      };
-      update.excludeBusy = true;
+      this.deleteEvent(event, (err, evt) => {
+        if (err) {
+          return callback(err);
+        }
+        nextTick(() => {
+          this.createEvent(event, callback);
+        });
+      });
+    } else {
+      var update = mutations.update({ event: event });
+      update.commit(function(err) {
+        if (err) {
+          return callback(err);
+        }
+
+        callback(null, update.busytime, update.event);
+      });
+      return update;
     }
-    update.commit(function(err) {
-      if (err) {
-        return callback(err);
-      }
-
-      callback(null, update.busytime, update.event);
-    });
-
-    return update;
   },
 
-  /**
-   * To update a recurring event
-   */
-  updateEventAll: function(event, busytime, callback) {
+  updateEventAllFuture: function(startDate, event, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
     }
 
-    // to update a recurring event
-    // 1. delete the event
-    // 2. create a new event
-    this.deleteEvent(event, function(err) {
+    this.deleteFutureEvents(event, busytime, (err) => {
       if (err) {
         return callback(err);
       }
 
-      // to erase it's original id, and then
-      // apply it a new id in creation
-      nextTick(function() {
-        delete event._id;
-        delete event.remote.id;
-        this.createEvent(event, callback);
-      }.bind(this));
-    }.bind(this));
+      var _event = ICAL.helpers.clone(event, true);
+      var ical = IcalComposer.calendar(_event, startDate);
+      this._simulateCaldavProcess(_event, ical, callback);
+    });
   },
 
   /**
    * To update a single day of a recurring event
    */
-  updateEventThisOnly: function(event, busytime, callback) {
+  updateEventThisOnly: function(date, event, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
     }
 
-    // to update a single day of a recurring event
-    // 1. delete the busytime
-    // 2. create a new event
-    this.deleteBusytime(busytime, function(err) {
+    this.icalComponents.get(event._id, (err, component) => {
       if (err) {
         return callback(err);
       }
-
-      // to erase it's original id, and then
-      // apply it a new id in creation
-      nextTick(function() {
-        delete event._id;
-        delete event.remote.id;
-        this.createEvent(event, callback);
-      }.bind(this));
-    }.bind(this));
-  },
-
-  ensureRecurrencesExpanded: function(date, callback) {
-    var self = this;
-    var icalComponents = this.app.store('IcalComponent');
-    icalComponents.findRecurrencesBefore(date, function(err, results) {
-      if (err) {
-        callback(err);
-        return;
-      }
-
-      if (!results.length) {
-        callback(null, false);
-        return;
-      }
-
-      // CaldavPullRequest is based on a calendar/account combination
-      // so we must group all of the outstanding components into
-      // their calendars before we can begin expanding them.
-      var groups = Object.create(null);
-      results.forEach(function(comp) {
-        var calendarId = comp.calendarId;
-        if (!(calendarId in groups)) {
-          groups[calendarId] = [];
+      // callback should return exception event's id
+      var icalComp = ICAL.Component.fromString(component.ical);
+      icalComp.addSubcomponent(
+        ICAL.Component.fromString(
+          IcalComposer.exceptionEvent(event, new Date(date))
+      ));
+      this.deleteEvent(event, (err, evt) => {
+        if (err) {
+          return callback(err);
         }
-
-        groups[calendarId].push(comp);
+        this._simulateCaldavProcess(event, icalComp.toString(),callback);
       });
-
-      var pullGroups = [];
-      var pending = 0;
-      var options = {
-        maxDate: Calc.dateToTransport(date)
-      };
-
-      function next(err, pull) {
-        if (!err && pull) {
-          pullGroups.push(pull);
-        }
-        if (!(--pending)) {
-          var trans = self.app.db.transaction(
-            ['icalComponents', 'alarms', 'busytimes'],
-            'readwrite'
-          );
-
-          trans.oncomplete = function() {
-            callback(null, true);
-          };
-
-          trans.onerror = function(event) {
-            callback(event.result.error.name);
-          };
-
-          pullGroups.forEach(function(pull) {
-            pull.commit(trans);
-          });
-        }
-      }
-
-      for (var calendarId in groups) {
-        pending++;
-        self._expandComponents(
-          calendarId,
-          groups[calendarId],
-          options,
-          next
-        );
-      }
-
     });
   },
 
-  _expandComponents: function(calendarId, comps, options, callback) {
-    var calStore = this.app.store('Calendar');
+  _simulateCaldavProcess: function(event, ical, callback) {
+    nextTick(() => {
+      this.events.ownersOf(event, (err, owners) => {
+        var stream = this.service.stream(
+          'caldav',
+          'streamEventsFromLocal',
+          owners.account.toJSON(),
+          owners.calendar.remote,
+          {
+            ical: ical,
+            repeat: event.remote.repeat
+          }
+        );
 
-    calStore.ownersOf(calendarId, function(err, owners) {
-      if (err) {
-        return callback(err);
-      }
-      if (owners.account.providerType !== 'Local') {
-        return callback('Not local provider');
-      }
-
-      var calendar = owners.calendar;
-      var account = owners.account;
-
-      var stream = this.service.stream(
-        'caldav',
-        'expandComponents',
-        comps,
-        options
-      );
-
-      var pull = new CaldavPullEvents(
-        stream,
-        {
-          account: account,
-          calendar: calendar,
+        var pull = new CaldavPullEvents(stream, {
           app: this.app,
-          stores: [
-            'busytimes', 'alarms', 'icalComponents'
-          ]
-        }
-      );
+          account: owners.account,
+          calendar: owners.calendar
+        });
 
-      stream.request(function(err) {
-        if (err) {
-          callback(err);
-          return;
-        }
-        callback(null, pull);
+        stream.request((err) => {
+          if (err) {
+            return callback(err);
+          }
+
+          pull.commit((commitErr, events, components, busytimes) => {
+            if (commitErr) {
+              callback(err);
+            } else {
+              // clean up all sub-stores since it's a empty recurring event
+              if (busytimes && busytimes.length === 0) {
+                nextTick(() => {
+                  this.deleteEvent(event, () => {
+                    callback(null);
+                  });
+                });
+              } else {
+                callback(null, events, components, busytimes);
+              }
+            }
+          });
+        });
       });
-
-    }.bind(this));
+    });
   }
 };
 

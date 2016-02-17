@@ -12,6 +12,10 @@ function EventBase(options) {
   View.apply(this, arguments);
 
   this.store = this.app.store('Event');
+  this.busytimeStore = this.app.store('Busytime');
+  this.timeController = this.app.timeController;
+  this.optionMenuController = this.app.optionMenuController;
+  this.dialogController = this.app.dialogController;
 
   this._els = Object.create(null);
   this._changeToken = 0;
@@ -264,20 +268,71 @@ EventBase.prototype = {
     this.busytimeId = null;
   },
 
-  deleteEvent: function(deleteSingleOnly, busytimeId, callback) {
-    dayObserver.findAssociated(busytimeId).then(record => {
-      if (deleteSingleOnly && record.event.remote.isRecurring) {
-        this.deleteController.deleteLocalBusytime(
-          record.event,
-          busytimeId,
-          callback
-        );
-      } else {
-        this.deleteController.deleteEvent(record.event, callback);
-      }
-    }).catch(() => {
-      console.error('Error deleting records for id: ', busytimeId);
+  _getProviderAndCheckCaps: function(event, cap, callback) {
+    this.store.ownersOf(event, (err, owners) => {
+      var provider = providerFactory.get(owners.account.providerType);
+      provider.eventCapabilities(
+        event,
+        (err, caps) => {
+          if (err) {
+            return callback(err);
+          }
+
+          if (!caps[cap]) {
+            return callback(new Error('Capability ' + cap + ' not allowed!!!'));
+          } else {
+            callback(null, provider);
+          }
+        }
+      );
     });
+  },
+
+  _getEventByBusytime: function(busytimeId, callback) {
+    dayObserver.findAssociated(busytimeId).then(record => {
+      callback(null, record.event);
+    }).catch(() => {
+      callback(new Error('findAssociated failed!!!'));
+    });
+  },
+
+  _deleteEvent: function(method, busytimeId, callback) {
+    this._getEventByBusytime(busytimeId, (err, event) => {
+      if (err) {
+        return callback(err);
+      }
+
+      this._getProviderAndCheckCaps(event, 'canDelete', (err, provider) => {
+        if (err) {
+          return callback(err);
+        }
+        switch (method) {
+          case 'deleteEvent':
+            provider.deleteEvent(event, callback);
+            break;
+          case 'deleteFutureEvents':
+            provider.deleteFutureEvents(this.app.timeController.selectedDay,
+              event, callback);
+            break;
+          case 'deleteSingleEvent':
+            provider.deleteSingleEvent(this.app.timeController.selectedDay,
+              event, callback);
+            break;
+        }
+      });
+    });
+  },
+
+  deleteEvent: function(busytimeId, callback) {
+    this._deleteEvent('deleteEvent', busytimeId, callback);
+  },
+
+  deleteSingleEvent: function(busytimeId, callback) {
+    this._deleteEvent('deleteSingleEvent', busytimeId, callback);
+  },
+
+  deleteFutureEvents: function(busytimeId, callback) {
+    this._deleteEvent('deleteFutureEvents', busytimeId, callback);
   },
 
   /**
@@ -292,7 +347,6 @@ EventBase.prototype = {
     this.element.classList.remove(this.LOADING);
 
     var id = data.params.id;
-    var editType = data.params.editType;
     var classList = this.element.classList;
     var last = router.last;
 
@@ -323,7 +377,6 @@ EventBase.prototype = {
       classList.add(this.UPDATE);
 
       this._loadModel(id, completeDispatch);
-      this.editType = editType;
     } else {
       if (/^\/event\/add\//.test(router.canonicalPath)) {
         classList.add(this.CREATE);
