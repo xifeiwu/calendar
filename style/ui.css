@@ -354,3 +354,19 @@ div[contenteditable] {
   pointer-events: none;
   z-index: 1000;
 }
+
+span.calendar-selector-locale {
+  display: block;
+  font-size: 2.1rem;
+  color: var(--highlight-color) !important;
+  padding: 0.5rem 0 0.3rem 0 !important;
+  border-bottom: 0.1rem solid var(--secondary-info-color);
+  width: 28rem !important;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: nowrap;
+}
+
+ul li[focus] span.calendar-selector-locale {
+  border-bottom: 0.1rem solid var(--white-color, white);
+}

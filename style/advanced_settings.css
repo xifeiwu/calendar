@@ -46,19 +46,3 @@
   z-index: -1;
   -moz-appearance: none;
 }
-
-#advanced-settings-view span[name="defaultCalendar-locale"] {
-  display: block;
-  font-size: 2.1rem;
-  color: var(--highlight-color);
-  padding: 0.5rem 0 0.3rem 0 !important;
-  border-bottom: 1px var(--secondary-info-color) solid;
-  word-wrap: break-word;
-  word-break: break-all;
-  width: 28rem;
-  white-space: nowrap;
-}
-
-#advanced-settings-view ul li[focus] span[name="defaultCalendar-locale"] {
-  border-bottom: 0.1rem solid var(--white-color);
-}

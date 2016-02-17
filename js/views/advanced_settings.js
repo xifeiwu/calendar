@@ -45,7 +45,7 @@ AdvancedSettings.prototype = {
     alldayAlarmLabel: '#default-allday-alarm',
     defaultCalendar: '#advanced-settings-view select[name="defaultCalendar"]',
     defaultCalendarLocale: '#advanced-settings-view ' +
-      'span[name="defaultCalendar-locale"]'
+      'span.calendar-selector-locale'
   },
 
   get setupCalendar() {

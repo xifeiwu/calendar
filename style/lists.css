@@ -186,7 +186,7 @@ ul li > *:first-child ~ span + .explanation,
 ul li > .menu-item > *:first-child ~ span,
 ul li > .menu-item > *:first-child ~ span + small,
 ul li > .menu-item > *:first-child ~ span + .explanation {
-  padding-right: 5.4rem !important;
+  padding-right: 5.4rem;
 }
 
 /************************************

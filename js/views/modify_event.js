@@ -655,15 +655,14 @@ ModifyEvent.prototype = {
       return;
     }
     var calStore = this.app.store('Calendar');
-    var self = this;
-    calStore.ownersOf(_calId, function (err, owners) {
+    calStore.ownersOf(_calId, (err, owners) => {
       if (err) {
         return console.error(err);
       }
-      var disSpan = self.element.querySelector('#calendarIdSpan');
-      self.element.querySelector('#calIndicator').style.backgroundColor =
+      var span = this.element.querySelector('span.calendar-selector-locale');
+      this.element.querySelector('#calIndicator').style.backgroundColor =
         owners.calendar.remote.color;
-      disSpan.textContent = _('account-calendar-format', {
+      span.textContent = _('account-calendar-format', {
         account: _('preset-' + owners.account.preset),
         calendar: owners.calendar.remote.name
       });
