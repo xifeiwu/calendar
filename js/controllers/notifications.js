@@ -6,6 +6,7 @@ var dateFormat = require('date_format');
 var debug = require('debug')('controllers/notifications');
 var messageHandler = require('message_handler');
 var notification = require('notification');
+var nextTick = require('next_tick');
 
 // Will be injected...
 exports.app = null;
@@ -22,13 +23,51 @@ exports.unobserve = function() {
 exports.onAlarm = function(alarm) {
   debug('Will request cpu wake lock...');
   var lock = navigator.requestWakeLock('cpu');
+  this.dialogController = exports.app.dialogController;
   debug('Received cpu lock. Will issue notification...');
-  return issueNotification(alarm).catch(err => {
-    console.error('controllers/notifications', err.toString());
-  }).then(() => {
-    // release cpu lock with or without errors
-    debug('Will release cpu wake lock...');
-    lock.unlock();
+  if (document.hidden) {
+    return issueNotification(alarm).catch(err => {
+      console.error('controllers/notifications', err.toString());
+    }).then(() => {
+      // release cpu lock with or without errors
+      debug('Will release cpu wake lock...');
+      lock.unlock();
+    });
+  }
+
+  issueNotification(alarm).then(value => {
+    var title = value.title;
+    var body = value.body;
+    var focusedEl = null;
+    var option = null;
+    option = {
+      header: title,
+      message: body,
+      dialogType: 'confirm',
+      softKeysHandler: {
+        rsk: {
+          name: 'ok',
+          action: () => {
+            this.dialogController.notiClose();
+            nextTick(() => {
+              focusedEl.focus();
+            });
+            return false;
+          }
+        }
+      }
+    };
+    nextTick(() => {
+      // Force notiDialog to be focused here is helpful when the dialog is
+      // pop-up while user is turning into another page
+      focusedEl = document.activeElement;
+      if(focusedEl.tagName === 'INPUT' &&
+        focusedEl.parentElement.tagName === 'H5-INPUT-WRAPPER') {
+        focusedEl = focusedEl.parentElement;
+      }
+      this.dialogController.notiDialog.focus();
+      this.dialogController.notiShow(option);
+    });
   });
 };
 
@@ -73,11 +112,15 @@ function issueNotification(alarm) {
     });
 
     debug('Will send event notification with title:', title, 'body:', body);
-    return notification.sendNotification(
-      title,
-      body,
-      `/alarm-display/${busytime._id}`
-    );
+    if(document.hidden) {
+      return notification.sendNotification(
+        title,
+        body,
+        `/alarm-display/${busytime._id}`
+      );
+    } else {
+      return {'title': title, 'body': body};
+    }
   });
 }
 
