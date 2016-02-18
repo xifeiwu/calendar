@@ -308,6 +308,10 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   z-index: 1000;
 }
 
+#calendar-option-menu-wrapper span {
+  padding-right: 0;
+}
+
 #calendar-dialog-wrapper {
   bottom: 0;
   left: 0;
@@ -324,6 +328,13 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   height: 100%;
   position: absolute;
   z-index: 10000;
+  line-height: 130%;
+}
+
+#notification-dialog-wrapper .dialog-header-container {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #calendar-dialog-wrapper h5-dialog .dialog-input-container input {
