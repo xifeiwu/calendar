@@ -22,7 +22,7 @@ OptionMenuController.prototype = {
     }
 
     this.optionMenu.setOptions({
-      header: option.header,
+      header: option.header || '',
       items: option.items
     });
 
