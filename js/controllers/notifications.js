@@ -1,3 +1,4 @@
+/* global Notification */
 define(function(require, exports) {
 'use strict';
 
@@ -68,6 +69,13 @@ exports.onAlarm = function(alarm) {
       this.dialogController.notiDialog.focus();
       this.dialogController.notiShow(option);
     });
+  });
+};
+
+exports.closeNotificationById = function(id) {
+  var url = '/alarm-display/' + id;
+  Notification.get({ tag: url }).then(notifications => {
+    notifications.forEach(n => n.close());
   });
 };
 
