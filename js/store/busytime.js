@@ -7,6 +7,7 @@ var TimeObserver = require('time_observer');
 var binsearch = require('binsearch');
 var compare = require('compare');
 var denodeifyAll = require('promise').denodeifyAll;
+var notificationsController = require('controllers/notifications');
 
 /**
  * Objects saved in the busytime store:
@@ -90,6 +91,7 @@ Busytime.prototype = {
 
       if (cursor) {
         var id = cursor.primaryKey;
+        notificationsController.closeNotificationById(id);
         self.emit('remove', id);
       }
 
