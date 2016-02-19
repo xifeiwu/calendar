@@ -52,7 +52,7 @@ module.exports = create({
       startDate.setDate(selectedDate.getDate());
       endDate.setFullYear(selectedDate.getFullYear());
       endDate.setMonth(selectedDate.getMonth());
-      endDate.setDate(selectedDate.getDate());
+      endDate.setDate(selectedDate.getDate() + 1);
     }
 
     if (isAllDay) {
