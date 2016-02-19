@@ -290,8 +290,10 @@ module.exports = {
     // can result in crashes so we attempt to do this only after
     // the user has completed their selection.
     window.addEventListener('moztimechange', () => {
-      debug('Noticed timezone change!');
-      nextTick(this.forceRestart);
+      if (new Date().getTimezoneOffset() !== this.timezoneOffset) {
+        debug('Noticed timezone change!');
+        nextTick(this.forceRestart);
+      }
     });
   },
 
@@ -395,6 +397,7 @@ module.exports = {
     debug('Will initialize calendar app...');
 
     this.forceRestart = this.forceRestart.bind(this);
+    this.timezoneOffset = new Date().getTimezoneOffset();
 
     if (!this.db) {
       this.configure(new Db('b2g-calendar', this));
