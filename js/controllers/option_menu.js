@@ -50,8 +50,10 @@ OptionMenuController.prototype = {
   },
 
   close: function(option) {
-    this.emit('preclose');
-    this.optionMenu.close();
+    if (!this.optionMenu.hidden) {
+      this.emit('preclose');
+      this.optionMenu.close();
+    }
   },
 
   back: function(option) {
