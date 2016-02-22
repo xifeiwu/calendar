@@ -181,11 +181,12 @@ h5-check-box[focused] {
 
 #modify-event-view select[name="calendarId"] {
   position: absolute;
-  z-index: -1;
+  opacity: 0;
 }
 
 #modify-event-view li.calendar-id {
   padding: 0;
+  opacity: 1;
   display: block;
 }
 
@@ -194,6 +195,10 @@ h5-check-box[focused] {
   display: block;
   width: 30rem;
   padding: 1.5rem 0 0 1.4rem;
+}
+
+#modify-event-view li.calendar-id.cal-disabled {
+  opacity: 0.3;
 }
 
 #modify-event-view li.notes h5-input-wrapper {
