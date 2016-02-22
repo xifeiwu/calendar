@@ -596,8 +596,17 @@ ModifyEvent.prototype = {
     this.getEl('title').value = model.title;
     this.getEl('location').value = model.location;
     var dateSrc = model;
+    var calLi = this.element.querySelector('.calendar-id');
+    if (calLi.classList.contains('cal-disabled')) {
+      calLi.classList.remove('cal-disabled');
+      calLi.setAttribute('tabindex', '0');
+    }
     if (model.remote.isRecurring && this.busytime) {
       dateSrc = this.busytime;
+      if (!Calc.isSameDate(dateSrc.startDate, model.startDate)) {
+        calLi.classList.add('cal-disabled');
+        calLi.setAttribute('tabindex', '-1');
+      }
     }
 
     var startDate = dateSrc.startDate;
