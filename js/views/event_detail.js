@@ -220,13 +220,13 @@ EventDetail.prototype = {
                   case 'delete-this-only':
                     this.deleteSingleEvent(this.busytimeId, (err, evt) => {
                       this.optionMenuController.close();
-                      router.go(this.returnTo());
+                      router.go('/event/list/');
                     });
                     break;
                   case 'delete-all-future':
                     this.deleteFutureEvents(this.busytimeId, (err, evt) => {
                       this.optionMenuController.close();
-                      router.go(this.returnTo());
+                      router.go('/event/list/');
                     });
                     break;
                 }
@@ -268,7 +268,7 @@ EventDetail.prototype = {
                     action: () => {
                       this.dialogController.close();
                       this.deleteEvent(this.busytimeId, (err, evt) => {
-                        router.go(this.returnTo());
+                        router.go('/event/list/');
                       });
                       return false;
                     }
