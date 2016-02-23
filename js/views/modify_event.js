@@ -323,7 +323,8 @@ ModifyEvent.prototype = {
                 self.showErrors(err);
                 return;
               }
-              if (/^\/event\/detail\//.test(pathToGo)) {
+              if (/^\/event\/detail\//.test(pathToGo) ||
+                  /^\/alarm\-display\//.test(pathToGo)) {
                 router.go('/event/detail/' + busytime._id, state);
               } else if (/^\/event\/list\//.test(pathToGo)) {
                 router.go('/event/list/' + busytime._id, state);
@@ -340,7 +341,8 @@ ModifyEvent.prototype = {
               }
               busytimes.forEach((busytime) => {
                 if (Calc.isSameDate(new Date(busytime.start.utc), moveDate)) {
-                  if (/^\/event\/detail\//.test(pathToGo)) {
+                  if (/^\/event\/detail\//.test(pathToGo) ||
+                      /^\/alarm\-display\//.test(pathToGo)) {
                     router.go('/event/detail/' + busytime._id, state);
                   } else if (/^\/event\/list\//.test(pathToGo)) {
                     router.go('/event/list/' + busytime._id, state);
@@ -362,7 +364,8 @@ ModifyEvent.prototype = {
                     moveDate)) {
                   busytimes.forEach((busytime) => {
                     if (busytime.eventId === event._id) {
-                      if (/^\/event\/detail\//.test(pathToGo)) {
+                      if (/^\/event\/detail\//.test(pathToGo) ||
+                          /^\/alarm\-display\//.test(pathToGo)) {
                         router.go('/event/detail/' + busytime._id, state);
                       } else if (/^\/event\/list\//.test(pathToGo)) {
                         router.go('/event/list/' + busytime._id, state);
