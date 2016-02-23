@@ -351,7 +351,7 @@ EventBase.prototype = {
     var last = router.last;
 
     if (last && last.path) {
-      if (!(/^\/(day|event|month|week)/.test(last.path))) {
+      if (!(/^\/(day|event|month|week|alarm)/.test(last.path))) {
         // We came from some place suspicious so fall back to default.
         this._returnTo = this.DEFAULT_VIEW;
       } else {
