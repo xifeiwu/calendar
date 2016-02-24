@@ -87,6 +87,26 @@ Alarm.prototype = {
   },
 
   /**
+   * Manage the queue when alarms are deleted.
+   */
+  _removeDependents: function(alarmId, trans) {
+    trans.addEventListener('complete', () => {
+      var request = navigator.mozAlarms.getAll();
+      request.onsuccess = function (e) {
+        e.target.result.some((alarm) => {
+          if (alarm.data._id === alarmId) {
+            navigator.mozAlarms.remove(alarm.id);
+            return true;
+          }
+          return false;
+        });
+      }
+      request.onerror = function () {
+        debug('remove alarm error.');
+      }
+    });
+  },
+  /**
    * Move alarms over to the alarm api's database.
    *
    *
