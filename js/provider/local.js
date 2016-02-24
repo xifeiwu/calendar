@@ -221,7 +221,7 @@ Local.prototype = {
       busytime = null;
     }
 
-    this.deleteFutureEvents(event, busytime, (err) => {
+    this.deleteFutureEvents(startDate, event, busytime, (err) => {
       if (err) {
         return callback(err);
       }

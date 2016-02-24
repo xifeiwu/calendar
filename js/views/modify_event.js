@@ -10,7 +10,7 @@ var dateFormat = require('date_format');
 var getTimeL10nLabel = require('calc').getTimeL10nLabel;
 var router = require('router');
 var debug = require('debug')('modify_event');
-var Calc = require('calc');
+var isSameDate = require('calc').isSameDate;
 var _ = navigator.mozL10n.get;
 
 require('dom!modify-event-view');
@@ -307,7 +307,7 @@ ModifyEvent.prototype = {
                   return;
                 }
                 busytimes.forEach((busytime) => {
-                  if (Calc.isSameDate(new Date(busytime.start.utc), moveDate)) {
+                  if (isSameDate(new Date(busytime.start.utc), moveDate)) {
                     if (/^\/event\/detail\//.test(pathToGo)) {
                       router.go('/event/detail/' + busytime._id, state);
                     } else if (/^\/event\/list\//.test(pathToGo)) {
@@ -339,15 +339,17 @@ ModifyEvent.prototype = {
                 self.showErrors(err);
                 return;
               }
-              busytimes.forEach((busytime) => {
-                if (Calc.isSameDate(new Date(busytime.start.utc), moveDate)) {
+              busytimes.some((busytime) => {
+                if (isSameDate(new Date(busytime.start.utc), moveDate)) {
                   if (/^\/event\/detail\//.test(pathToGo) ||
                       /^\/alarm\-display\//.test(pathToGo)) {
                     router.go('/event/detail/' + busytime._id, state);
                   } else if (/^\/event\/list\//.test(pathToGo)) {
                     router.go('/event/list/' + busytime._id, state);
                   }
+                  return true;
                 }
+                return false;
               });
             }
           );
@@ -359,20 +361,17 @@ ModifyEvent.prototype = {
                 self.showErrors(err);
                 return;
               }
-              events.forEach((event) => {
-                if (Calc.isSameDate(new Date(event.remote.start.utc),
-                    moveDate)) {
-                  busytimes.forEach((busytime) => {
-                    if (busytime.eventId === event._id) {
-                      if (/^\/event\/detail\//.test(pathToGo) ||
-                          /^\/alarm\-display\//.test(pathToGo)) {
-                        router.go('/event/detail/' + busytime._id, state);
-                      } else if (/^\/event\/list\//.test(pathToGo)) {
-                        router.go('/event/list/' + busytime._id, state);
-                      }
-                    }
-                  });
+              busytimes.some((busytime) => {
+                if (isSameDate(new Date(busytime.start.utc), moveDate)) {
+                  if (/^\/event\/detail\//.test(pathToGo) ||
+                      /^\/alarm\-display\//.test(pathToGo)) {
+                    router.go('/event/detail/' + busytime._id, state);
+                  } else if (/^\/event\/list\//.test(pathToGo)) {
+                    router.go('/event/list/' + busytime._id, state);
+                  }
+                  return true;
                 }
+                return false;
               });
             }
           );
@@ -606,7 +605,7 @@ ModifyEvent.prototype = {
     }
     if (model.remote.isRecurring && this.busytime) {
       dateSrc = this.busytime;
-      if (!Calc.isSameDate(dateSrc.startDate, model.startDate)) {
+      if (!isSameDate(dateSrc.startDate, model.startDate)) {
         calLi.classList.add('cal-disabled');
         calLi.setAttribute('tabindex', '-1');
       }
