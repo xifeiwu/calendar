@@ -354,7 +354,11 @@ PullEvents.prototype = {
 
     this.alarmQueue.forEach(function(alarm) {
       debug('add alarm', alarm);
-      alarmStore.persist(alarm, trans);
+      var alarmTrans = alarmStore.db.transaction(
+        ['alarms'],
+        'readwrite'
+      );
+      alarmStore.persist(alarm, alarmTrans);
     });
 
     if (this.removeList) {
