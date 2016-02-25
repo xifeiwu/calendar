@@ -97,6 +97,7 @@ SingleMonth.prototype = {
     this.days.forEach(day => day.activate());
     this._onSelectedDayChange(this.timeController.selectedDay);
     this.timeController.on('selectedDayChange', this);
+    this.timeController.on('presentDayChange', this);
   },
 
   deactivate: function() {
@@ -108,6 +109,7 @@ SingleMonth.prototype = {
     this.oninactive();
     this.days.forEach(day => day.deactivate());
     this.timeController.off('selectedDayChange', this);
+    this.timeController.off('presentDayChange', this);
   },
 
   destroy: function() {
@@ -128,8 +130,13 @@ SingleMonth.prototype = {
   },
 
   handleEvent: function(e) {
-    if (e.type === 'selectedDayChange') {
-      this._onSelectedDayChange(e.data[0]);
+    switch (e.type) {
+      case 'selectedDayChange':
+        this._onSelectedDayChange(e.data[0]);
+        break;
+      case 'presentDayChange':
+        this._onPresentDayChange(e.data[0]);
+        break;
     }
   },
 
@@ -153,6 +160,23 @@ SingleMonth.prototype = {
     el.setAttribute('aria-selected', true);
     // Put the screen reader cursor onto the selected day.
     el.focus();
+  },
+
+  _onPresentDayChange: function(date) {
+    var day = this.element.querySelector(`li.${Calc.PRESENT}`);
+    if (day) {
+      day.classList.remove(Calc.PRESENT);
+      var state = Calc.relativeState(this.date, this.timeController.month);
+      day.classList.add(state);
+    }
+    var selector = `li[data-date="${getDayId(date)}"]`;
+    var today = this.element.querySelector(selector);
+    [Calc.PAST, Calc.FUTURE, Calc.OTHER_MONTH].forEach((key) => {
+      if (today.classList.contains(key)) {
+        today.classList.remove(key);
+      }
+    });
+    today.classList.add(Calc.PRESENT);
   }
 };
 

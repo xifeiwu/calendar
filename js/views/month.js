@@ -159,16 +159,12 @@ Month.prototype = {
           date.getTimezoneOffset() * 60 * 1000);
         break;
       case 'default-day':
-        newDate = this.controller.selectedDay;
-        if (!newDate) {
-          newDate = this.controller.position;
-        }
+        this.controller.emit('selectedDayChange', this.controller.selectedDay);
         break;
     }
     if (newDate) {
       this.controller.move(newDate);
       this.controller.selectedDay = newDate;
-      this.changeFocus(newDate);
     }
   },
 
@@ -191,7 +187,6 @@ Month.prototype = {
     }
     this.controller.move(dstDay);
     this.controller.selectedDay = dstDay;
-    this.changeFocus(dstDay);
   },
 
   _keyDownEvent: function(evt) {
@@ -413,21 +408,8 @@ Month.prototype = {
   },
 
   _getCurFocus: function() {
-    return this.element.querySelector('li.focus');
-  },
-
-  changeFocus: function(dstDay) {
-    var focused = this.element.querySelectorAll('li.focus');
-    for (var i = 0; i < focused.length; i++) {
-      focused[i].classList.remove('focus');
-    }
-    var dayId = Calc.getDayId(dstDay);
-    var selector = `section.month.active li[data-date="${dayId}"]`;
-    var dstNode = this.element.querySelector(selector);
-    dstNode.classList.add('focus');
-    dstNode.focus();
+    return this.element.querySelector('li.selected');
   }
-
 };
 
 });

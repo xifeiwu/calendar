@@ -293,6 +293,11 @@ module.exports = {
       if (new Date().getTimezoneOffset() !== this.timezoneOffset) {
         debug('Noticed timezone change!');
         nextTick(this.forceRestart);
+      } else {
+        var date = new Date();
+        this.timeController.move(date);
+        this.timeController.selectedDay = date;
+        this.timeController.presentDay = date;
       }
     });
   },
