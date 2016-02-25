@@ -1,7 +1,0 @@
-*.focus,
- .hasfocused {
-  background-color: var(--highlight-color) !important;
-}
-*.focus1 {
-  background-color: var(--highlight-color) !important;
-}

@@ -112,6 +112,17 @@ Time.prototype = {
     }
   },
 
+  get presentDay() {
+    return this._presentDay;
+  },
+
+  set presentDay(value) {
+    var day = this._presentDay;
+    if (!day || !isSameDate(day, value)) {
+      this._presentDay = value;
+      this.emit('presentDayChange', value, day);
+    }
+  },
   /**
    * Helper function to 'move' state of calendar
    * to the most recently modified day type.
