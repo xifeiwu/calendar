@@ -839,7 +839,8 @@ Service.prototype = {
       start: this.formatICALTime(event.startDate),
       end: this.formatICALTime(event.endDate),
       timeStamp: new Date().getTime(),
-      exceptions: exceptions
+      exceptions: exceptions,
+      color: option.color
     };
 
     return result;
