@@ -44,7 +44,6 @@
         'views/event_detail',
         'views/settings',
         'views/calendar_chooser',
-        'views/view_event',
         'views/setup_calendar',
         'views/account_detail'
       ],
