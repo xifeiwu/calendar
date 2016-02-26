@@ -79,8 +79,10 @@ MonthDayAgenda.prototype = {
   _render: function(records) {
     // we should always display the first added all-day event
     // if there are no all-day events, display the first added basic event
-    var basicMin = findMin(records.basic);
-    var alldayMin = findMin(records.allday);
+    var basicMin = dayObserver.sortByStartdate(
+      dayObserver.sortByTimestamp(records.basic))[0];
+    var alldayMin = dayObserver.sortByStartdate(
+      dayObserver.sortByTimestamp(records.allday))[0];
 
     var events = [];
 
@@ -92,18 +94,6 @@ MonthDayAgenda.prototype = {
     this.emptyMessage.classList.toggle('active', records.amount === 0);
 
     performance.monthsDayReady();
-
-    function findMin(arr) {
-      var min = Infinity;
-      var minOb;
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i].event.remote.timeStamp < min) {
-          minOb = arr[i];
-          min = arr[i].event.remote.timeStamp;
-        }
-      }
-      return minOb;
-    }
   },
 
   _renderEvent: function(record) {

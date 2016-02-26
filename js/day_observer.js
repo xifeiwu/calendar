@@ -386,4 +386,35 @@ function removeEventIfNoBusytimes(ids, eventId) {
   }
 }
 
+exports.sortByTimestamp = function(arr) {
+  // Order the array according to timeStamps
+  function stampSorts(a, b) {
+    var obA = a.event.remote.timeStamp;
+    var obB = b.event.remote.timeStamp;
+    obA = !!(obA && obB) ? obA : (obB || obA || '');
+    obB = !!(obA && obB) ? obB : (obA || obB || '');
+    return obA - obB;
+  }
+  return arr.sort(stampSorts);
+};
+
+exports.sortByStartdate = function(arr) {
+  // Order the array according to time sequences
+  function startTimeSorts(a, b) {
+    var aUtc, bUtc;
+    if (a.event.remote.isRecurring) {
+      aUtc = a.busytime.start.utc;
+    } else {
+      aUtc = a.event.remote.start.utc;
+    }
+    if (b.event.remote.isRecurring) {
+      bUtc = b.busytime.start.utc;
+    } else {
+      bUtc = b.event.remote.start.utc;
+    }
+    return aUtc - bUtc;
+  }
+  return arr.sort(startTimeSorts);
+};
+
 });
