@@ -185,7 +185,6 @@ module.exports = {
     router.state('/week/', 'Week');
     router.state('/day/', 'Day');
     router.state('/month/', ['Month', 'MonthDayAgenda']);
-    router.modifier('/settings/', 'Settings', { clear: false });
     router.state('/advanced-settings/', 'AdvancedSettings');
     router.state('/setup-calendar/', 'SetupCalendar');
 

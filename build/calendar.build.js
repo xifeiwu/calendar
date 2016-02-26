@@ -42,7 +42,6 @@
         'views/modify_event',
         'views/events_list',
         'views/event_detail',
-        'views/settings',
         'views/calendar_chooser',
         'views/setup_calendar',
         'views/account_detail'
