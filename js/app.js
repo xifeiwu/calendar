@@ -193,7 +193,6 @@ module.exports = {
 
     router.state('/event/add/', 'ModifyEvent');
     router.state('/event/edit/:id', 'ModifyEvent');
-    router.state('/event/show/:id', 'ViewEvent');
     router.state('/event/list/', 'EventsList');
     router.state('/event/list/:busytimeId', 'EventsList');
     router.state('/event/detail/:id', 'EventDetail');
