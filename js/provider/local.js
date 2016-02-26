@@ -270,7 +270,8 @@ Local.prototype = {
           owners.calendar.remote,
           {
             ical: ical,
-            repeat: event.remote.repeat
+            repeat: event.remote.repeat,
+            color: owners.calendar.remote.color
           }
         );
 
