@@ -307,7 +307,7 @@ ModifyEvent.prototype = {
                   return;
                 }
                 busytimes.forEach((busytime) => {
-                  if (isSameDate(new Date(busytime.start.utc), moveDate)) {
+                  if (isSameDate(busytime.startDate, moveDate)) {
                     if (/^\/event\/detail\//.test(pathToGo)) {
                       router.go('/event/detail/' + busytime._id, state);
                     } else if (/^\/event\/list\//.test(pathToGo)) {
@@ -340,7 +340,7 @@ ModifyEvent.prototype = {
                 return;
               }
               busytimes.some((busytime) => {
-                if (isSameDate(new Date(busytime.start.utc), moveDate)) {
+                if (isSameDate(busytime.startDate, moveDate)) {
                   if (/^\/event\/detail\//.test(pathToGo) ||
                       /^\/alarm\-display\//.test(pathToGo)) {
                     router.go('/event/detail/' + busytime._id, state);
@@ -362,7 +362,7 @@ ModifyEvent.prototype = {
                 return;
               }
               busytimes.some((busytime) => {
-                if (isSameDate(new Date(busytime.start.utc), moveDate)) {
+                if (isSameDate(busytime.startDate, moveDate)) {
                   if (/^\/event\/detail\//.test(pathToGo) ||
                       /^\/alarm\-display\//.test(pathToGo)) {
                     router.go('/event/detail/' + busytime._id, state);
