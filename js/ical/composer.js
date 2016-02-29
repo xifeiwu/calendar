@@ -96,7 +96,7 @@ exports.event = function(event, newDate) {
   if (newDate) {
     var offset = _calDateOffset(dtstart, dtend);
     _copyDate(newDate, dtstart);
-    _copyDate(new Date(newDate + offset), dtend);
+    _copyDate(new Date(newDate.getTime() + offset), dtend);
     event.remote.id = event.remote.id = uuid();
   }
   var isAllDay = Calc.isAllDay(dtstart, dtstart, dtend);
