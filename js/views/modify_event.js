@@ -424,18 +424,20 @@ ModifyEvent.prototype = {
           this.element.spatialNavigator.focus();
         });
 
+        var editOptions = [{
+          title: _('edit-all-future'),
+          key: 'edit-all-future'
+        }];
+        if (data.calendarId === this.originalCalendarId &&
+            data.repeat === this.originalRepeat) {
+          editOptions.unshift({
+            title: _('edit-this-only'),
+            key: 'edit-this-only'
+          });
+        }
         this.optionMenuController.show({
           header: _('repeat-event-header'),
-          items: [
-            {
-              title: _('edit-this-only'),
-              key: 'edit-this-only'
-            },
-            {
-              title: _('edit-all-future'),
-              key: 'edit-all-future'
-            }
-          ]
+          items: editOptions
         });
       } else {
         this._persistEvent('updateEvent', 'canUpdate');
@@ -645,17 +647,8 @@ ModifyEvent.prototype = {
 
     // update calendar id
     this.getEl('calendarId').value = model.calendarId;
+    this.originalCalendarId = this.getEl('calendarId').value;
     this.calendarDis();
-
-    // calendar display
-    var currentCalendar = this.getEl('currentCalendar');
-
-    if (this.originalCalendar) {
-      currentCalendar.value =
-        this.originalCalendar.remote.name;
-
-      currentCalendar.readOnly = true;
-    }
 
     this.updateAlarms(model.isAllDay);
   },
