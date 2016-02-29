@@ -856,7 +856,7 @@ ModifyEvent.prototype = {
       if ((alarms.length === 0 && this.isSaved())) {
         alarms.push({
           layout: layout,
-          trigger: value
+          trigger: null
         });
       }
 
