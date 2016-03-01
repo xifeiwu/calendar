@@ -11,20 +11,15 @@ var DEBUG = false;
 function DialogController(app) {
   this.app = app;
   this.dialog = document.getElementById('calendar-dialog');
-  this.notiDialog = document.getElementById('notification-dialog');
+  this.notiContainer = document.getElementById('notification-dialog-wrapper');
+  this.focusedEl = null;
+  this.containerZIndex = window.getComputedStyle(this.notiContainer).zIndex;
 
   this.dialog.on('h5dialog:opened', function() {
     if (DEBUG) {
       console.log('DialogController opened');
     }
     this.emit('opened');
-  }.bind(this));
-
-  this.notiDialog.on('h5dialog:opened', function() {
-    if (DEBUG) {
-      console.log('DialogController opened');
-    }
-    this.emit('notiOpened');
   }.bind(this));
 
   this.dialog.on('h5dialog:closed', function() {
@@ -35,23 +30,13 @@ function DialogController(app) {
     this.emit('closed');
   }.bind(this));
 
-  this.notiDialog.on('h5dialog:closed', function() {
-    if (DEBUG) {
-      console.log('DialogController closed');
-    }
-    this.emit('notiClosed');
-  }.bind(this));
-
   this.dialog.dialogTextInput.addEventListener('blur', function(evt) {
     if (DEBUG) {
       console.log('DialogController blur');
     }
-    nextTick(() => {
-      if (this.notiDialog.classList.contains('closed')) {
-        console.log('emitting input-blur');
-        this.emit('input-blur');
-      }
-    });
+    if (!this.notiContainer.querySelector('.notifications-dialog')) {
+      this.emit('input-blur');
+    }
   }.bind(this));
 
   Responder.call(this);
@@ -90,33 +75,54 @@ DialogController.prototype = {
     }
   },
 
-  notiShow: function(option) {
+  notiCreate: function(option) {
     if (DEBUG) {
       console.log(JSON.stringify(option));
     }
 
-    if (!option || !option.dialogType ||
-      !(option.softKeysHandler || option.inputSoftKeysHandler)) {
-      console.warn('DialogController warnning: empty option!');
+    var notiDialog = new H5Dialog();
+    notiDialog.setAttribute('tabindex','0');
+    notiDialog.style.zIndex = this.containerZIndex +
+      this.notiContainer.childNodes.length;
+    notiDialog.classList.add('notifications-dialog');
+    if (!this.notiContainer.lastChild) {
+      this.focusedEl = document.activeElement;
+      if (this.focusedEl.tagName === 'INPUT' &&
+        this.focusedEl.parentElement.tagName === 'H5-INPUT-WRAPPER') {
+        this.focusedEl = this.focusedEl.parentElement;
+      }
     }
 
-    if (option.softKeysHandler) {
-      softkeyHandler.register(this.notiDialog, option.softKeysHandler);
-    }
-    if (option.inputSoftKeysHandler) {
-      softkeyHandler.register(this.notiDialog.dialogTextInput,
-        option.inputSoftKeysHandler);
-    }
+    this.notiContainer.appendChild(notiDialog);
 
-    this.notiDialog.open({
+    var softKeysHandler = {
+      rsk: {
+        name: 'ok',
+        action: () => {
+          this.notiContainer.lastChild.close();
+          this.notiContainer.lastChild.remove();
+          if (!this.notiContainer.lastChild) {
+            this.focusedEl.focus();
+          } else {
+            this.notiContainer.lastChild.focus();
+          }
+          return false;
+        }
+      }
+    };
+    softkeyHandler.register(this.notiContainer.lastChild, softKeysHandler);
+
+    notiDialog.open({
       header: option.header || '',
       dialogType: option.dialogType || 'prompt',
       message: option.message || '',
       initialValue: option.initialValue || ''
     });
-    if (DEBUG) {
-      console.log('DialogController call open');
-    }
+    nextTick(() => {
+      // Force notiDialog to be focused here is helpful when the dialog is
+      // pop-up while user is turning into another page
+      this.notiContainer.lastChild.focus();
+    });
   },
 
   setInputValue: function(text) {
@@ -141,13 +147,6 @@ DialogController.prototype = {
     }
     this.dialog.close();
   },
-
-  notiClose: function(option) {
-    if (DEBUG) {
-      console.log('DialogController call close');
-    }
-    this.notiDialog.close();
-  }
 };
 
 });
