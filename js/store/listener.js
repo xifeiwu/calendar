@@ -102,12 +102,9 @@ Listener.prototype = {
       })
       .sort((a, b) => {
         if (a._id ===  Local.calendarId) {
-          return true;
-        }
-        if (!a.remote || !a.remote.timeStamp) {
-          return false;
-        } else if (!b.remote || !b.remote.timeStamp) {
-          return true;
+          return -1;
+        } else if (b._id ===  Local.calendarId) {
+          return 1;
         }
         return a.remote.timeStamp - b.remote.timeStamp;
       });
