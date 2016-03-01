@@ -111,7 +111,11 @@ ModifyEvent.prototype = {
 
       // Reset alarms if we come from a user event
       this.event.alarms = [];
-      this.updateAlarms(allday);
+      this.updateAlarms(allday, () => {
+        this.lastAlldayState = allday;
+      });
+    } else {
+      this.lastAlldayState = allday;
     }
   },
 
@@ -619,6 +623,7 @@ ModifyEvent.prototype = {
 
     // update the allday status of the view
     var allday = this.getEl('allday');
+    this.lastAlldayState = model.isAllDay;
     if (allday && (allday.checked = model.isAllDay)) {
       this._toggleAllDay();
       endDate = this.formatEndDate(endDate);
@@ -847,10 +852,18 @@ ModifyEvent.prototype = {
       }
 
       if ((alarms.length === 0 && this.isSaved())) {
-        alarms.push({
-          layout: layout,
-          trigger: 'none'
-        });
+        // checkbox doesn't change
+        if (this.lastAlldayState == isAllDay) {
+            alarms.push({
+              layout: layout,
+              trigger: 'none'
+            });
+        } else {
+            alarms.push({
+              layout: layout,
+              trigger: value
+            });
+        }
       }
 
       this.alarmList.innerHTML = template.picker.renderEach(alarms).join('');
