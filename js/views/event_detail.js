@@ -123,12 +123,11 @@ EventDetail.prototype = {
 
     var durationTimeContent =
       DurationTime.durationTimeEventDetail.render({
-        startDate: model.startDate,
-        endDate: model.endDate,
+        startDate: this.busytime.startDate,
+        endDate: this.busytime.endDate,
         isAllDay: model.isAllDay,
         isRecurring: model.isRecurring,
-        repeat: model.repeat,
-        selectedDate: this.timeController.selectedDay
+        repeat: model.repeat
       });
     this.durationTime.innerHTML = durationTimeContent;
 
