@@ -10,6 +10,7 @@ var EventsListItem = create({
     var eventId = this.h('eventId');
     var calendarId = this.h('calendarId');
     var color = this.h('color');
+    var timeFormat = navigator.mozHour12 ? 'twelve-hour' : 'twenty-four-hour';
 
     var indicator = `
       <div class="indicator" style="background-color: ${color}">
@@ -18,14 +19,14 @@ var EventsListItem = create({
     var eventTime;
     if (this.arg('isAllDay')) {
       eventTime = `
-        <div class="event-time">
+        <div class="event-time" format="${timeFormat}">
           <div class="all-day" data-l10n-id="hour-allday">All Day</div>
         </div>`;
     } else {
       var startTime = formatTimeTo(this.arg('startTime'));
       var endTime = formatTime(this.arg('endTime'));
       eventTime = `
-        <div class="event-time">
+        <div class="event-time" format="${timeFormat}">
           <div class="start-time">${startTime}</div>
           <div class="end-time">${endTime}</div>
         </div>`;

@@ -57,6 +57,7 @@ EventsList.prototype = {
     EventBase.prototype.onactive.apply(this, arguments);
     this.initCurrentDate(this.timeController.selectedDay);
     window.addEventListener('keydown', this._keyDownHandler, false);
+    window.addEventListener('timeformatchange', this.formatEventTime);
   },
 
   oninactive: function() {
@@ -66,6 +67,15 @@ EventsList.prototype = {
     }
     this.date = null;
     window.removeEventListener('keydown', this._keyDownHandler);
+    window.removeEventListener('timeformatchange', this.formatEventTime);
+  },
+
+  formatEventTime: function() {
+    var timeFormat = navigator.mozHour12 ? 'twelve-hour' : 'twenty-four-hour';
+    var nodeList = document.querySelectorAll('#events-list-agenda .event-time');
+    for (var node of nodeList) {
+      node.setAttribute('format', timeFormat);
+    }
   },
 
   findAndFocus: function() {
