@@ -43,17 +43,6 @@ module.exports = create({
     var isAllDay = this.arg('isAllDay');
     var isRecurring = this.arg('isRecurring');
     var repeat = this.arg('repeat');
-    var selectedDate = this.arg('selectedDate');
-
-    if (isRecurring) {
-      // convert startDate and endDate to current selected Date
-      startDate.setFullYear(selectedDate.getFullYear());
-      startDate.setMonth(selectedDate.getMonth());
-      startDate.setDate(selectedDate.getDate());
-      endDate.setFullYear(selectedDate.getFullYear());
-      endDate.setMonth(selectedDate.getMonth());
-      endDate.setDate(selectedDate.getDate() + (isAllDay ? 1 : 0));
-    }
 
     if (isAllDay) {
       // Use the last second of previous day as the base for endDate
