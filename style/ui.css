@@ -331,6 +331,14 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   line-height: 130%;
 }
 
+#notification-dialog-wrapper .notifications-dialog {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 #notification-dialog-wrapper .dialog-header-container {
   text-overflow: ellipsis;
   white-space: nowrap;

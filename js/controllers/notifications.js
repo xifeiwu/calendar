@@ -39,35 +39,14 @@ exports.onAlarm = function(alarm) {
   issueNotification(alarm).then(value => {
     var title = value.title;
     var body = value.body;
-    var focusedEl = null;
     var option = null;
     option = {
       header: title,
       message: body,
-      dialogType: 'confirm',
-      softKeysHandler: {
-        rsk: {
-          name: 'ok',
-          action: () => {
-            this.dialogController.notiClose();
-            nextTick(() => {
-              focusedEl.focus();
-            });
-            return false;
-          }
-        }
-      }
+      dialogType: 'confirm'
     };
     nextTick(() => {
-      // Force notiDialog to be focused here is helpful when the dialog is
-      // pop-up while user is turning into another page
-      focusedEl = document.activeElement;
-      if(focusedEl.tagName === 'INPUT' &&
-        focusedEl.parentElement.tagName === 'H5-INPUT-WRAPPER') {
-        focusedEl = focusedEl.parentElement;
-      }
-      this.dialogController.notiDialog.focus();
-      this.dialogController.notiShow(option);
+      this.dialogController.notiCreate(option);
     });
   });
 };
