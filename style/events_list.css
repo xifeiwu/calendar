@@ -90,6 +90,14 @@ div#events-list-agenda::after {
   line-height: 3rem;
 }
 
+#events-list-agenda .event-time[format="twelve-hour"] {
+  width: 8rem;
+}
+
+#events-list-agenda .event-time[format="twenty-four-hour"] {
+  width: 6rem;
+}
+
 #events-list-agenda .start-time,
 #events-list-agenda .end-time {
   height: 2rem;
