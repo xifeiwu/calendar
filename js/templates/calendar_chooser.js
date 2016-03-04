@@ -26,10 +26,10 @@ module.exports = create({
         <div class="on-off-line-calendar">
           <div class="indicator"
             style="background-color: ${color} !important;"></div>
-          <div>
-            <label ${l10n}>${name}</label>
-            <h5-checkbox value="${id}" ${checked}></h5-checkbox>
-          </div>
+          <label>
+            <p ${l10n}>${name}</p>
+          </label>
+          <h5-checkbox value="${id}" ${checked}></h5-checkbox>
         </div>
       </li>`;
   },
