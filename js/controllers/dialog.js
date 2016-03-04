@@ -82,7 +82,7 @@ DialogController.prototype = {
 
     var notiDialog = new H5Dialog();
     notiDialog.setAttribute('tabindex','0');
-    notiDialog.style.zIndex = this.containerZIndex +
+    notiDialog.style.zIndex = Number(this.containerZIndex) +
       this.notiContainer.childNodes.length;
     notiDialog.classList.add('notifications-dialog');
     if (!this.notiContainer.lastChild) {
