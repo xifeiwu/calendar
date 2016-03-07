@@ -359,7 +359,7 @@ ModifyEvent.prototype = {
           );
           break;
         case 'updateEventThisOnly':
-          provider.updateEventThisOnly(moveDate, self.event.data,
+          provider.updateEventThisOnly(self.originalStartDate, self.event.data,
             self.busytimeId, (err, events, components, busytimes) => {
               if (err) {
                 self.showErrors(err);
@@ -620,6 +620,7 @@ ModifyEvent.prototype = {
     var startDate = dateSrc.startDate;
     var endDate = dateSrc.endDate;
     this._duration = endDate.getTime() - startDate.getTime();
+    this.originalStartDate = startDate;
 
     // update the allday status of the view
     var allday = this.getEl('allday');
