@@ -138,14 +138,11 @@ exports.event = function(event, newDate) {
   return eventComp;
 };
 
-exports.exceptionEvent = function(event, date) {
+exports.exceptionEvent = function(event, recurrenceDate) {
   var tzid = jstz.determine().name();
 
   var dtstart = new Date(event.remote.startDate);
   var dtend = new Date(event.remote.endDate);
-  var offset = _calDateOffset(dtstart, dtend);
-  _copyDate(date, dtstart);
-  _copyDate(new Date(date + offset), dtend);
 
   var isAllDay = Calc.isAllDay(dtstart, dtstart, dtend);
   var dtstamp = new Date().toString('yyyyMMddTHHmmss');
@@ -156,14 +153,14 @@ exports.exceptionEvent = function(event, date) {
     eventComp += 'DTSTART;VALUE=DATE:' + dtstart.toString('yyyyMMdd') + '\r\n';
     eventComp += 'DTEND;VALUE=DATE:' + dtend.toString('yyyyMMdd') + '\r\n';
     eventComp += 'RECURRENCE-ID;VALUE=DATE:' +
-      dtstart.toString('yyyyMMdd') + '\r\n';
+      recurrenceDate.toString('yyyyMMdd') + '\r\n';
   } else {
     eventComp += 'DTSTART;TZID=' + tzid + ':' +
       dtstart.toString('yyyyMMddTHHmmss') + '\r\n';
     eventComp += 'DTEND;TZID=' + tzid + ':' +
       dtend.toString('yyyyMMddTHHmmss') + '\r\n';
     eventComp += 'RECURRENCE-ID;TZID=' + tzid + ':' +
-      dtstart.toString('yyyyMMddTHHmmss') + '\r\n';
+      recurrenceDate.toString('yyyyMMddTHHmmss') + '\r\n';
   }
 
   eventComp += 'DTSTAMP;TZID=' + tzid + ':' + dtstamp + '\r\n';
