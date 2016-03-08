@@ -783,6 +783,30 @@ Service.prototype = {
     });
   },
 
+  _getRepeatProperty: function(icalEvent) {
+    var rRule = icalEvent.component.getFirstPropertyValue('rrule');
+    var repeat = 'never';
+    switch(rRule.freq) {
+      case 'DAILY':
+        repeat = 'every-day';
+        break;
+      case 'WEEKLY':
+        if (rRule.interval == 2) {
+          repeat = 'every-2-weeks';
+        } else {
+          repeat = 'every-week';
+        }
+        break;
+      case 'MONTHLY':
+        repeat = 'every-month';
+        break;
+      case 'YEARLY':
+        repeat = 'every-year';
+        break;
+    }
+    return repeat;
+  },
+
   _formatEventFromLocal: function(option, event) {
     var self = this;
     var exceptions = null;
@@ -833,7 +857,7 @@ Service.prototype = {
       title: event.summary,
       recurrenceId: rid,
       isRecurring: event.isRecurring(),
-      repeat: event.isRecurring() ? option.repeat : 'never',
+      repeat: this._getRepeatProperty(event),
       description: event.description,
       location: event.location,
       start: this.formatICALTime(event.startDate),
