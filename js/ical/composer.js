@@ -199,7 +199,7 @@ exports.timezone = function(event) {
   tzComp += 'BEGIN:STANDARD\r\n';
   tzComp += 'TZOFFSETFROM:' + offset + '\r\n';
   tzComp += 'TZOFFSETTO:' + offset + '\r\n';
-  tzComp += 'DTSTART:' + dtstart + '\r\n';
+  tzComp += 'DTSTART:19700101T000000\r\n';
   tzComp += 'END:STANDARD\r\n';
   tzComp += 'END:VTIMEZONE\r\n';
   return tzComp;
