@@ -263,6 +263,18 @@ exports.isSameDate = function(first, second) {
 };
 
 /**
+ * Checks if two date objects belong to different months
+ * which implies they are in the different month or year
+ * @param {Date} first date.
+ * @param {Date} second date.
+ * @return {Boolean} true when they are in the same month.
+ */
+exports.inDifferentMonth = function(first, second) {
+  return first.getMonth() != second.getMonth() ||
+         first.getFullYear() != second.getFullYear();
+};
+
+/**
  * Returns an identifier for a specific
  * date in time for a given date
  *
