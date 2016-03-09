@@ -786,6 +786,9 @@ Service.prototype = {
   _getRepeatProperty: function(icalEvent) {
     var rRule = icalEvent.component.getFirstPropertyValue('rrule');
     var repeat = 'never';
+    if (!rRule) {
+      return repeat;
+    }
     switch(rRule.freq) {
       case 'DAILY':
         repeat = 'every-day';
