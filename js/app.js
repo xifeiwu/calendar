@@ -245,6 +245,7 @@ module.exports = {
     var tablist = document.querySelector('#view-selector');
     var today = tablist.querySelector('.today a');
     var tabs = tablist.querySelectorAll('[role="tab"]');
+    this.previousDate = new Date();
 
     this._showTodayDate();
     this._syncTodayDate();
@@ -288,11 +289,16 @@ module.exports = {
     // can result in crashes so we attempt to do this only after
     // the user has completed their selection.
     window.addEventListener('moztimechange', () => {
-      if (new Date().getTimezoneOffset() !== this.timezoneOffset) {
+      var date = new Date();
+      if (date.getTimezoneOffset() !== this.timezoneOffset) {
         debug('Noticed timezone change!');
         nextTick(this.forceRestart);
       } else {
-        var date = new Date();
+        if (Calc.inDifferentMonth(this.previousDate, date)) {
+          document.querySelector('#month-view .present').
+            classList.remove('present');
+        }
+        this.previousDate = date;
         this.timeController.move(date);
         this.timeController.selectedDay = date;
         this.timeController.presentDay = date;
