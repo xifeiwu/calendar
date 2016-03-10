@@ -801,7 +801,11 @@ Service.prototype = {
         }
         break;
       case 'MONTHLY':
-        repeat = 'every-month';
+        if (rRule.interval == 12) {
+          repeat = 'every-year';
+        } else {
+          repeat = 'every-month';
+        }
         break;
       case 'YEARLY':
         repeat = 'every-year';
