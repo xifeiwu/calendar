@@ -80,6 +80,10 @@ EventsList.prototype = {
 
   findAndFocus: function() {
     var busytimes = this.events.querySelectorAll('li[busytimeid]');
+    if (document.getElementById('notification-dialog-wrapper').lastChild) {
+      return document.getElementById('notification-dialog-wrapper').
+        lastChild.focus();
+    }
     if (busytimes.length) {
       var toFocus = null;
       for (var i = 0; i < busytimes.length; i++) {

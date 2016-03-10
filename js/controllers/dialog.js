@@ -11,6 +11,7 @@ var DEBUG = false;
 function DialogController(app) {
   this.app = app;
   this.dialog = document.getElementById('calendar-dialog');
+  this.dialogContainer = document.getElementById('calendar-dialog-wrapper');
   this.notiContainer = document.getElementById('notification-dialog-wrapper');
   this.focusedEl = null;
   this.containerZIndex = window.getComputedStyle(this.notiContainer).zIndex;
@@ -19,6 +20,7 @@ function DialogController(app) {
     if (DEBUG) {
       console.log('DialogController opened');
     }
+    this.dialogContainer.classList.add('active');
     this.emit('opened');
   }.bind(this));
 
@@ -26,6 +28,7 @@ function DialogController(app) {
     if (DEBUG) {
       console.log('DialogController closed');
     }
+    this.dialogContainer.classList.remove('active');
     this.removeAllEventListeners('input-blur');
     this.emit('closed');
   }.bind(this));
@@ -102,7 +105,7 @@ DialogController.prototype = {
           this.notiContainer.lastChild.close();
           this.notiContainer.lastChild.remove();
           if (!this.notiContainer.lastChild) {
-            this.focusedEl.focus();
+            focusToView(this.focusedEl);
           } else {
             this.notiContainer.lastChild.focus();
           }
@@ -123,6 +126,21 @@ DialogController.prototype = {
       // pop-up while user is turning into another page
       this.notiContainer.lastChild.focus();
     });
+
+    function focusToView(focusedEl) {
+      var pastContainer = focusedEl;
+      var viewContainer = ['SECTION', 'H5-OPTION-MENU'];
+      if (pastContainer && pastContainer.parentElement) {
+        while (viewContainer.indexOf(pastContainer.tagName) < 0) {
+          pastContainer = pastContainer.parentElement;
+        }
+        if (pastContainer.classList.contains('active') ||
+            pastContainer.tagName === 'H5-OPTION-MENU') {
+          return focusedEl.focus();
+        }
+      }
+      document.querySelector('section.active [tabindex="0"]').focus();
+    }
   },
 
   setInputValue: function(text) {
