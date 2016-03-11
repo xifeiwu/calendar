@@ -300,6 +300,25 @@ ModifyEvent.prototype = {
             router.go(pathToGo, state);
           });
           break;
+        case 'updateExceptionEvent':
+          provider.updateExceptionEvent(self.event.data,
+            (err, events, components, busytimes) => {
+              if (err) {
+                self.showErrors(err);
+                return;
+              }
+              busytimes.forEach((busytime) => {
+                if (isSameDate(busytime.startDate, moveDate)) {
+                  if (/^\/event\/detail\//.test(pathToGo)) {
+                    router.go('/event/detail/' + busytime._id, state);
+                  } else if (/^\/event\/list\//.test(pathToGo)) {
+                    router.go('/event/list/' + busytime._id, state);
+                  }
+                }
+              });
+            }
+          );
+          break;
         case 'updateEvent':
           // convert normal => recurring
           if (self.event.data.remote.isRecurring &&
@@ -410,7 +429,9 @@ ModifyEvent.prototype = {
     }
 
     if (this.isSaved()) {
-      if (this.event.remote.isRecurring &&
+      if (this.busytime.isException) {
+        this._persistEvent('updateExceptionEvent', 'canUpdate');
+      } else if (this.event.remote.isRecurring &&
           this.originalRepeat !== 'never') {
         this.optionMenuController.once('selected', (optionKey) => {
           switch(optionKey) {
@@ -465,8 +486,7 @@ ModifyEvent.prototype = {
       repeat: this.getEl('repeat').value,
       calendarId: this.getEl('calendarId').value,
       description: this.getEl('description').value,
-      isAllDay: this.getEl('allday').checked,
-      recurrenceId: ''
+      isAllDay: this.getEl('allday').checked
     };
 
     if (!this.isSaved()) {

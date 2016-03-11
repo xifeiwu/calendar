@@ -8,6 +8,8 @@ var ICAL = require('ext/ical');
 var CaldavPullEvents = require('provider/caldav_pull_events');
 var nextTick = require('next_tick');
 var IcalComposer = require('ical/composer');
+var IcalHelper = require('ical/helper');
+var Calc = require('calc');
 
 var LOCAL_CALENDAR_ID = 'local-first';
 
@@ -183,6 +185,41 @@ Local.prototype = {
     });
   },
 
+  updateExceptionEvent: function(event, callback) {
+    this.icalComponents.get(event.parentId, (err, component) => {
+      if (err) {
+        return callback(err);
+      }
+      var vCalendar = ICAL.Component.fromString(component.ical);
+      var vTimezoneComp = vCalendar.getFirstSubcomponent('vtimezone');
+      var vTimezone = new ICAL.Timezone(vTimezoneComp);
+      var vEvent = IcalHelper.getExceptionVEvent(vCalendar,
+        event.remote.recurrenceId);
+      if (!vEvent) {
+        return callback(new Error());
+      }
+
+      if (!event.remote.isRecurring && event.remote.repeat === 'never') {
+        vEvent.startDate = IcalHelper.toICALTime(event.remote.startDate,
+          vTimezone);
+        vEvent.endDate = IcalHelper.toICALTime(event.remote.endDate,
+          vTimezone);
+        vEvent.description = event.remote.description;
+        vEvent.location = event.remote.location;
+        vEvent.summary = event.remote.title;
+        vEvent.sequence = vEvent.sequence + 1;
+        this.deleteEvent(event, (err, evt) => {
+          if (err) {
+            return callback(err);
+          }
+          this._simulateCaldavProcess(event, vCalendar.toString(), callback);
+        });
+      } else {
+        this._simulateCaldavProcess(event, IcalComposer.calendar(event),
+          callback);
+      }
+    });
+  },
   /**
    * @return {Calendar.EventMutations.Update} mutation object.
    */
@@ -227,7 +264,7 @@ Local.prototype = {
       }
 
       var _event = ICAL.helpers.clone(event, true);
-      var ical = IcalComposer.calendar(_event, startDate);
+      var ical = IcalComposer.calendar(_event);
       this._simulateCaldavProcess(_event, ical, callback);
     });
   },
