@@ -22,16 +22,6 @@ function EventsList(options) {
   this.records = {};
   this._keyDownHandler = this.handleKeyDownEvent.bind(this);
 
-  // TODO:
-  // After closing h5dialog by soft key(lsk or rsk), the focus should be
-  // transferted to events. But soft keys helper did not stop the event and
-  // this page still can receive the keydown event. So the option menu
-  // will open again. A workaround is that to modify soft keys helper while
-  // it is calling "window.addEventListener('keydown', handleEvent);"
-  // and pass true as this method's third parameter. Another solution is
-  // that to use a flag to save the opening status of dialog and check this
-  // flag while handling key down event.
-  this.isDialogOpened = false;
 }
 module.exports = EventsList;
 
@@ -103,38 +93,40 @@ EventsList.prototype = {
   },
 
   handleKeyDownEvent: function(evt) {
+    // TODO:
+    // When event list page is activated, we should only perform the
+    // handleKeyDownEvent if the event target is in this page. Getting
+    // evt.target is just a workaround, should use stopPropagation instead
+    // which is seems in vain now. Will figure out the reason later.
+    if (evt.target.nodeName !== 'LI') {
+      return;
+    }
     switch (evt.key) {
       case 'Enter':
       case 'Accept':
-        if (!this.isDialogOpened) {
-          var eventElement = document.activeElement;
-          if (!!eventElement && eventElement.hasAttribute('busytimeId')) {
-            this.busytimeId = eventElement.getAttribute('busytimeId');
-            router.go('/event/detail/' + this.busytimeId);
-          } else {
-            this.busytimeId = null;
-          }
+        var eventElement = document.activeElement;
+        if (!!eventElement && eventElement.hasAttribute('busytimeId')) {
+          this.busytimeId = eventElement.getAttribute('busytimeId');
+          router.go('/event/detail/' + this.busytimeId);
+        } else {
+          this.busytimeId = null;
         }
         break;
       case 'AcaSoftLeft':
-        if (!this.isDialogOpened) {
-          router.go('/month/');
-        }
+        router.go('/month/');
         evt.preventDefault();
         break;
       case 'AcaSoftRight':
-        if (!this.isDialogOpened) {
-          var element = document.activeElement;
-          if (!!element && element.hasAttribute('busytimeId')) {
-            // XXX: only support options for local events for now
-            if (element.getAttribute('providerType') === 'Local') {
-              element.setAttribute('cacheFocus','');
-              this.busytimeId = element.getAttribute('busytimeId');
-              this._showOptionMenu();
-            }
-          } else {
-            this.busytimeId = null;
+        var element = document.activeElement;
+        if (!!element && element.hasAttribute('busytimeId')) {
+          // XXX: only support options for local events for now
+          if (element.getAttribute('providerType') === 'Local') {
+            element.setAttribute('cacheFocus','');
+            this.busytimeId = element.getAttribute('busytimeId');
+            this._showOptionMenu();
           }
+        } else {
+          this.busytimeId = null;
         }
         break;
     }
@@ -248,16 +240,6 @@ EventsList.prototype = {
       dialogType: options.dialogType,
       softKeysHandler: options.softKeysHandler
     };
-
-    this.dialogController.once('opened', () => {
-      this.isDialogOpened = true;
-    });
-
-    this.dialogController.once('closed', () => {
-      this.isDialogOpened = false;
-      this.findAndFocus();
-    });
-
     this.dialogController.show(option);
   },
 
