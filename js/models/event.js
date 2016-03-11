@@ -217,6 +217,14 @@ Event.prototype = {
     return this.remote.isRecurring;
   },
 
+  get parentId() {
+    return this.data.parentId;
+  },
+
+  set parentId(value) {
+    this.data.parentId = value;
+  },
+
   get recurrenceId() {
     return this.remote.recurrenceId || '';
   },

@@ -73,7 +73,7 @@ var _calRrule = function(event) {
   return rule;
 };
 
-exports.calendar = function(event, newDate) {
+exports.calendar = function(event) {
   var ical = '';
   ical += 'BEGIN:VCALENDAR\r\n';
   ical += 'PRODID:-//H5OS//Calendar 1.0//EN\r\n';
@@ -83,22 +83,16 @@ exports.calendar = function(event, newDate) {
   ical += exports.timezone(event);
 
   // event
-  ical += exports.event(event, newDate);
+  ical += exports.event(event);
 
   ical += 'END:VCALENDAR\r\n';
   return ical;
 };
 
-exports.event = function(event, newDate) {
+exports.event = function(event) {
   var tzid = jstz.determine().name();
   var dtstart = new Date(event.remote.startDate);
   var dtend = new Date(event.remote.endDate);
-  if (newDate) {
-    var offset = _calDateOffset(dtstart, dtend);
-    _copyDate(newDate, dtstart);
-    _copyDate(new Date(newDate.getTime() + offset), dtend);
-    event.remote.id = event.remote.id = uuid();
-  }
   var isAllDay = Calc.isAllDay(dtstart, dtstart, dtend);
   var dtstamp = new Date().toString('yyyyMMddTHHmmss');
 
@@ -117,7 +111,7 @@ exports.event = function(event, newDate) {
     eventComp += 'RRULE:' + _calRrule(event) + '\r\n';
   }
   eventComp += 'DTSTAMP;TZID=' + tzid + ':' + dtstamp + '\r\n';
-  eventComp += 'UID:' + event.remote.id + '\r\n';
+  eventComp += 'UID:' + uuid() + '\r\n';
   eventComp += 'DESCRIPTION:' + event.remote.description + '\r\n';
   eventComp += 'LOCATION:' + event.remote.location + '\r\n';
   eventComp += 'SEQUENCE:0\r\n';
