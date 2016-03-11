@@ -172,9 +172,12 @@ EventDetail.prototype = {
 
     this.description.innerHTML = model.description;
 
-    this.element.focus();
-    if (this.element.spatialNavigator) {
+    if (document.getElementById('notification-dialog-wrapper').lastChild) {
+      document.getElementById('notification-dialog-wrapper').lastChild.focus();
+    } else if (this.element.spatialNavigator) {
       this.element.spatialNavigator.focus();
+    } else {
+      this.element.focus();
     }
 
     if ((model.remote.attendees && model.remote.attendees.length > 0) ||

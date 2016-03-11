@@ -924,8 +924,13 @@ ModifyEvent.prototype = {
 
   ondispatch: function() {
     var firstEle = this.element.querySelector('form ul .title');
-    this.element.focus();
-    this.element.spatialNavigator.focus(firstEle);
+    if (document.getElementById('notification-dialog-wrapper').lastChild) {
+      document.getElementById('notification-dialog-wrapper').lastChild.focus();
+    } else if (this.element.spatialNavigator) {
+      this.element.spatialNavigator.focus(firstEle);
+    } else {
+      this.element.focus();
+    }
     this._checkTitle();
   },
 
