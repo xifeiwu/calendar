@@ -356,7 +356,7 @@ ModifyEvent.prototype = {
           }
           break;
         case 'updateEventAllFuture':
-          provider.updateEventAllFuture(moveDate, self.event.data,
+          provider.updateEventAllFuture(self.originalStartDate, self.event.data,
             self.busytimeId, (err, events, components, busytimes) => {
               if (err) {
                 self.showErrors(err);
