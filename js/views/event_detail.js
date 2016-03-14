@@ -205,7 +205,9 @@ EventDetail.prototype = {
         dpe: {
           name: 'edit',
           action: () => {
-            router.go('/event/edit/' + this.busytimeId);
+            if (this.busytimeId) {
+              router.go('/event/edit/' + this.busytimeId);
+            }
           }
         },
         rsk: {
