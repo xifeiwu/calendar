@@ -272,7 +272,7 @@ Local.prototype = {
   /**
    * To update a single day of a recurring event
    */
-  updateEventThisOnly: function(originDate, event, busytime, callback) {
+  updateEventThisOnly: function(parentModel, event, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
@@ -286,7 +286,7 @@ Local.prototype = {
       var icalComp = ICAL.Component.fromString(component.ical);
       icalComp.addSubcomponent(
         ICAL.Component.fromString(
-          IcalComposer.exceptionEvent(event, originDate)
+          IcalComposer.exceptionEvent(event, parentModel)
       ));
 
       this.deleteEvent(event, (err, evt) => {
