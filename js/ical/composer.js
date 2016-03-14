@@ -123,12 +123,7 @@ exports.event = function(event, newDate) {
   eventComp += 'SEQUENCE:0\r\n';
   eventComp += 'STATUS:CONFIRMED\r\n';
   eventComp += 'SUMMARY:' + event.remote.title + '\r\n';
-
-  if (isAllDay) {
-    eventComp += 'TRANSP:TRANSPARENT\r\n';
-  } else {
-    eventComp += 'TRANSP:OPAQUE\r\n';
-  }
+  eventComp += 'TRANSP:OPAQUE\r\n';
 
   event.remote.alarms.forEach(function(alarm) {
     eventComp += exports.alarm(alarm);
@@ -152,16 +147,14 @@ exports.exceptionEvent = function(event, recurrenceDate) {
   if (isAllDay) {
     eventComp += 'DTSTART;VALUE=DATE:' + dtstart.toString('yyyyMMdd') + '\r\n';
     eventComp += 'DTEND;VALUE=DATE:' + dtend.toString('yyyyMMdd') + '\r\n';
-    eventComp += 'RECURRENCE-ID;VALUE=DATE:' +
-      recurrenceDate.toString('yyyyMMdd') + '\r\n';
   } else {
     eventComp += 'DTSTART;TZID=' + tzid + ':' +
       dtstart.toString('yyyyMMddTHHmmss') + '\r\n';
     eventComp += 'DTEND;TZID=' + tzid + ':' +
       dtend.toString('yyyyMMddTHHmmss') + '\r\n';
-    eventComp += 'RECURRENCE-ID;TZID=' + tzid + ':' +
-      recurrenceDate.toString('yyyyMMddTHHmmss') + '\r\n';
   }
+  eventComp += 'RECURRENCE-ID;TZID=' + tzid + ':' +
+    recurrenceDate.toString('yyyyMMddTHHmmss') + '\r\n';
 
   eventComp += 'DTSTAMP;TZID=' + tzid + ':' + dtstamp + '\r\n';
   eventComp += 'UID:' + event.remote.id + '\r\n';
@@ -170,12 +163,7 @@ exports.exceptionEvent = function(event, recurrenceDate) {
   eventComp += 'SEQUENCE:0\r\n';
   eventComp += 'STATUS:CONFIRMED\r\n';
   eventComp += 'SUMMARY:' + event.remote.title + '\r\n';
-
-  if (isAllDay) {
-    eventComp += 'TRANSP:TRANSPARENT\r\n';
-  } else {
-    eventComp += 'TRANSP:OPAQUE\r\n';
-  }
+  eventComp += 'TRANSP:OPAQUE\r\n';
 
   event.remote.alarms.forEach(function(alarm) {
     eventComp += exports.alarm(alarm);
