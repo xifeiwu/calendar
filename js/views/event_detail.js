@@ -222,16 +222,14 @@ EventDetail.prototype = {
               this.optionMenuController.once('selected', (optionKey) => {
                 switch(optionKey) {
                   case 'delete-this-only':
-                    this.deleteSingleEvent(this.busytimeId, (err, evt) => {
-                      this.optionMenuController.close();
-                      router.go('/event/list/');
-                    });
+                    this.deleteSingleEvent(this.busytimeId, (err, evt) => {});
+                    this.optionMenuController.close();
+                    router.go('/event/list/');
                     break;
                   case 'delete-all-future':
-                    this.deleteFutureEvents(this.busytimeId, (err, evt) => {
-                      this.optionMenuController.close();
-                      router.go('/event/list/');
-                    });
+                    this.deleteFutureEvents(this.busytimeId, (err, evt) => {});
+                    this.optionMenuController.close();
+                    router.go('/event/list/');
                     break;
                 }
               });
