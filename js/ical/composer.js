@@ -101,11 +101,13 @@ exports.event = function(event) {
   if (isAllDay) {
     eventComp += 'DTSTART;VALUE=DATE:' + dtstart.toString('yyyyMMdd') + '\r\n';
     eventComp += 'DTEND;VALUE=DATE:' + dtend.toString('yyyyMMdd') + '\r\n';
+    eventComp += 'TRANSP:TRANSPARENT\r\n';
   } else {
     eventComp += 'DTSTART;TZID=' + tzid + ':' +
       dtstart.toString('yyyyMMddTHHmmss') + '\r\n';
     eventComp += 'DTEND;TZID=' + tzid + ':' +
       dtend.toString('yyyyMMddTHHmmss') + '\r\n';
+    eventComp += 'TRANSP:OPAQUE\r\n';
   }
   if (event.remote.repeat !== 'never') {
     eventComp += 'RRULE:' + _calRrule(event) + '\r\n';
@@ -117,7 +119,6 @@ exports.event = function(event) {
   eventComp += 'SEQUENCE:0\r\n';
   eventComp += 'STATUS:CONFIRMED\r\n';
   eventComp += 'SUMMARY:' + event.remote.title + '\r\n';
-  eventComp += 'TRANSP:OPAQUE\r\n';
 
   event.remote.alarms.forEach(function(alarm) {
     eventComp += exports.alarm(alarm);
@@ -127,7 +128,7 @@ exports.event = function(event) {
   return eventComp;
 };
 
-exports.exceptionEvent = function(event, recurrenceDate) {
+exports.exceptionEvent = function(event, parentModel) {
   var tzid = jstz.determine().name();
 
   var dtstart = new Date(event.remote.startDate);
@@ -147,8 +148,17 @@ exports.exceptionEvent = function(event, recurrenceDate) {
     eventComp += 'DTEND;TZID=' + tzid + ':' +
       dtend.toString('yyyyMMddTHHmmss') + '\r\n';
   }
-  eventComp += 'RECURRENCE-ID;TZID=' + tzid + ':' +
-    recurrenceDate.toString('yyyyMMddTHHmmss') + '\r\n';
+  // The format of RECURRENCE-ID in exception event depends on
+  // whether the recurring event is all-day or not.
+  if (parentModel.isAllDay) {
+    eventComp += 'RECURRENCE-ID;VALUE=DATE:' +
+      parentModel.startDate.toString('yyyyMMdd') + '\r\n';
+    eventComp += 'TRANSP:TRANSPARENT\r\n';
+  } else {
+    eventComp += 'RECURRENCE-ID;TZID=' + tzid + ':' +
+      parentModel.startDate.toString('yyyyMMddTHHmmss') + '\r\n';
+    eventComp += 'TRANSP:OPAQUE\r\n';
+  }
 
   eventComp += 'DTSTAMP;TZID=' + tzid + ':' + dtstamp + '\r\n';
   eventComp += 'UID:' + event.remote.id + '\r\n';
@@ -157,7 +167,6 @@ exports.exceptionEvent = function(event, recurrenceDate) {
   eventComp += 'SEQUENCE:0\r\n';
   eventComp += 'STATUS:CONFIRMED\r\n';
   eventComp += 'SUMMARY:' + event.remote.title + '\r\n';
-  eventComp += 'TRANSP:OPAQUE\r\n';
 
   event.remote.alarms.forEach(function(alarm) {
     eventComp += exports.alarm(alarm);

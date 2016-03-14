@@ -378,7 +378,11 @@ ModifyEvent.prototype = {
           );
           break;
         case 'updateEventThisOnly':
-          provider.updateEventThisOnly(self.originalStartDate, self.event.data,
+          var parentModel = {
+            startDate: self.originalStartDate,
+            isAllDay: self.originalAllDayState
+          }
+          provider.updateEventThisOnly(parentModel, self.event.data,
             self.busytimeId, (err, events, components, busytimes) => {
               if (err) {
                 self.showErrors(err);
@@ -645,6 +649,7 @@ ModifyEvent.prototype = {
     // update the allday status of the view
     var allday = this.getEl('allday');
     this.lastAlldayState = model.isAllDay;
+    this.originalAllDayState = model.isAllDay;
     if (allday && (allday.checked = model.isAllDay)) {
       this._toggleAllDay();
       endDate = this.formatEndDate(endDate);
