@@ -290,14 +290,14 @@ EventBase.prototype = {
 
   _getEventByBusytime: function(busytimeId, callback) {
     dayObserver.findAssociated(busytimeId).then(record => {
-      callback(null, record.event);
+      callback(null, record.event, record.busytime);
     }).catch(() => {
       callback(new Error('findAssociated failed!!!'));
     });
   },
 
   _deleteEvent: function(method, busytimeId, callback) {
-    this._getEventByBusytime(busytimeId, (err, event) => {
+    this._getEventByBusytime(busytimeId, (err, event, busytime) => {
       if (err) {
         return callback(err);
       }
@@ -311,12 +311,10 @@ EventBase.prototype = {
             provider.deleteEvent(event, callback);
             break;
           case 'deleteFutureEvents':
-            provider.deleteFutureEvents(this.app.timeController.selectedDay,
-              event, callback);
+            provider.deleteFutureEvents(busytime.startDate, event, callback);
             break;
           case 'deleteSingleEvent':
-            provider.deleteSingleEvent(this.app.timeController.selectedDay,
-              event, callback);
+            provider.deleteSingleEvent(busytime.startDate, event, callback);
             break;
         }
       });

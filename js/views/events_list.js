@@ -180,7 +180,10 @@ EventsList.prototype = {
     ];
 
     this.optionMenuController.once('closed', () => {
-      this.events.querySelector('li[cacheFocus]').removeAttribute('cacheFocus');
+      if (this.events.querySelector('li[cacheFocus]')) {
+        this.events.querySelector('li[cacheFocus]').
+          removeAttribute('cacheFocus');
+      }
       this.findAndFocus();
     });
 
