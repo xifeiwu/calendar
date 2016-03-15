@@ -218,6 +218,7 @@ EventBase.prototype = {
     .catch(() => {
       classList.remove(this.LOADING);
       console.error('Error looking up records for id: ', id);
+      router.go(this.returnTop());
     });
   },
 
