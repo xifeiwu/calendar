@@ -167,12 +167,8 @@ Local.prototype = {
       // actually it's a json wrapper, we cannot modify it directly
       var newRrule = JSON.parse(JSON.stringify(rRrule));
       var until = new Date(date);
-      var startDate = new Date(event.remote.startDate);
       // until means before
       until.setDate(until.getDate() - 1);
-      until.setHours(startDate.getHours());
-      until.setMinutes(startDate.getMinutes());
-      until.setSeconds(startDate.getSeconds());
       newRrule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
       eventComp.updatePropertyWithValue('rrule', newRrule);
 
