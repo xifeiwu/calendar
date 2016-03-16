@@ -232,6 +232,41 @@ ModifyEvent.prototype = {
     return this.form;
   },
 
+  goToPreviousPage: function(busytimes, moveDate) {
+    var pathToGo = this.returnTo();
+    var state = {
+      eventStartHour: moveDate.getHours()
+    };
+    var status = busytimes.some((busytime) => {
+      if (isSameDate(busytime.startDate, moveDate)) {
+        if (/^\/event\/detail\//.test(pathToGo) ||
+            /^\/alarm\-display\//.test(pathToGo)) {
+          router.go('/event/detail/' + busytime._id, state);
+        } else if (/^\/event\/list\//.test(pathToGo)) {
+          router.go('/event/list/' + busytime._id, state);
+        }
+        return true;
+      }
+      return false;
+    });
+    if (!status) {
+      this.dialogController.show({
+        message: _('error-modify-event'),
+        dialogType: 'confirm',
+        softKeysHandler: {
+          rsk: {
+            name: 'ok',
+            action: () => {
+              this.dialogController.close();
+              router.go('/month/');
+              return false;
+            }
+          }
+        }
+      });
+    }
+  },
+
   /**
    * Ask the provider to persist an event:
    *
@@ -307,15 +342,7 @@ ModifyEvent.prototype = {
                 self.showErrors(err);
                 return;
               }
-              busytimes.forEach((busytime) => {
-                if (isSameDate(busytime.startDate, moveDate)) {
-                  if (/^\/event\/detail\//.test(pathToGo)) {
-                    router.go('/event/detail/' + busytime._id, state);
-                  } else if (/^\/event\/list\//.test(pathToGo)) {
-                    router.go('/event/list/' + busytime._id, state);
-                  }
-                }
-              });
+              self.goToPreviousPage(busytimes, moveDate);
             }
           );
           break;
@@ -329,15 +356,7 @@ ModifyEvent.prototype = {
                   self.showErrors(err);
                   return;
                 }
-                busytimes.forEach((busytime) => {
-                  if (isSameDate(busytime.startDate, moveDate)) {
-                    if (/^\/event\/detail\//.test(pathToGo)) {
-                      router.go('/event/detail/' + busytime._id, state);
-                    } else if (/^\/event\/list\//.test(pathToGo)) {
-                      router.go('/event/list/' + busytime._id, state);
-                    }
-                  }
-                });
+                self.goToPreviousPage(busytimes, moveDate);
               }
             );
           } else {
@@ -362,18 +381,7 @@ ModifyEvent.prototype = {
                 self.showErrors(err);
                 return;
               }
-              busytimes.some((busytime) => {
-                if (isSameDate(busytime.startDate, moveDate)) {
-                  if (/^\/event\/detail\//.test(pathToGo) ||
-                      /^\/alarm\-display\//.test(pathToGo)) {
-                    router.go('/event/detail/' + busytime._id, state);
-                  } else if (/^\/event\/list\//.test(pathToGo)) {
-                    router.go('/event/list/' + busytime._id, state);
-                  }
-                  return true;
-                }
-                return false;
-              });
+              self.goToPreviousPage(busytimes, moveDate);
             }
           );
           break;
@@ -381,25 +389,25 @@ ModifyEvent.prototype = {
           var parentModel = {
             startDate: self.originalStartDate,
             isAllDay: self.originalAllDayState
-          }
+          };
           provider.updateEventThisOnly(parentModel, self.event.data,
             self.busytimeId, (err, events, components, busytimes) => {
               if (err) {
                 self.showErrors(err);
                 return;
               }
-              busytimes.some((busytime) => {
-                if (isSameDate(busytime.startDate, moveDate)) {
-                  if (/^\/event\/detail\//.test(pathToGo) ||
-                      /^\/alarm\-display\//.test(pathToGo)) {
-                    router.go('/event/detail/' + busytime._id, state);
-                  } else if (/^\/event\/list\//.test(pathToGo)) {
-                    router.go('/event/list/' + busytime._id, state);
-                  }
-                  return true;
-                }
-                return false;
-              });
+              self.goToPreviousPage(busytimes, moveDate);
+            }
+          );
+          break;
+        case 'updateEventToNormal':
+          provider.updateEventToNormal(self.event.data,
+            (err, events, components, busytimes) => {
+              if (err) {
+                self.showErrors(err);
+                return;
+              }
+              self.goToPreviousPage(busytimes, moveDate);
             }
           );
           break;
@@ -432,11 +440,23 @@ ModifyEvent.prototype = {
       return;
     }
 
-    if (this.isSaved()) {
-      if (this.busytime.isException) {
-        this._persistEvent('updateExceptionEvent', 'canUpdate');
-      } else if (this.event.remote.isRecurring &&
-          this.originalRepeat !== 'never') {
+    if (!this.isSaved()) {
+      this._persistEvent('createEvent', 'canCreate');
+      return;
+    }
+
+    // There are three types of event: normal, recurring, and exception.
+    // The type of event can be changed from one to another
+    // in the following logic.
+
+    // The original event is an exception event.
+    if (this.busytime.isException) {
+      this._persistEvent('updateExceptionEvent', 'canUpdate');
+    }
+    // The original event is a recurring event.
+    else if (this.originalRepeat !== 'never') {
+      // The new created event is recurring event.
+      if (this.event.remote.isRecurring) {
         this.optionMenuController.once('selected', (optionKey) => {
           switch(optionKey) {
             case 'edit-this-only':
@@ -468,11 +488,15 @@ ModifyEvent.prototype = {
           header: _('repeat-event-header'),
           items: editOptions
         });
-      } else {
-        this._persistEvent('updateEvent', 'canUpdate');
       }
-    } else {
-      this._persistEvent('createEvent', 'canCreate');
+      // The new created event is normal event.
+      else {
+        this._persistEvent('updateEventToNormal', 'canUpdate');
+      }
+    }
+    // The original event is normal event.
+    else {
+      this._persistEvent('updateEvent', 'canUpdate');
     }
   },
 

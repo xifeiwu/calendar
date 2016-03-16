@@ -294,6 +294,16 @@ Local.prototype = {
     });
   },
 
+  updateEventToNormal: function(event, callback) {
+    this.deleteEvent(event, (err, evt) => {
+      if (err) {
+        return callback(err);
+      }
+      this._simulateCaldavProcess(event, IcalComposer.calendar(event),
+        callback);
+    });
+  },
+
   _simulateCaldavProcess: function(event, ical, callback) {
     nextTick(() => {
       this.events.ownersOf(event, (err, owners) => {
