@@ -245,7 +245,7 @@ module.exports = {
     var tablist = document.querySelector('#view-selector');
     var today = tablist.querySelector('.today a');
     var tabs = tablist.querySelectorAll('[role="tab"]');
-    this.previousDate = new Date();
+    this.lightHouseDate = new Date();
 
     this._showTodayDate();
     this._syncTodayDate();
@@ -294,11 +294,40 @@ module.exports = {
         debug('Noticed timezone change!');
         nextTick(this.forceRestart);
       } else {
-        if (Calc.inDifferentMonth(this.previousDate, date)) {
-          document.querySelector('#month-view .present').
-            classList.remove('present');
+        // The max number of months stored in the DOM is 3, thus there exists
+        // a situation that users are viewing a month that is more than 3 months
+        // away from the month-view which contains .present, the lightHouseDate
+        // can help to navigate back to a date closer to .present.
+        if (!document.querySelector('.present')) {
+          this.timeController.move(this.lightHouseDate);
         }
-        this.previousDate = date;
+        var arr = document.querySelector('.present').dataset.date.split("-");
+        var previousDate = new Date();
+        previousDate.setFullYear(arr[1]);
+        previousDate.setMonth(arr[2]);
+        previousDate.setDate(1);
+        var dayInMonth = document.
+          querySelector(`section[data-date=${Calc.getDayId(previousDate)}]`);
+        previousDate.setDate(arr[3]);
+        var days = document.querySelectorAll(`li.${Calc.PRESENT}`);
+        Array.prototype.slice.call(days).forEach(day => {
+          day.classList.remove(Calc.PRESENT);
+        });
+        var state = Calc.relativeState(previousDate, date);
+        var spacePosition = state.indexOf(' ');
+        if (spacePosition > 0) {
+          Array.prototype.slice.call(days).forEach(day => {
+            day.classList.add(state.slice(0, spacePosition));
+            if (day.parentElement.parentElement !== dayInMonth) {
+              day.classList.add(state.slice(spacePosition + 1));
+            }
+          });
+        } else {
+          Array.prototype.slice.call(days).forEach(day => {
+            day.classList.add(state);
+          });
+        }
+        this.lightHouseDate = date;
         this.timeController.move(date);
         this.timeController.selectedDay = date;
         this.timeController.presentDay = date;

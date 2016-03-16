@@ -163,20 +163,18 @@ SingleMonth.prototype = {
   },
 
   _onPresentDayChange: function(date) {
-    var day = this.element.querySelector(`li.${Calc.PRESENT}`);
-    if (day) {
-      day.classList.remove(Calc.PRESENT);
-      var state = Calc.relativeState(this.date, this.timeController.month);
-      day.classList.add(state);
-    }
     var selector = `li[data-date="${getDayId(date)}"]`;
-    var today = this.element.querySelector(selector);
+    var todays = document.querySelectorAll(selector);
     [Calc.PAST, Calc.FUTURE, Calc.OTHER_MONTH].forEach((key) => {
-      if (today.classList.contains(key)) {
-        today.classList.remove(key);
-      }
+      Array.prototype.slice.call(todays).forEach(today => {
+        if (today.classList.contains(key)) {
+          today.classList.remove(key);
+        }
+      });
     });
-    today.classList.add(Calc.PRESENT);
+    Array.prototype.slice.call(todays).forEach(today => {
+      today.classList.add(Calc.PRESENT);
+    });
   }
 };
 
