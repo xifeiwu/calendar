@@ -44,4 +44,19 @@ exports.getExceptionVEvent = function(vCalendar, recurrenceId) {
   return vEvent;
 };
 
+exports.addExDate = function(vCalendar, recurrenceId) {
+  var exDateProp = new ICAL.Property('EXDATE');
+  var rDate = Calc.dateFromTransport(recurrenceId);
+  if (recurrenceId.isDate) {
+    exDateProp.setParameter('VALUE', 'DATE');
+    exDateProp.setValue(rDate.toString('yyyyMMdd'));
+  } else {
+    var vTimezone = new ICAL.Timezone(
+      vCalendar.getFirstSubcomponent('vtimezone'));
+    exDateProp.setParameter('TZID', vTimezone.tzid);
+    exDateProp.setValue(rDate.toString('yyyyMMddTHHmmss'));
+  }
+  exports.getRecurringVEvent(vCalendar).component.addProperty(exDateProp);
+};
+
 });
