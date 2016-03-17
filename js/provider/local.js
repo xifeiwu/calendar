@@ -109,7 +109,7 @@ Local.prototype = {
     }
   },
 
-  deleteEvent: function(event, busytime, callback) {
+  deleteEvent: function(eventOrId, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
@@ -118,10 +118,40 @@ Local.prototype = {
       callback = function() {};
     }
 
-    this.app.store('Event').remove(event._id, callback);
+    if (typeof(eventOrId) === 'object') {
+      eventOrId = eventOrId._id;
+    }
+    this.app.store('Event').remove(eventOrId, callback);
   },
 
-  deleteSingleEvent: function(date, event, busytime, callback) {
+  deleteExceptionEvent: function(event, busytime, callback) {
+    if (typeof(busytime) === 'function') {
+      callback = busytime;
+      busytime = null;
+    }
+    if (!callback) {
+      callback = function() {};
+    }
+
+    this.icalComponents.get(event.parentId, (err, component) => {
+      if (err) {
+        return callback(err);
+      }
+      var vCalendar = ICAL.Component.fromString(component.ical);
+      IcalHelper.addExDate(vCalendar, busytime.recurrenceId);
+      var vExEvent = IcalHelper.getExceptionVEvent(vCalendar,
+        busytime.recurrenceId);
+      vCalendar.removeSubcomponent(vExEvent.component);
+      this.deleteEvent(event.parentId, (err, evt) => {
+        if (err) {
+          return callback(err);
+        }
+        this._simulateCaldavProcess(event, vCalendar.toString(), callback);
+      });
+    });
+  },
+
+  deleteSingleEvent: function(event, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
@@ -134,15 +164,13 @@ Local.prototype = {
       if (err) {
         return callback(err);
       }
-      var icalComp = ICAL.Component.fromString(component.ical);
-      var eventComp = icalComp.getFirstSubcomponent('vevent');
-      eventComp.addProperty(IcalComposer.exdate(event, date));
-
+      var vCalendar = ICAL.Component.fromString(component.ical);
+      IcalHelper.addExDate(vCalendar, busytime.recurrenceId);
       this.deleteEvent(event, (err, evt) => {
         if (err) {
           return callback(err);
         }
-        this._simulateCaldavProcess(event, icalComp.toString(), callback);
+        this._simulateCaldavProcess(event, vCalendar.toString(), callback);
       });
     });
   },
@@ -161,8 +189,8 @@ Local.prototype = {
         return callback(err);
       }
       var icalComp = ICAL.Component.fromString(component.ical);
-      var eventComp = icalComp.getFirstSubcomponent('vevent');
-      var rRrule = eventComp.getFirstPropertyValue('rrule');
+      var eventComp = IcalHelper.getRecurringVEvent(icalComp);
+      var rRrule = eventComp.component.getFirstPropertyValue('rrule');
       // we need to use parse here, since rRrule is not a normal object,
       // actually it's a json wrapper, we cannot modify it directly
       var newRrule = JSON.parse(JSON.stringify(rRrule));
@@ -170,7 +198,7 @@ Local.prototype = {
       // until means before
       until.setDate(until.getDate() - 1);
       newRrule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
-      eventComp.updatePropertyWithValue('rrule', newRrule);
+      eventComp.component.updatePropertyWithValue('rrule', newRrule);
 
       this.deleteEvent(event, (err, evt) => {
         if (err) {

@@ -309,13 +309,17 @@ EventBase.prototype = {
         }
         switch (method) {
           case 'deleteEvent':
-            provider.deleteEvent(event, callback);
+            if (event.remote.isException) {
+              provider.deleteExceptionEvent(event, busytime, callback);
+            } else {
+              provider.deleteEvent(event, callback);
+            }
             break;
           case 'deleteFutureEvents':
             provider.deleteFutureEvents(busytime.startDate, event, callback);
             break;
           case 'deleteSingleEvent':
-            provider.deleteSingleEvent(busytime.startDate, event, callback);
+            provider.deleteSingleEvent(event, busytime, callback);
             break;
         }
       });

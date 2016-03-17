@@ -864,6 +864,7 @@ Service.prototype = {
       title: event.summary,
       recurrenceId: rid,
       isRecurring: event.isRecurring(),
+      isException: event.isRecurrenceException(),
       repeat: this._getRepeatProperty(event),
       description: event.description,
       location: event.location,
