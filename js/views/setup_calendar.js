@@ -148,9 +148,6 @@ SetupCalendar.prototype = {
   },
 
   _handleDialogInputEvent: function(evt) {
-    if (evt.keyCode === KeyboardEvent.DOM_VK_RETURN) {
-      return;
-    }
     if (this._nameState) {
       var inputValue = this.dialogController.getInputValue().trim();
       var state = this._checkNameValidation(inputValue);
@@ -184,18 +181,7 @@ SetupCalendar.prototype = {
       case 'add':
         option = {
           header: _('new-calendar'),
-          dialogType: 'prompt',
-          inputSoftKeysHandler: {
-            lsk: {
-              name: 'cancel',
-              action: () => {
-                this.dialogController.close();
-              }
-            },
-            dpe: {
-              name: 'ok'
-            }
-          }
+          dialogType: 'prompt'
         };
         this._openDialog(option);
         break;
@@ -235,18 +221,7 @@ SetupCalendar.prototype = {
         option = {
           header: _('rename-calendar'),
           dialogType: 'prompt',
-          initialValue: name,
-          inputSoftKeysHandler: {
-            lsk: {
-              name: 'cancel',
-              action: () => {
-                this.dialogController.close();
-              }
-            },
-            dpe: {
-              name: 'ok'
-            }
-          }
+          initialValue: name
         };
         this._openDialog(option);
         break;

@@ -15,7 +15,7 @@ function DialogController(app) {
   this.notiContainer = document.getElementById('notification-dialog-wrapper');
   this.focusedEl = null;
   this.containerZIndex = window.getComputedStyle(this.notiContainer).zIndex;
-
+  this.dialog.dialogTextInput.type = 'text';
   this.dialog.on('h5dialog:opened', function() {
     if (DEBUG) {
       console.log('DialogController opened');
@@ -33,14 +33,22 @@ function DialogController(app) {
     this.emit('closed');
   }.bind(this));
 
-  this.dialog.dialogTextInput.addEventListener('blur', function(evt) {
-    if (DEBUG) {
-      console.log('DialogController blur');
+  this.dialog.dialogTextInput.addEventListener('keydown', (evt) => {
+    if (evt.keyCode === KeyboardEvent.DOM_VK_RETURN) {
+      if (DEBUG) {
+        console.log('DialogController blur');
+      }
+      if (!this.notiContainer.querySelector('.notifications-dialog')) {
+        this.emit('input-blur');
+      }
     }
+  });
+
+  this.dialog.dialogTextInput.addEventListener('blur', () => {
     if (!this.notiContainer.querySelector('.notifications-dialog')) {
-      this.emit('input-blur');
+      this.close();
     }
-  }.bind(this));
+  });
 
   Responder.call(this);
 }
@@ -54,17 +62,12 @@ DialogController.prototype = {
       console.log(JSON.stringify(option));
     }
 
-    if (!option || !option.dialogType ||
-        !(option.softKeysHandler || option.inputSoftKeysHandler)) {
+    if (!option || !option.dialogType || !option.softKeysHandler ) {
       console.warn('DialogController warnning: empty option!');
     }
 
     if (option.softKeysHandler) {
       softkeyHandler.register(this.dialog, option.softKeysHandler);
-    }
-    if (option.inputSoftKeysHandler) {
-      softkeyHandler.register(this.dialog.dialogTextInput,
-        option.inputSoftKeysHandler);
     }
 
     this.dialog.open({
@@ -164,7 +167,7 @@ DialogController.prototype = {
       console.log('DialogController call close');
     }
     this.dialog.close();
-  },
+  }
 };
 
 });
