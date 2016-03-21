@@ -206,6 +206,7 @@ EventsList.prototype = {
                   name: 'cancel',
                   action: () => {
                     this.dialogController.close();
+                    this.findAndFocus();
                     return false;
                   }
                 },
