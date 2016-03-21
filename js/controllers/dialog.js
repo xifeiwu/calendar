@@ -114,6 +114,11 @@ DialogController.prototype = {
           }
           return false;
         }
+      },
+      lsk: {
+        action: () => {
+          return false;
+        }
       }
     };
     softkeyHandler.register(this.notiContainer.lastChild, softKeysHandler);
