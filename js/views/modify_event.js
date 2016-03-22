@@ -261,6 +261,11 @@ ModifyEvent.prototype = {
               router.go('/month/');
               return false;
             }
+          },
+          lsk: {
+            action: () => {
+              return false;
+            }
           }
         }
       });
@@ -788,7 +793,11 @@ ModifyEvent.prototype = {
             return false;
           }
         },
-        lsk: {},
+        lsk: {
+          action: () => {
+            return false;
+          }
+        },
         dpe: {}
       }
     });
