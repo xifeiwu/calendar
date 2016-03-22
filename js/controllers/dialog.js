@@ -34,19 +34,20 @@ function DialogController(app) {
   }.bind(this));
 
   this.dialog.dialogTextInput.addEventListener('keydown', (evt) => {
-    if (evt.keyCode === KeyboardEvent.DOM_VK_RETURN) {
-      if (DEBUG) {
-        console.log('DialogController blur');
-      }
-      if (!this.notiContainer.querySelector('.notifications-dialog')) {
-        this.emit('input-blur');
-      }
-    }
-  });
-
-  this.dialog.dialogTextInput.addEventListener('blur', () => {
     if (!this.notiContainer.querySelector('.notifications-dialog')) {
-      this.close();
+      switch (evt.keyCode) {
+        case KeyboardEvent.DOM_VK_RETURN:
+          if (DEBUG) {
+            console.log('DialogController blur');
+          }
+          this.emit('input-blur');
+          break;
+        case KeyboardEvent.DOM_VK_CANCEL:
+          this.close();
+          break;
+        default:
+          break;
+      }
     }
   });
 
