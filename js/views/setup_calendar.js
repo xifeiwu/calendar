@@ -129,7 +129,12 @@ SetupCalendar.prototype = {
   },
 
   _goToAdvancedSettings: function() {
-    router.go('/advanced-settings/');
+    // TODO: Identifying status of the dialog to determine the lsk behaviour
+    // is just a workaround since the page turns even the dialog is focused at
+    // the very beginning of showing a prompt type dialog.
+    if (this.dialogController.dialog.classList.contains('closed')) {
+      router.go('/advanced-settings/');
+    }
   },
 
   handleKeyDownEvent: function(evt) {
