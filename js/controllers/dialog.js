@@ -63,7 +63,8 @@ DialogController.prototype = {
       console.log(JSON.stringify(option));
     }
 
-    if (!option || !option.dialogType || !option.softKeysHandler ) {
+    this.dialog.focus();
+    if (!option || !option.dialogType) {
       console.warn('DialogController warnning: empty option!');
     }
 
