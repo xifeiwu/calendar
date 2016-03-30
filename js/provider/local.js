@@ -281,15 +281,57 @@ Local.prototype = {
       callback = busytime;
       busytime = null;
     }
-
-    this.deleteFutureEvents(startDate, event, busytime, (err) => {
+    this.icalComponents.get(event._id, (err, component) => {
       if (err) {
         return callback(err);
       }
+      var vCalendar = ICAL.Component.fromString(component.ical);
+      var vTimezoneComp = vCalendar.getFirstSubcomponent('vtimezone');
+      var vTimezone = new ICAL.Timezone(vTimezoneComp);
+      var vEvent = IcalHelper.getRecurringVEvent(vCalendar);
+      var rRrule = vEvent.component.getFirstPropertyValue('rrule');
+      var until = new Date(startDate);
+      // until means before
+      until.setDate(until.getDate() - 1);
+      rRrule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
+      vEvent.component.updatePropertyWithValue('rrule', rRrule);
 
-      var _event = ICAL.helpers.clone(event, true);
-      var ical = IcalComposer.calendar(_event);
-      this._simulateCaldavProcess(_event, ical, callback);
+      var vExEvents = IcalHelper.getAllExEvents(vCalendar);
+      var vExDateProps = vEvent.component.getAllProperties('exdate');
+
+      var newCalendarString = IcalComposer.calendar(event);
+      var newVCalendar = ICAL.Component.fromString(newCalendarString);
+      var newVEvent = IcalHelper.getRecurringVEvent(newVCalendar);
+      vExEvents.forEach((vEvent) => {
+        if (vEvent.recurrenceId.compare(newVEvent.startDate) > 0) {
+          vEvent.uid = newVEvent.uid;
+          vEvent.description = event.remote.description;
+          vEvent.location = event.remote.location;
+          vEvent.summary = event.remote.title;
+          vEvent.sequence = vEvent.sequence + 1;
+          vEvent.component.removeAllSubcomponents('valarm');
+          newVEvent.component.getAllSubcomponents('valarm').forEach(
+            (vAlarm) => {
+              vEvent.component.addSubcomponent(ICAL.helpers.clone(vAlarm));
+            }
+          );
+          newVCalendar.addSubcomponent(vEvent.component);
+        }
+      });
+      vExDateProps.forEach((vProp) => {
+        var vDate = IcalHelper.getPropertyValue(vProp, vTimezone);
+        if (vDate.compare(newVEvent.startDate) > 0) {
+          newVEvent.component.addProperty(vProp);
+        }
+      });
+
+      this.deleteEvent(event, (err, evt) => {
+        if (err) {
+          return callback(err);
+        }
+        this._simulateCaldavProcess(event, vCalendar.toString(), () => {});
+        this._simulateCaldavProcess(event, newVCalendar.toString(), callback);
+      });
     });
   },
 
