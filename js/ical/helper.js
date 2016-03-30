@@ -29,15 +29,21 @@ exports.getRecurringVEvent = function(vCalendar) {
   return vEvent;
 };
 
+exports.getAllExEvents = function(vCalendar) {
+  return vCalendar.getAllSubcomponents('vevent').map((component) => {
+    return new ICAL.Event(component);
+  }).filter((event) => {
+    return event.isRecurrenceException();
+  });
+};
+
 exports.getExceptionVEvent = function(vCalendar, recurrenceId) {
-  var vEventComps = vCalendar.getAllSubcomponents('vevent');
+  var vEvents = exports.getAllExEvents(vCalendar);
   var vEvent = null;
-  for (var i = 0; i < vEventComps.length; i++) {
-    var vTime = vEventComps[i].getFirstPropertyValue('recurrence-id');
-    if (vTime && Calc.isSameDate(
-        Calc.dateFromTransport(recurrenceId),
-        vTime.toJSDate())){
-      vEvent = new ICAL.Event(vEventComps[i]);
+  for (var i = 0; i < vEvents.length; i++) {
+    if (Calc.isSameDate(Calc.dateFromTransport(recurrenceId),
+        vEvents[i].recurrenceId.toJSDate())){
+      vEvent = vEvents[i];
       break;
     }
   }
@@ -45,18 +51,25 @@ exports.getExceptionVEvent = function(vCalendar, recurrenceId) {
 };
 
 exports.addExDate = function(vCalendar, recurrenceId) {
-  var exDateProp = new ICAL.Property('EXDATE');
+  var exDateProp = new ICAL.Property('exdate');
   var rDate = Calc.dateFromTransport(recurrenceId);
   if (recurrenceId.isDate) {
     exDateProp.setParameter('VALUE', 'DATE');
-    exDateProp.setValue(rDate.toString('yyyyMMdd'));
+    exDateProp.setValue(rDate.toString('yyyy-MM-dd'));
   } else {
     var vTimezone = new ICAL.Timezone(
       vCalendar.getFirstSubcomponent('vtimezone'));
     exDateProp.setParameter('TZID', vTimezone.tzid);
-    exDateProp.setValue(rDate.toString('yyyyMMddTHHmmss'));
+    exDateProp.setValue(rDate.toString('yyyy-MM-ddTHH:mm:ss'));
   }
   exports.getRecurringVEvent(vCalendar).component.addProperty(exDateProp);
 };
 
+exports.getPropertyValue = function(vProp, vComponent) {
+  switch (vProp.name) {
+    case 'exdate':
+      var date = new Date(vProp.getFirstValue());
+      return exports.toICALTime(date, vComponent);
+  }
+};
 });
