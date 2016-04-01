@@ -107,6 +107,10 @@ Time.prototype = {
     var day = this._selectedDay;
     this._mostRecentDayType = 'selectedDay';
     if (!day || !isSameDate(day, value)) {
+      Array.prototype.slice.call(document.querySelectorAll('li.selected')).
+        forEach(selectedDay => {
+          selectedDay.classList.remove('selected');
+        });
       this._selectedDay = value;
       this.emit('selectedDayChange', value, day);
     }
