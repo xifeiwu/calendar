@@ -29,6 +29,7 @@ var providerFactory = require('provider/provider_factory');
 var snakeCase = require('snake_case');
 var NavigationManager =
   require('shared/navigation_manager/navigation_manager');
+var TextStyle = require('text_style');
 
 var pendingClass = 'pending-operation';
 
@@ -282,7 +283,7 @@ module.exports = {
     this._routes();
 
     nextTick(() => this.view('Errors'));
-
+    TextStyle.start();
     // Restart the calendar when the timezone changes.
     // We do this on a timer because this event may fire
     // many times. Refreshing the url of the calendar frequently

@@ -19,14 +19,14 @@ var EventsListItem = create({
     var eventTime;
     if (this.arg('isAllDay')) {
       eventTime = `
-        <div class="event-time" format="${timeFormat}">
+        <div class="event-time p-sec" format="${timeFormat}">
           <div class="all-day" data-l10n-id="hour-allday">All Day</div>
         </div>`;
     } else {
       var startTime = formatTimeTo(this.arg('startTime'));
       var endTime = formatTime(this.arg('endTime'));
       eventTime = `
-        <div class="event-time" format="${timeFormat}">
+        <div class="event-time p-sec" format="${timeFormat}">
           <div class="start-time">${startTime}</div>
           <div class="end-time">${endTime}</div>
         </div>`;
@@ -35,7 +35,7 @@ var EventsListItem = create({
     var title = this.h('title');
     var arTitle = wordsLayouts(title);
     var eventDetails =`
-      <div class="event-details" dir="auto" role="presentation">
+      <div class="event-details p-pri" dir="auto" role="presentation">
         ${arTitle}
       </div>`;
 

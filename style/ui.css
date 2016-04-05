@@ -361,15 +361,6 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   width: 0px;
   height: 0px;
 }
-.p-sec {
-  font-size: 1.6rem;
-  font-weight: 400;
-}
-
-.p-pri {
-  font-size: 2.1rem;
-  font-weight: 400;
-}
 
 #events-list-view {
   background-color: var(--background);

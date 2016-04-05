@@ -52,7 +52,6 @@
 
 div#event-detail-duration-time {
   line-height: 2.1rem;
-  font-size: 2.1rem;
   margin-right: 1.4rem;
   padding-left: 1rem;
 }
@@ -60,6 +59,10 @@ div#event-detail-duration-time {
 div#event-detail-duration-time span {
   font-size: 1.6rem;
   color: var(--color-gs65);
+}
+
+.large-text div#event-detail-duration-time span {
+  font-size: 2.1rem;
 }
 
 #event-detail-view .event-detail-location-div {
