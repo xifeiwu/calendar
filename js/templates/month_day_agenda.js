@@ -20,7 +20,7 @@ var MonthDayAgenda = create({
     }
 
     var title = this.h('title');
-    var eventDetails = `<h5 role="presentation">${title}</h5>`;
+    var eventDetails = `<h5 role="presentation" class="p-pri">${title}</h5>`;
     var location = this.h('location');
 
     var alarmClass = this.arg('hasAlarms') ? 'has-alarms' : '';
