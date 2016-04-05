@@ -96,6 +96,12 @@ EventDetail.prototype = {
    */
   _updateUI: function() {
     var model = this.event;
+    // TODO: use isRouting the flag is just a workaround to prevent opening
+    // dialog while operating router.go. a common solution for this
+    // issue(OT-1495) is required. Router.go + dialog softkeys can be
+    // also found in setup calendar(online part), will find a method to fix this
+    // after online functions are implemented.
+    var isRouting = false;
     this.title.textContent = model.title;
     if (model.location) {
       this.locationContainer.style.display = '';
@@ -206,6 +212,7 @@ EventDetail.prototype = {
           name: 'edit',
           action: () => {
             if (this.busytimeId) {
+              isRouting = true;
               router.go('/event/edit/' + this.busytimeId);
             }
           }
@@ -248,6 +255,9 @@ EventDetail.prototype = {
                 ]
               });
             } else {
+              if (isRouting) {
+                return;
+              }
               this.dialogController.once('closed', () => {
                 this.element.focus();
                 this.element.spatialNavigator.focus();
