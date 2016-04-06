@@ -108,8 +108,9 @@ li.current-calendar div.indicator{
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 2.1rem;
+  line-height: normal;
   white-space: nowrap;
+  transform: translatey(-0.5rem);
 }
 
 .event-detail-current-calendar-div-bot {
