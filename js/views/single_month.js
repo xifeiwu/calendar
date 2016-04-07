@@ -40,6 +40,8 @@ SingleMonth.prototype = {
     element.dataset.date = getDayId(this.date);
     this.element = element;
     this._buildWeeks();
+    this.days.forEach(day => day.activate());
+    this.timeController.on('presentDayChange', this);
   },
 
   _renderDayHeaders: function() {
@@ -84,6 +86,11 @@ SingleMonth.prototype = {
       });
       day.create();
       this.days.push(day);
+      if (Calc.isSameDate(date, this.timeController.presentDay)) {
+        day.isPresentDay = true;
+      } else {
+        day.isPresentDay = false;
+      }
     });
   },
 
@@ -94,10 +101,8 @@ SingleMonth.prototype = {
     this.active = true;
 
     this.onactive();
-    this.days.forEach(day => day.activate());
     this._onSelectedDayChange(this.timeController.selectedDay);
     this.timeController.on('selectedDayChange', this);
-    this.timeController.on('presentDayChange', this);
   },
 
   deactivate: function() {
@@ -107,9 +112,7 @@ SingleMonth.prototype = {
     this.active = false;
 
     this.oninactive();
-    this.days.forEach(day => day.deactivate());
     this.timeController.off('selectedDayChange', this);
-    this.timeController.off('presentDayChange', this);
   },
 
   destroy: function() {
@@ -117,6 +120,7 @@ SingleMonth.prototype = {
     this._detach();
     this.days.forEach(day => day.destroy());
     this.days = [];
+    this.timeController.off('presentDayChange', this);
   },
 
   append: function() {
@@ -162,18 +166,24 @@ SingleMonth.prototype = {
     el.focus();
   },
 
-  _onPresentDayChange: function(date) {
-    var selector = `li[data-date="${getDayId(date)}"]`;
-    var todays = document.querySelectorAll(selector);
-    [Calc.PAST, Calc.FUTURE, Calc.OTHER_MONTH].forEach((key) => {
-      Array.prototype.slice.call(todays).forEach(today => {
-        if (today.classList.contains(key)) {
-          today.classList.remove(key);
+  _onPresentDayChange: function() {
+    this.days.forEach((day) => {
+      var node = document.querySelector(`li[data-date="${day.getDayId()}"]`);
+      if (!node) {
+        return;
+      }
+      [Calc.PAST, Calc.PRESENT, Calc.FUTURE].forEach((key) => {
+        if (node.classList.contains(key)) {
+          node.classList.remove(key);
         }
       });
-    });
-    Array.prototype.slice.call(todays).forEach(today => {
-      today.classList.add(Calc.PRESENT);
+      var tag = Calc.relativeState(day.date);
+      node.classList.add(tag);
+      if (tag === Calc.PRESENT) {
+        day.isPresentDay = true;
+      } else {
+        day.isPresentDay = false;
+      }
     });
   }
 };

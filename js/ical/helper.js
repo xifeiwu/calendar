@@ -54,6 +54,7 @@ exports.addExDate = function(vCalendar, recurrenceId) {
   var exDateProp = new ICAL.Property('exdate');
   var rDate = Calc.dateFromTransport(recurrenceId);
   if (recurrenceId.isDate) {
+    exDateProp.resetType('date');
     exDateProp.setParameter('VALUE', 'DATE');
     exDateProp.setValue(rDate.toString('yyyy-MM-dd'));
   } else {

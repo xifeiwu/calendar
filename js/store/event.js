@@ -23,7 +23,7 @@ module.exports = Events;
 Events.prototype = {
   __proto__: Abstract.prototype,
   _store: 'events',
-  _dependentStores: ['events', 'busytimes', 'alarms', 'icalComponents'],
+  _dependentStores: ['events', 'busytimes', 'icalComponents'],
 
   /** disable caching */
   _addToCache: function() {},

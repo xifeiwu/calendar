@@ -2,6 +2,7 @@ define(function(require, exports, module) {
 'use strict';
 
 var ICAL = require('ext/ical');
+var debug = require('debug')('service/ical_recur_expansion');
 
 module.exports = {
   /**
@@ -69,7 +70,10 @@ module.exports = {
   },
 
   _beginIteration: function(event, each, min, max) {
-    var iterator = event.iterator();
+    if (event.startDate.compare(min) > 0) {
+      min = event.startDate;
+    }
+    var iterator = event.iterator(min);
     this._iterate(event, iterator, each, min, max);
 
     return iterator;
@@ -83,7 +87,7 @@ module.exports = {
     do {
       current = iterator.next();
 
-      if (!current) {
+      if (!current || current.compare(max) > 0) {
         break;
       }
 

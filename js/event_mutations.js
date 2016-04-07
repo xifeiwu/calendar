@@ -53,13 +53,33 @@ var uuid = require('ext/uuid');
  * @param {Object} event to create busytime for.
  */
 function createBusytime(event) {
-  return {
+  var busytime = {
     _id: event._id + '-' + uuid.v4(),
     eventId: event._id,
     calendarId: event.calendarId,
     start: event.remote.start,
     end: event.remote.end
   };
+  var alarms = event.remote.alarms;
+  if (alarms && alarms.length) {
+    busytime.alarms = [];
+    var i = 0;
+    var len = alarms.length;
+    for (; i < len; i++) {
+      var alarmDate = Calc.dateFromTransport(busytime.end);
+      if (alarmDate.valueOf() < Date.now()) {
+        continue;
+      }
+      var newAlarm = {};
+      newAlarm.startDate = {};
+      for (var j in busytime.start) {
+        newAlarm.startDate[j] = busytime.start[j];
+      }
+      newAlarm.startDate.utc += (alarms[i].trigger * 1000);
+      busytime.alarms.push(newAlarm);
+    }
+  }
+  return busytime;
 }
 
 function Create(options) {
@@ -75,7 +95,6 @@ function Create(options) {
 Create.prototype = {
   commit: function(callback) {
     var app = exports.app;
-    var alarmStore = app.store('Alarm');
     var eventStore = app.store('Event');
     var busytimeStore = app.store('Busytime');
     var componentStore = app.store('IcalComponent');
@@ -103,38 +122,6 @@ Create.prototype = {
 
     if (this.icalComponent) {
       componentStore.persist(this.icalComponent, trans);
-    }
-
-    var alarms = this.event.remote.alarms;
-    if (alarms && alarms.length) {
-      var i = 0;
-      var len = alarms.length;
-      var now = Date.now();
-
-      var alarmTrans = alarmStore.db.transaction(
-        ['alarms'],
-        'readwrite'
-      );
-
-      for (; i < len; i++) {
-
-        var alarm = {
-          startDate: {
-            offset: this.busytime.start.offset,
-            utc: this.busytime.start.utc + (alarms[i].trigger * 1000),
-            tzid: this.busytime.start.tzid
-          },
-          eventId: this.busytime.eventId,
-          busytimeId: this.busytime._id
-        };
-
-        var alarmDate = Calc.dateFromTransport(this.busytime.end).valueOf();
-        if (alarmDate < now) {
-          continue;
-        }
-
-        alarmStore.persist(alarm, alarmTrans);
-      }
     }
   }
 

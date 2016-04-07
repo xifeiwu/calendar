@@ -103,7 +103,7 @@ Account.prototype = {
    */
   _dependentStores: [
     'accounts', 'calendars', 'events',
-    'busytimes', 'alarms', 'icalComponents'
+    'busytimes', 'icalComponents'
   ],
 
   _removeDependents: function(id, trans) {

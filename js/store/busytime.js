@@ -39,7 +39,7 @@ Busytime.prototype = {
 
   _store: 'busytimes',
 
-  _dependentStores: ['alarms', 'busytimes'],
+  _dependentStores: ['busytimes'],
 
   _setupCache: function() {
     // reset time observers
@@ -61,7 +61,24 @@ Busytime.prototype = {
   },
 
   _removeDependents: function(id, trans) {
-    this.db.getStore('Alarm').removeByIndex('busytimeId', id, trans);
+    // delete notification if exist.
+    notificationsController.closeNotificationById(id);
+    // remove alarm of this busytime.
+    trans.addEventListener('complete', () => {
+      var request = navigator.mozAlarms.getAll();
+      request.onsuccess = function (e) {
+        e.target.result.some((alarm) => {
+          if (alarm.data.busytimeId === id) {
+            navigator.mozAlarms.remove(alarm.id);
+            return true;
+          }
+          return false;
+        });
+      }
+      request.onerror = function () {
+        debug('remove alarm error.');
+      }
+    });
   },
 
   removeEvent: function(id, trans, callback) {
@@ -91,7 +108,6 @@ Busytime.prototype = {
 
       if (cursor) {
         var id = cursor.primaryKey;
-        notificationsController.closeNotificationById(id);
         self.emit('remove', id);
       }
 

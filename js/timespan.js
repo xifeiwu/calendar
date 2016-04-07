@@ -5,6 +5,10 @@ function Timespan(startDate, endDate) {
   this.start = startDate.valueOf();
   this.end = endDate.valueOf();
 }
+
+Timespan.fromJSON = function(obj) {
+  return new Timespan(obj.start, obj.end);
+};
 module.exports = Timespan;
 
 Timespan.prototype = {
@@ -76,6 +80,43 @@ Timespan.prototype = {
   },
 
   /**
+   * Check whether two Timespan can combine into one.
+   * @param {Timespan} span the Timespan to combine
+   */
+  canCombine: function(span) {
+    if (!(span instanceof Timespan)) {
+      return null;
+    }
+    span.start = span.start - 2;
+    span.end = span.end + 2;
+    return this.overlaps(span);
+  },
+
+  /**
+   * If two Timespan overlaps, return a larger Timespan
+   * contain both of them.
+   * @param {Timespan} span the Timespan to combine
+   */
+  combine: function(span) {
+    if (!(span instanceof Timespan)) {
+      return null;
+    }
+    if (this.contains(span)) {
+      return this;
+    } else if (span.contains(this)) {
+      return span;
+    } else {
+      var start = span.start;
+      var end = span.end;
+      var ourEnd = this.end;
+      var ourStart = this.start;
+      var newStart = (ourStart < start) ? ourStart : start;
+      var newEnd = (ourEnd < end) ? end : ourEnd;
+      return new Timespan(newStart, newEnd);
+    }
+  },
+
+  /**
    * When given a date checks if
    * date is inside given range.
    *
@@ -108,7 +149,19 @@ Timespan.prototype = {
 
     return start <= timestamp &&
            end >= timestamp;
+  },
+
+  clone: function() {
+    return new Timespan(this.start, this.end);
+  },
+
+  toJSON: function() {
+    return {
+      start: this.start,
+      end: this.end
+    };
   }
+
 };
 
 });

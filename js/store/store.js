@@ -3,7 +3,6 @@ define(function(require, exports) {
 
 exports.Abstract = require('./abstract');
 exports.Account = require('./account');
-exports.Alarm = require('./alarm');
 exports.Busytime = require('./busytime');
 exports.Calendar = require('./calendar');
 exports.Event = require('./event');

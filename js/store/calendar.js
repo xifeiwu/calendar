@@ -55,8 +55,7 @@ Store.prototype = {
   _store: 'calendars',
 
   _dependentStores: [
-    'calendars', 'events', 'busytimes',
-    'alarms', 'icalComponents'
+    'calendars', 'events', 'busytimes', 'icalComponents'
   ],
 
   _parseId: probablyParseInt,
