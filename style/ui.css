@@ -355,6 +355,10 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   height: 4.2rem;
 }
 
+#calendar-dialog-wrapper .prompt .dialog-header-container {
+  color:  var(--white-color, white) !important;
+}
+
 #month-view-date-picker {
   position: absolute;
   bottom: 0px;

@@ -65,6 +65,16 @@ div#event-detail-duration-time span {
   font-size: 2.1rem;
 }
 
+div#event-detail-duration-time :first-child {
+  font-size: 2.1rem;
+  color: var(--color-gs20);
+  line-height: 3rem;
+}
+
+.large-text div#event-detail-duration-time :first-child {
+  font-size: 2.7rem;
+}
+
 #event-detail-view .event-detail-location-div {
   word-break: break-all;
   line-height: 2.1rem;
