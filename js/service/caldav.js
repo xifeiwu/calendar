@@ -51,6 +51,7 @@ Service.prototype = {
       'getCalendar',
       'streamEvents',
       'streamEventsFromLocal',
+      'expandComponent',
       'expandComponents',
       'expandRecurringEvent',
       'deleteEvent',
@@ -567,14 +568,19 @@ Service.prototype = {
 
     components.forEach(function(component) {
       var ical = component.ical;
-      var localOpts = {
-        maxDate: options.maxDate,
-        iterator: component.iterator
-      };
 
-      if (component.lastRecurrenceId) {
-        localOpts.minDate = component.lastRecurrenceId;
-      }
+      var monthSpan = options.span;
+      var minDate = new ICAL.Time();
+      minDate.fromUnixTime(monthSpan.start / 1000);
+      minDate.zone = ICAL.Timezone.utcTimezone;
+      var maxDate = new ICAL.Time();
+      maxDate.fromUnixTime(monthSpan.end / 1000);
+      maxDate.zone = ICAL.Timezone.utcTimezone;
+
+      var localOpts = {
+        minDate: minDate,
+        maxDate: maxDate
+      };
 
       // expand each component
       this.expandRecurringEvent(ical, localOpts, stream,
@@ -585,12 +591,11 @@ Service.prototype = {
           next();
           return;
         }
-
         stream.emit('component', {
+          status: 'refresh',
           eventId: uid,
-          lastRecurrenceId: lastRecurId,
           ical: ical,
-          iterator: iter
+          span: monthSpan
         });
 
         next();
@@ -598,6 +603,39 @@ Service.prototype = {
     }, this);
   },
 
+  expandComponent: function(options, stream, callback) {
+    var ical = options.ical;
+
+    var monthSpan = options.span;
+    var minDate = new ICAL.Time();
+    minDate.fromUnixTime(monthSpan.start / 1000);
+    minDate.zone = ICAL.Timezone.utcTimezone;
+    var maxDate = new ICAL.Time();
+    maxDate.fromUnixTime(monthSpan.end / 1000);
+    maxDate.zone = ICAL.Timezone.utcTimezone;
+
+    var localOpts = {
+      minDate: minDate,
+      maxDate: maxDate
+    };
+
+    this.expandRecurringEvent(ical, localOpts, stream,
+                              function(err, iter, lastRecurId, uid) {
+      if (err) {
+        stream.emit('error', err);
+        callback();
+        return;
+      }
+      stream.emit('component', {
+        status: 'refresh',
+        eventId: uid,
+        ical: ical,
+        span: monthSpan
+      });
+
+      callback();
+    });
+  },
   /**
    * Options:
    *
@@ -890,12 +928,19 @@ Service.prototype = {
       var result = self._formatEventFromLocal(option, event);
       stream.emit('event', result);
 
-      var options = {
-        maxDate: self._defaultMaxDate(),
-        now: ICAL.Time.fromJSDate(new Date(), true)
+      var monthSpan = option.span;
+      var minDate = new ICAL.Time();
+      minDate.fromUnixTime(monthSpan.start / 1000);
+      minDate.zone = ICAL.Timezone.utcTimezone;
+      var maxDate = new ICAL.Time();
+      maxDate.fromUnixTime(monthSpan.end / 1000);
+      maxDate.zone = ICAL.Timezone.utcTimezone;
+      var localOpts = {
+        minDate: minDate,
+        maxDate: maxDate
       };
 
-      self.expandRecurringEvent(event, options, stream,
+      self.expandRecurringEvent(event, localOpts, stream,
                                 function(err, iter, lastRecurrenceId) {
 
         if (err) {
@@ -911,10 +956,10 @@ Service.prototype = {
           });
         } else {
           stream.emit('component', {
+            status: 'update',
             eventId: result.id,
-            lastRecurrenceId: lastRecurrenceId,
             ical: option.ical,
-            iterator: iter
+            span: monthSpan
           });
         }
 

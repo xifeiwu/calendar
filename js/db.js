@@ -14,7 +14,7 @@ var uuid = require('ext/uuid');
 
 var idb = window.indexedDB;
 
-const VERSION = 15;
+const VERSION = 16;
 
 var store = Object.freeze({
   events: 'events',
@@ -239,7 +239,7 @@ Db.prototype = {
           'busytimeId',
           { unique: false, multiEntry: false }
         );
-     } else if (curVersion === 12) {
+      } else if (curVersion === 12) {
         var icalComponents = db.createObjectStore(
           store.icalComponents, { keyPath: 'eventId', autoIncrement: false }
         );
@@ -260,6 +260,14 @@ Db.prototype = {
         // We need to fix the calendarIds and also remove any of the idb
         // objects that have deleted calendars.
         this.sanitizeEvents(transaction);
+      } else if (curVersion === 15) {
+        db.deleteObjectStore(store.alarms);
+        var icalComponents = transaction.objectStore(store.icalComponents);
+        icalComponents.createIndex(
+          'eventId',
+          'eventId',
+          { unique: false, multiEntry: false }
+        );
       }
     }
   },

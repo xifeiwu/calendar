@@ -377,12 +377,14 @@ Local.prototype = {
   _simulateCaldavProcess: function(event, ical, callback) {
     nextTick(() => {
       this.events.ownersOf(event, (err, owners) => {
+        var monthSpan = Calc.spanOfTwoMonth(this.app.timeController.month);
         var stream = this.service.stream(
           'caldav',
           'streamEventsFromLocal',
           owners.account.toJSON(),
           owners.calendar.remote,
           {
+            span: monthSpan,
             ical: ical,
             color: owners.calendar.remote.color
           }

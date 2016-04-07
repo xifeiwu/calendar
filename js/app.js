@@ -42,6 +42,7 @@ var pendingClass = 'pending-operation';
  */
 module.exports = {
   startingURL: window.location.href,
+  _syncTodayDateTimer: null,
 
   /**
    * Entry point for application
@@ -234,11 +235,6 @@ module.exports = {
     this.toast = new Toast(this);
 
     this.dialogController = new DialogController(this);
-
-    // turn on the auto queue this means that when
-    // alarms are added to the database we manage them
-    // transparently. Defaults to off for tests.
-    this.store('Alarm').autoQueue = true;
   },
 
   _initUI: function() {
@@ -269,8 +265,10 @@ module.exports = {
     // re-localize dates on screen
     this.observeDateLocalization();
 
-    this.timeController.move(new Date());
-    this.timeController.selectedDay = new Date();
+    var now = new Date();
+    this.timeController.move(now);
+    this.timeController.selectedDay = now;
+    this.timeController.presentDay = now;
 
     this.view('TimeHeader', (header) => header.render());
 
@@ -329,15 +327,18 @@ module.exports = {
           });
         }
         this.lightHouseDate = date;
+        // presentDay should be set before function move.
+        this.timeController.presentDay = date;
         this.timeController.move(date);
         this.timeController.selectedDay = date;
-        this.timeController.presentDay = date;
+        this._syncTodayDate(true);
       }
     });
   },
 
   _setPresentDate: function() {
-    var id = Calc.getDayId(new Date());
+    var now = new Date();
+    var id = Calc.getDayId(now);
     var presentDate = document.querySelector(
       '#month-view [data-date="' + id + '"]'
     );
@@ -346,6 +347,8 @@ module.exports = {
     previousDate.classList.remove('present');
     previousDate.classList.add('past');
     presentDate.classList.add('present');
+    this.timeController.presentDay = now;
+    this.timeController.move(now);
   },
 
   _showTodayDate: function() {
@@ -353,15 +356,20 @@ module.exports = {
     element.innerHTML = new Date().getDate();
   },
 
-  _syncTodayDate: function() {
+  _syncTodayDate: function(reset) {
     var now = new Date();
     var midnight = new Date(
       now.getFullYear(), now.getMonth(), now.getDate() + 1,
       0, 0, 0
     );
+    if (reset && (this._syncTodayDateTimer !== null) ) {
+      clearTimeout(this._syncTodayDateTimer);
+      this._syncTodayDateTimer = null;
+    }
 
     var timeout = midnight.getTime() - now.getTime();
-    setTimeout(() => {
+    this._syncTodayDateTimer = setTimeout(() => {
+      this._syncTodayDateTimer = null;
       this._showTodayDate();
       this._setPresentDate();
       this._syncTodayDate();

@@ -160,50 +160,28 @@ PullEvents.prototype = {
       var alarm;
 
       for (; i < len; i++) {
-        alarm = time.alarms[i];
-        alarm.eventId = eventId;
-        alarm.busytimeId = id;
-      }
-    }
-
-    return this._busytimeStore.initRecord(time);
-  },
-
-  handleOccurrenceSync: function(item) {
-    var alarms;
-
-    if ('alarms' in item) {
-      alarms = item.alarms;
-      delete item.alarms;
-
-      if (alarms.length) {
-        var i = 0;
-        var len = alarms.length;
-        var now = Date.now();
-
-        for (; i < len; i++) {
-          var alarm = {
-            startDate: {},
-            eventId: item.eventId,
-            busytimeId: item._id
-          };
-
-          // Copy the start object
-          for (var j in item.start) {
-            alarm.startDate[j] = item.start[j];
-          }
-          alarm.startDate.utc += (alarms[i].trigger * 1000);
-
-          var alarmDate = Calc.dateFromTransport(item.end);
-          if (alarmDate.valueOf() < now) {
-            continue;
-          }
-          this.alarmQueue.push(alarm);
+        var alarmDate = Calc.dateFromTransport(time.end);
+        if (alarmDate.valueOf() < Date.now()) {
+          time.alarms.splice(i, 1);
+          continue;
         }
+
+        alarm = time.alarms[i];
+        alarm.startDate = {};
+        for (var j in time.start) {
+          alarm.startDate[j] = time.start[j];
+        }
+        alarm.startDate.utc += (alarm.trigger * 1000);
+        delete alarm.action;
+        delete alarm.trigger;
+      }
+      if (time.alarms.length === 0) {
+        delete time.alarms;
       }
     }
 
-    this.busytimeQueue.push(item);
+    var busytime = this._busytimeStore.initRecord(time);
+    this.busytimeQueue.push(busytime);
   },
 
   handleComponentSync: function(component) {
@@ -229,18 +207,6 @@ PullEvents.prototype = {
     this._busytimeStore.removeEvent(id);
 
     this.eventQueue.push(event);
-
-    var component = event.remote.icalComponent;
-    delete event.remote.icalComponent;
-
-    // don't save components for exceptions.
-    // the parent has the ical data.
-    if (!event.remote.recurrenceId) {
-      this.icalQueue.push({
-        data: component,
-        eventId: event._id
-      });
-    }
 
     if (exceptions) {
       for (var i = 0; i < exceptions.length; i++) {
@@ -293,7 +259,6 @@ PullEvents.prototype = {
         break;
       case 'occurrence':
         var occur = this.formatBusytime(data[0]);
-        this.handleOccurrenceSync(occur);
         break;
       case 'component':
         this.handleComponentSync(data[0]);
@@ -317,12 +282,11 @@ PullEvents.prototype = {
     var icalComponentStore = this.app.store('IcalComponent');
     var calendarStore = this.app.store('Calendar');
     var busytimeStore = this.app.store('Busytime');
-    var alarmStore = this.app.store('Alarm');
 
     if (typeof(trans) === 'function') {
       callback = trans;
       trans = calendarStore.db.transaction(
-        ['calendars', 'events', 'busytimes', 'alarms', 'icalComponents'],
+        ['calendars', 'events', 'busytimes', 'icalComponents'],
         'readwrite'
       );
     }
@@ -344,21 +308,19 @@ PullEvents.prototype = {
 
     this.icalQueue.forEach(function(ical) {
       debug('add component', ical);
-      icalComponentStore.persist(ical, trans);
+      if (ical.status && ical.status === 'refresh') {
+        icalComponentStore.refresh(ical, trans);
+      } else {
+        ical.spans = [ical.span];
+        delete ical.span;
+        delete ical.status;
+        icalComponentStore.persist(ical, trans);
+      }
     });
 
     this.busytimeQueue.forEach(function(busy) {
       debug('add busytime', busy);
       busytimeStore.persist(busy, trans);
-    });
-
-    this.alarmQueue.forEach(function(alarm) {
-      debug('add alarm', alarm);
-      var alarmTrans = alarmStore.db.transaction(
-        ['alarms'],
-        'readwrite'
-      );
-      alarmStore.persist(alarm, alarmTrans);
     });
 
     if (this.removeList) {

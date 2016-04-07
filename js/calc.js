@@ -144,6 +144,14 @@ exports.spanOfMonth = function(month) {
   return new Timespan(startDay, endDay);
 };
 
+/**
+ * Creates timespan for a given month and its next month.
+ */
+exports.spanOfTwoMonth = function(month) {
+  var nextMonth = new Date(month.getFullYear(), month.getMonth() + 1, 1);
+  return exports.spanOfMonth(month).combine(exports.spanOfMonth(nextMonth));
+};
+
 exports.monthEnd = function(date, diff = 0) {
   var endDay = new Date(
     date.getFullYear(),
@@ -527,7 +535,7 @@ exports.relativeState = function(day, month) {
   }
 
   // 4. the date is not in the current month (relative time)
-  if (day.getMonth() !== month.getMonth()) {
+  if (month && day.getMonth() !== month.getMonth()) {
     states += ' ' + exports.OTHER_MONTH;
   }
 

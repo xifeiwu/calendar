@@ -230,6 +230,72 @@ Abstract.prototype = {
     }.bind(this));
   },
 
+  expandRecurrences: function(expandSpan, callback) {
+    this.icalComponents.findRecurrencesBySpan(expandSpan,
+      (err, results) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        if (!results.length) {
+          callback(null, false);
+          return;
+        }
+
+        results.forEach((component) => {
+          this._expandComponent(component);
+        });
+        callback(null, true);
+      }
+    );
+  },
+
+  _expandComponent: function(comp) {
+    var calendarId = comp.calendarId;
+    if (!comp.ical || !comp.toSpan) {
+      return;
+    }
+    var calStore = this.app.store('Calendar');
+
+    calStore.ownersOf(calendarId, function(err, owners) {
+      if (err) {
+        return;
+      }
+
+      var calendar = owners.calendar;
+      var account = owners.account;
+
+      var stream = this.service.stream(
+        'caldav',
+        'expandComponent',
+        {
+          ical: comp.ical,
+          span: comp.toSpan
+        }
+      );
+
+      var pull = new CaldavPullEvents(
+        stream,
+        {
+          account: account,
+          calendar: calendar,
+          app: this.app,
+          stores: [
+            'busytimes', 'icalComponents'
+          ]
+        }
+      );
+      stream.request(function(err) {
+        if (err) {
+          return;
+        }
+        pull.commit(() => {});
+      });
+
+    }.bind(this));
+  },
+
   /**
    * Update an event
    *

@@ -19,10 +19,13 @@ MonthDay.prototype = {
   date: null,
   element: null,
   month: null,
+  dayId: null,
+  day: null,
+  _isPresentDay: false,
 
   create: function() {
-    var dayId = Calc.getDayId(this.date);
-    var id = 'month-view-day-' + dayId;
+    this.dayId = Calc.getDayId(this.date);
+    var id = 'month-view-day-' + this.dayId;
     var state = Calc.relativeState(this.date, this.month);
     var l10nStateId = state.replace(/\s/g, '-');
     var date = this.date.getDate();
@@ -43,7 +46,7 @@ MonthDay.prototype = {
       'aria-describedby',
       `${id}-busy-indicator ${id}-description`
     );
-    el.dataset.date = dayId;
+    el.dataset.date = this.dayId;
     el.className = state;
     el.classList.add('month-day');
     el.classList.add('focusable');
@@ -71,6 +74,10 @@ MonthDay.prototype = {
   },
 
   _updateBusyCount: function(data) {
+    this.day = data;
+    if (this._isPresentDay) {
+      this._triggerAlarms();
+    }
     var count = Math.min(1, data.amount);
     var holder = this.element.querySelector('.busy-indicator');
     if (data.amount === 0) {
@@ -106,6 +113,70 @@ MonthDay.prototype = {
     while (diff++) {
       holder.removeChild(holder.firstChild);
     }
+  },
+
+  getDayId: function() {
+    return this.dayId;
+  },
+
+  set isPresentDay(value) {
+    if (!this._isPresentDay && value) {
+      this._triggerAlarms();
+    }
+    this._isPresentDay = value;
+  },
+
+  _triggerAlarms: function() {
+    console.log('triggerAlarms in ' + this.date);
+    if (!this.day || this.day.amount === 0) {
+      return;
+    }
+    this.day.basic.forEach((basic) => {
+      if (!basic.busytime.alarms) {
+        return;
+      }
+      var needUpdate = false;
+      basic.busytime.alarms.forEach((alarm) => {
+        if (alarm.triggered) {
+          return;
+        }
+        alarm.busytimeId = basic.busytime._id;
+        alarm.eventId = basic.busytime.eventId;
+        alarm.triggered = true;
+        this._addToMozAlarms(alarm);
+        needUpdate = true;
+      });
+      if (needUpdate) {
+        dayObserver.busytimeStore.persist(basic.busytime);
+      }
+    });
+    this.day.allday.forEach((allday) => {
+      if (!allday.busytime.alarms) {
+        return;
+      }
+      var needUpdate = false;
+      allday.busytime.alarms.forEach((alarm) => {
+        if (alarm.triggered) {
+          return;
+        }
+        alarm.busytimeId = allday.busytime._id;
+        alarm.eventId = allday.busytime.eventId;
+        alarm.triggered = true;
+        this._addToMozAlarms(alarm);
+        needUpdate = true;
+      });
+      if (needUpdate) {
+        dayObserver.busytimeStore.persist(allday.busytime);
+      }
+    });
+  },
+
+  _addToMozAlarms: function(alarm) {
+    var alarmManager = navigator.mozAlarms;
+    var timezone = alarm.startDate.tzid === Calc.FLOATING ?
+      'ignoreTimezone' :
+      'honorTimezone';
+    alarmManager.add(Calc.dateFromTransport(alarm.startDate), timezone, alarm);
   }
 };
 
