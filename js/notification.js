@@ -26,7 +26,10 @@ exports.sendNotification = function(title, body, url) {
       icon: icon,
       // we use the URL as the ID so we display a single notification for each
       // busytime (it will override previous notifications)
-      tag: url
+      tag: url,
+      behavior: {
+        soundFile: 'style/notifications/ringtones/notifier_greeting.ogg'
+      }
     });
     return new Promise((resolve, reject) => {
       notification.onshow = resolve;
