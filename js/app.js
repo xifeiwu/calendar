@@ -137,6 +137,12 @@ module.exports = {
     window.addEventListener('timeformatchange', () => {
       this.setCurrentTimeFormat();
       DateL10n.changeElementsHourFormat();
+      // If users are in event-list page while changing the format, whole page
+      // is required to be reloaded since events' list are drew at the beginning
+      // of loading this page and changing the time format may reset the width.
+      if (router.currentPath === '/event/list/') {
+        router.go(router.currentPath);
+      }
     });
   },
 
