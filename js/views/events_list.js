@@ -32,6 +32,7 @@ EventsList.prototype = {
     element: '#events-list-view',
     header: '#events-list-header',
     currentDate: '#events-list-header-date',
+    agenda: '#events-list-agenda',
     events: '#events-list-view #events-list'
   },
 
@@ -41,6 +42,10 @@ EventsList.prototype = {
 
   get events() {
     return this._findElement('events');
+  },
+
+  get agenda() {
+    return this._findElement('agenda');
   },
 
   onactive: function() {
@@ -133,6 +138,9 @@ EventsList.prototype = {
   },
 
   initCurrentDate: function(date) {
+    this.agenda.classList.remove('twelve-hour', 'twenty-four-hour');
+    var timeFormat = navigator.mozHour12 ? 'twelve-hour' : 'twenty-four-hour';
+    this.agenda.classList.add(timeFormat);
     date = date || createDay(new Date());
     if (this.date) {
       dayObserver.off(this.date, this._render);

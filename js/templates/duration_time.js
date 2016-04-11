@@ -85,9 +85,10 @@ module.exports = create({
       }
 
     if (isRecurring) {
-      content += l10n.get('event-detail-repeat', {
+      content += '<span class = "event-detail-frequency">' +
+        l10n.get('event-detail-repeat', {
         repeat: repeat ? l10n.get(repeatTrans(repeat)) : l10n.get('repeating-event')
-      });
+      }) + '</span>';
     }
 
     return content;
