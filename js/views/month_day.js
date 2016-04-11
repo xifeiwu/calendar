@@ -3,6 +3,7 @@ define(function(require, exports, module) {
 
 var Calc = require('calc');
 var dayObserver = require('day_observer');
+var dateFormat = require('date_format');
 
 // MonthDay represents a single day inside the Month view grid.
 function MonthDay(options) {
@@ -49,7 +50,8 @@ MonthDay.prototype = {
     el.className = state;
     el.classList.add('month-day');
     el.classList.add('focusable');
-    el.innerHTML = `<span class="day" role="button">${date}</span>
+    el.innerHTML =
+      `<span class="day" role="button" aria-hidden="true">${date}</span>
       <div id="${id}-busy-indicator" class="busy-indicator"
         aria-hidden="true"></div>
       <span id="${id}-description" aria-hidden="true"
@@ -82,13 +84,7 @@ MonthDay.prototype = {
       this.element.setAttribute('role','gridcell');
     }
 
-    if (count > 0) {
-      holder.setAttribute('aria-label', navigator.mozL10n.get('busy', {
-        n: count
-      }));
-    } else {
-      holder.removeAttribute('aria-label');
-    }
+    this._readOutInfo(data.amount);
 
     var diff = count - holder.childNodes.length;
     if (diff === 0) {
@@ -109,6 +105,24 @@ MonthDay.prototype = {
     while (diff++) {
       holder.removeChild(holder.firstChild);
     }
+  },
+
+  _readOutInfo: function(eventNum) {
+    var container = this.element.querySelector('.busy-indicator');
+    var readOutInfo =
+      dateFormat.localeFormat(
+        this.date,
+        navigator.mozL10n.get('month-view-read-out-info')
+      );
+    if (eventNum > 0) {
+      readOutInfo += ', ' +
+        navigator.mozL10n.get('busy', {
+          n: eventNum
+        });
+    } else {
+      readOutInfo += ', ' + navigator.mozL10n.get('no-events');
+    }
+    container.setAttribute('aria-label', readOutInfo);
   },
 
   getDayId: function() {

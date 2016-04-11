@@ -343,6 +343,7 @@ html[dir="rtl"] #advanced-settings-view .account-list .error a {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  line-height: 100%;
 }
 
 #notification-dialog-wrapper h5-dialog:not([style="z-index: 10000;"])

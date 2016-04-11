@@ -22,7 +22,7 @@ module.exports = create({
     }
 
     return `
-      <li role="presentation">
+      <li role="menuitem">
         <div class="on-off-line-calendar">
           <div class="indicator"
             style="background-color: ${color} !important;"></div>

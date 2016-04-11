@@ -41,7 +41,7 @@ var EventsListItem = create({
 
     var content = `
       <li tabindex="0" busytimeId="${busytimeId}" eventId="${eventId}"
-        calendarId="${calendarId}">
+        calendarId="${calendarId}" role="menuitem">
         <div class="event">
           ${indicator} ${eventTime} ${eventDetails}
         </span>

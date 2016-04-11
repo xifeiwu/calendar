@@ -23,7 +23,7 @@ module.exports = create({
     var checked = this.bool('localDisplayed', 'checked');
     var ariaSelected = this.bool('localDisplayed', 'aria-selected="true"');
 
-    return `<li id="calendar-${id}" role="presentation">
+    return `<li id="calendar-${id}" role="menuitem">
         <div class="gaia-icon icon-calendar-dot" style="color:${color}"
              aria-hidden="true"></div>
         <label class="pack-checkbox" role="option" ${ariaSelected}>
@@ -39,7 +39,7 @@ module.exports = create({
     var color = this.s('color');
     var timeStamp = this.s('timeStamp');
     return `
-      <li role="presentation" tabindex="0" calendar-id=${id}
+      <li role="menuitem" tabindex="0" calendar-id=${id}
         time-stamp=${timeStamp}>
         <div class="on-off-line-calendar">
           <div class="indicator"

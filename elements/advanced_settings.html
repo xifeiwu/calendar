@@ -1,16 +1,16 @@
 <element name="advanced-settings" extends="section">
   <template>
-    <h5-header id="advanced-settings-header">
+    <h5-header id="header-advanced-settings">
       <h1 data-l10n-id="advanced-settings-header"></h1>
     </h5-header>
 
-    <div class="content">
+    <div class="content" role="heading" aria-labelledby="header-advanced-settings">
       <div class="errors"></div>
 
       <h5-separator id="account-list-header" data-l10n-id="account-list-header"></h5-separator>
 
       <ul role="presentation">
-        <li class="pack-select sk-advs-setup-calendar" role="presentation" tabindex="0">
+        <li class="pack-select sk-advs-setup-calendar" role="menuitem" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <span class="setup-calendar" data-l10n-id="advanced-settings-setup-calendars">
               Setup calendars
@@ -22,7 +22,7 @@
       <h5-separator data-l10n-id="advanced-settings-personalization"></h5-separator>
 
       <ul class="settings-list link-list" role="presentation">
-        <li class="pack-select sk-advs-sync-frequency" role="presentation" tabindex="0">
+        <li class="pack-select sk-advs-sync-frequency" role="menuitem" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="sync-frequency">Sync Calendars</small>
             <select id="setting-sync-frequency" name="syncFrequency">
@@ -35,10 +35,10 @@
       </ul>
 
       <ul class="settings-list link-list" role="presentation">
-        <li class="pack-select sk-advs-setting-default" role="presentation" tabindex="0">
+        <li class="pack-select sk-advs-setting-default" role="menuitem" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="default-calendar">default-calendar</small>
-            <select id="setting-default" name="defaultCalendar">
+            <select id="setting-default" name="defaultCalendar" aria-hidden="true">
             </select>
             <span class="calendar-selector-locale" data-l10n-id="choose-default-calendar"></span>
           </a>
@@ -48,7 +48,7 @@
       <h5-separator data-l10n-id="advanced-settings-alert"></h5-separator>
 
       <ul class="settings-list link-list" role="presentation">
-        <li class = "pack-select sk-advs-allday-alarm" role="presentation" tabIndex="0">
+        <li class = "pack-select sk-advs-allday-alarm" role="menuitem" tabIndex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="allday-events">All-day event alert</small>
             <label id="default-allday-alarm">
@@ -56,7 +56,7 @@
             </label>
           </a>
         </li>
-        <li class = "pack-select sk-advs-event-alarm" role="presentation" tabIndex="0">
+        <li class = "pack-select sk-advs-event-alarm" role="menuitem" tabIndex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="events-alert">Events Alert<</small>
             <label id="default-event-alarm">

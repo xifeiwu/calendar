@@ -4,6 +4,8 @@ define(function(require, exports, module) {
 
 var Responder = require('responder');
 var nextTick = require('next_tick');
+var router = require('router');
+var layer = require('controllers/dialogLayer');
 require('shared/h5-dialog/dist/amd/script');
 
 var DEBUG = false;
@@ -14,8 +16,10 @@ function DialogController(app) {
   this.dialogContainer = document.getElementById('calendar-dialog-wrapper');
   this.notiContainer = document.getElementById('notification-dialog-wrapper');
   this.focusedEl = null;
+  this.currentActiveEle = null;
   this.containerZIndex = window.getComputedStyle(this.notiContainer).zIndex;
   this.dialog.dialogTextInput.type = 'text';
+  this.currentPage = null;
   this.dialog.on('h5dialog:opened', function() {
     if (DEBUG) {
       console.log('DialogController opened');
@@ -28,6 +32,8 @@ function DialogController(app) {
     if (DEBUG) {
       console.log('DialogController closed');
     }
+    this.dialog.setAttribute('aria-hidden', true);
+    this.currentPage.removeAttribute('aria-hidden');
     this.dialogContainer.classList.remove('active');
     this.removeAllEventListeners('input-blur');
     this.emit('closed');
@@ -71,6 +77,9 @@ DialogController.prototype = {
     if (option.softKeysHandler) {
       softkeyHandler.register(this.dialog, option.softKeysHandler);
     }
+    this.currentPage = router.activePage();
+    this.currentPage.setAttribute('aria-hidden', true);
+    this.dialog.removeAttribute('aria-hidden');
 
     this.dialog.open({
       header: option.header || '',
@@ -93,6 +102,7 @@ DialogController.prototype = {
     notiDialog.style.zIndex = Number(this.containerZIndex) +
       this.notiContainer.childNodes.length;
     notiDialog.classList.add('notifications-dialog');
+    notiDialog.setAttribute('role', 'menuitem');
     if (!this.notiContainer.lastChild) {
       this.focusedEl = document.activeElement;
       if (this.focusedEl.tagName === 'INPUT' &&
@@ -102,18 +112,34 @@ DialogController.prototype = {
     }
 
     this.notiContainer.appendChild(notiDialog);
+    notiDialog.on('h5dialog:opened', function() {
+      if (DEBUG) {
+        console.log('DialogController opened');
+      }
+      layer.setAriaHidden();
+      this.emit('notiDialog-opened');
+    }.bind(this));
+
+    notiDialog.on('h5dialog:closed', function() {
+      if (DEBUG) {
+        console.log('DialogController closed');
+      }
+      notiDialog.remove();
+      if (!this.notiContainer.lastChild) {
+        layer.removeAriaHidden();
+        focusToView(this.focusedEl);
+      } else {
+        this.notiContainer.lastChild.focus();
+      }
+      this.removeAllEventListeners('input-blur');
+      this.emit('notiDialog-closed');
+    }.bind(this));
 
     var softKeysHandler = {
       rsk: {
         name: 'ok',
         action: () => {
-          this.notiContainer.lastChild.close();
-          this.notiContainer.lastChild.remove();
-          if (!this.notiContainer.lastChild) {
-            focusToView(this.focusedEl);
-          } else {
-            this.notiContainer.lastChild.focus();
-          }
+          notiDialog.close();
           return false;
         }
       },
@@ -139,13 +165,14 @@ DialogController.prototype = {
 
     function focusToView(focusedEl) {
       var pastContainer = focusedEl;
-      var viewContainer = ['SECTION', 'H5-OPTION-MENU'];
+      var viewContainer = ['SECTION', 'H5-OPTION-MENU', 'H5-DIALOG'];
       if (pastContainer && pastContainer.parentElement) {
         while (viewContainer.indexOf(pastContainer.tagName) < 0) {
           pastContainer = pastContainer.parentElement;
         }
         if (pastContainer.classList.contains('active') ||
-            pastContainer.tagName === 'H5-OPTION-MENU') {
+            pastContainer.tagName === 'H5-OPTION-MENU' ||
+            pastContainer.tagName === 'H5-DIALOG') {
           return focusedEl.focus();
         }
       }
