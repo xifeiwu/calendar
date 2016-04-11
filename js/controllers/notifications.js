@@ -97,12 +97,14 @@ function issueNotification(alarm) {
     var body = l10n.get(alarmType, {
       distance: distance
     });
+    var secScreenSubHeading = begins;
 
     debug('Will send event notification with title:', title, 'body:', body);
     if(document.hidden) {
       return notification.sendNotification(
         title,
         body,
+        secScreenSubHeading,
         `/alarm-display/${busytime._id}`
       );
     } else {
