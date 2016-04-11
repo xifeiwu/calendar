@@ -10,7 +10,7 @@ var router = require('router');
 
 var cachedSelf;
 
-exports.sendNotification = function(title, body, url) {
+exports.sendNotification = function(title, body, secScreenSubHeading, url) {
   return getSelf().then(app => {
     if (!app) {
       // This is perhaps a test environment?
@@ -27,6 +27,10 @@ exports.sendNotification = function(title, body, url) {
       // we use the URL as the ID so we display a single notification for each
       // busytime (it will override previous notifications)
       tag: url,
+      data: {
+        heading: title,
+        subheading: secScreenSubHeading
+      },
       behavior: {
         soundFile: 'style/notifications/ringtones/notifier_greeting.ogg'
       }
