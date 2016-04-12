@@ -14,7 +14,7 @@ var TextStyle = {
     // If users are in event-list page while changing the font-size, whole page
     // is required to be reloaded since events' list are drew at the beginning
     // of loading this page and chaning the font-size may change the width.
-    if (router.currentPath === '/event/list/') {
+    if (router.currentPath.startsWith('/event/list/')) {
       router.go(router.currentPath);
     }
     this.setTextStyle(navigator.largeTextEnabled);
