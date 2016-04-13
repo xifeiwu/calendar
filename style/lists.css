@@ -164,11 +164,22 @@ ul li > .menu-item > span {
   color: var(--primary-info-color);
 }
 
+.large-text ul li > span,
+.large-text ul li > .menu-item > span {
+  font-size: 2.7rem;
+  line-height: normal;
+}
+
 ul li > small,
 ul li > .menu-item > small {
   display: block;
   font-size: 1.6rem;
   color: var(--secondary-info-color);
+}
+
+.large-text ul li > small,
+.large-text ul li > .menu-item > small {
+  font-size: 2.1rem
 }
 
 ul li > .explanation,
@@ -403,6 +414,10 @@ ul li.pack-select > .menu-item > span {
 ul li.pack-select > .menu-item > small {
   padding: 0;
   line-height: 2rem;
+}
+
+.large-text ul li.pack-select > .menu-item > small {
+  line-height: normal;
 }
 
 /******************************************************************************

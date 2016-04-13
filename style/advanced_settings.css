@@ -1,3 +1,11 @@
+.large-text #advanced-settings-view ul li {
+  min-height: 9.1rem;
+}
+
+.large-text #advanced-settings-view select {
+  font-size: 2.7rem;
+}
+
 #advanced-settings-view div.content {
   background-color: var(--background);
   top: 6.2rem;
@@ -17,6 +25,11 @@
 #advanced-settings-view .settings-list span {
   margin: 0;
   padding: 0;
+}
+
+.large-text #advanced-settings-view .settings-list span {
+  word-break: break-all;
+  white-space: normal;
 }
 
 /* For the account listing, want the final child to still have

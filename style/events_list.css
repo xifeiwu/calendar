@@ -108,6 +108,12 @@ div#events-list-agenda::after {
   line-height: 2rem;
 }
 
+.large-text #events-list-agenda .start-time,
+.large-text #events-list-agenda .end-time {
+  height: auto;
+  line-height: 2.2rem;
+}
+
 #events-list-agenda .start-time span,
 #events-list-agenda .end-time span {
   white-space: nowrap;
