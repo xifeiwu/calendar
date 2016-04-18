@@ -109,6 +109,20 @@ Local.prototype = {
     }
   },
 
+  /**
+   * delete the recurring event if it has no busytime and exevent.
+   */
+  _deleteRecurEventIfNecessary: function(eventId) {
+    Promise.all([
+      this.busytimes.busytimeCountsForEvent(eventId),
+      this.events.exEventCountsForEvent(eventId)
+    ]).then(values => {
+      if (values[0] === 0 && values[1] === 0) {
+        this.deleteEvent(eventId);
+      }
+    });
+  },
+
   deleteEvent: function(eventOrId, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
@@ -139,14 +153,18 @@ Local.prototype = {
       }
       var vCalendar = ICAL.Component.fromString(component.ical);
       IcalHelper.addExDate(vCalendar, busytime.recurrenceId);
-      var vExEvent = IcalHelper.getExceptionVEvent(vCalendar,
+      var vExEvent = IcalHelper.getExEventByRecurId(vCalendar,
         busytime.recurrenceId);
       vCalendar.removeSubcomponent(vExEvent.component);
-      this.deleteEvent(event.parentId, (err, evt) => {
+      component.ical = vCalendar.toString();
+
+      // save iCalComponent after delete exception event and its busytime.
+      this.events.remove(event._id, (err) => {
         if (err) {
           return callback(err);
         }
-        this._simulateCaldavProcess(event, vCalendar.toString(), callback);
+        this.icalComponents.persist(component, callback);
+        this._deleteRecurEventIfNecessary(event.parentId);
       });
     });
   },
@@ -166,16 +184,20 @@ Local.prototype = {
       }
       var vCalendar = ICAL.Component.fromString(component.ical);
       IcalHelper.addExDate(vCalendar, busytime.recurrenceId);
-      this.deleteEvent(event, (err, evt) => {
+      component.ical = vCalendar.toString();
+
+      // save iCalComponent after delete current busytime.
+      this.busytimes.remove(busytime._id, (err) => {
         if (err) {
           return callback(err);
         }
-        this._simulateCaldavProcess(event, vCalendar.toString(), callback);
+        this.icalComponents.persist(component, callback);
+        this._deleteRecurEventIfNecessary(event._id);
       });
     });
   },
 
-  deleteFutureEvents: function(date, event, busytime, callback) {
+  deleteFutureEvents: function(startDate, event, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
@@ -183,28 +205,36 @@ Local.prototype = {
     if (!callback) {
       callback = function() {};
     }
+    var eventId = event._id;
 
-    this.icalComponents.get(event._id, (err, component) => {
+    this.icalComponents.get(eventId, (err, component) => {
       if (err) {
         return callback(err);
       }
-      var icalComp = ICAL.Component.fromString(component.ical);
-      var eventComp = IcalHelper.getRecurringVEvent(icalComp);
-      var rRrule = eventComp.component.getFirstPropertyValue('rrule');
-      // we need to use parse here, since rRrule is not a normal object,
-      // actually it's a json wrapper, we cannot modify it directly
-      var newRrule = JSON.parse(JSON.stringify(rRrule));
-      var until = new Date(date);
-      // until means before
+      var vCalendar = ICAL.Component.fromString(component.ical);
+      var vEvent = IcalHelper.getFirstRecurEvent(vCalendar);
+      var rRule = vEvent.component.getFirstPropertyValue('rrule');
+      var until = new Date(startDate);
+      // until day is included.
       until.setDate(until.getDate() - 1);
-      newRrule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
-      eventComp.component.updatePropertyWithValue('rrule', newRrule);
+      rRule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
+      vEvent.component.updatePropertyWithValue('rrule', rRule);
+      // remove all vExEvent after the date of until from vCalendar.
+      IcalHelper.getAllFutureExEvent(vCalendar, until).forEach((vExEvent) => {
+        vCalendar.removeSubcomponent(vExEvent.component);
+      });
+      component.ical = vCalendar.toString();
 
-      this.deleteEvent(event, (err, evt) => {
-        if (err) {
-          return callback(err);
-        }
-        this._simulateCaldavProcess(event, icalComp.toString(), callback);
+      // save icalComponent after delete all future busytimes
+      // and exception events.
+      Promise.all([
+        this.busytimes.deleteFutureBusytimes(eventId, until),
+        this.events.deleteFutureExEvents(eventId, until)
+      ]).then((values) => {
+        this.icalComponents.persist(component, callback);
+        this._deleteRecurEventIfNecessary(eventId);
+      }).catch((err) => {
+        callback(err);
       });
     });
   },
@@ -214,36 +244,33 @@ Local.prototype = {
       if (err) {
         return callback(err);
       }
-      var vCalendar = ICAL.Component.fromString(component.ical);
-      var vTimezoneComp = vCalendar.getFirstSubcomponent('vtimezone');
-      var vTimezone = new ICAL.Timezone(vTimezoneComp);
-      var vEvent = IcalHelper.getExceptionVEvent(vCalendar,
-        event.remote.recurrenceId);
-      if (!vEvent) {
-        return callback(new Error());
-      }
-
       if (!event.remote.isRecurring && event.remote.repeat === 'never') {
-        vEvent.startDate = IcalHelper.toICALTime(event.remote.startDate,
-          vTimezone);
-        vEvent.endDate = IcalHelper.toICALTime(event.remote.endDate,
-          vTimezone);
-        vEvent.description = event.remote.description;
-        vEvent.location = event.remote.location;
-        vEvent.summary = event.remote.title;
-        vEvent.sequence = vEvent.sequence + 1;
-        this.deleteEvent(event, (err, evt) => {
+        var vCalendar = ICAL.Component.fromString(component.ical);
+        var vEvent = IcalHelper.getExEventByRecurId(vCalendar,
+          event.remote.recurrenceId);
+        if (!vEvent) {
+          return callback(new Error());
+        }
+        vEvent = IcalHelper.updateVEvent(vEvent, event);
+        component.ical = vCalendar.toString();
+
+        this.updateEvent(event, (err, busytime) => {
           if (err) {
             return callback(err);
           }
-          this._simulateCaldavProcess(event, vCalendar.toString(), callback);
+          this.icalComponents.persist(component, (err) => {
+            if (err) {
+              return callback(err);
+            }
+            callback(null, busytime);
+          });
         });
       } else {
-        this._simulateCaldavProcess(event, IcalComposer.calendar(event),
-          callback);
+        this.createEvent(event, callback);
       }
     });
   },
+
   /**
    * @return {Calendar.EventMutations.Update} mutation object.
    */
@@ -270,68 +297,103 @@ Local.prototype = {
           return callback(err);
         }
 
-        callback(null, update.busytime, update.event);
+        callback(null, update.busytime);
       });
       return update;
     }
   },
 
+  /**
+   * update future event from startDate
+   * If start date or all-day property is changed when update future event,
+   * the properties of exDate and exEvent of the origin recurring event will
+   * be ignored by the new created recurring event.
+   *
+   * @param {Date} startDate the start date for update.
+   * @param {Object} event the event need to update.
+   * @param {Object|Function} busytime.
+   */
   updateEventAllFuture: function(startDate, event, busytime, callback) {
     if (typeof(busytime) === 'function') {
       callback = busytime;
       busytime = null;
     }
-    this.icalComponents.get(event._id, (err, component) => {
+    var eventId = event._id;
+    this.icalComponents.get(eventId, (err, component) => {
       if (err) {
         return callback(err);
       }
       var vCalendar = ICAL.Component.fromString(component.ical);
       var vTimezoneComp = vCalendar.getFirstSubcomponent('vtimezone');
       var vTimezone = new ICAL.Timezone(vTimezoneComp);
-      var vEvent = IcalHelper.getRecurringVEvent(vCalendar);
-      var rRrule = vEvent.component.getFirstPropertyValue('rrule');
+      var vRecurEvent = IcalHelper.getFirstRecurEvent(vCalendar);
+      var rRrule = vRecurEvent.component.getFirstPropertyValue('rrule');
       var until = new Date(startDate);
-      // until means before
       until.setDate(until.getDate() - 1);
       rRrule.until = until.toString('yyyy-MM-ddTHH:mm:ss');
-      vEvent.component.updatePropertyWithValue('rrule', rRrule);
+      vRecurEvent.component.updatePropertyWithValue('rrule', rRrule);
 
-      var vExEvents = IcalHelper.getAllExEvents(vCalendar);
-      var vExDateProps = vEvent.component.getAllProperties('exdate');
+      var newStartDate = event.remote.startDate;
+      var newEndDate = event.remote.endDate;
+      var isDate = vRecurEvent.startDate.isDate;
+      var isAllDay = Calc.isAllDay(newStartDate, newStartDate, newEndDate);
+      var isSameDate = startDate.valueOf() === newStartDate.valueOf();
+      var needExtraInfo = isSameDate && (isAllDay === isDate);
 
       var newCalendarString = IcalComposer.calendar(event);
+      var vExEvents = IcalHelper.getAllExEvents(vCalendar);
+      var vExDateProps = vRecurEvent.component.getAllProperties('exdate');
       var newVCalendar = ICAL.Component.fromString(newCalendarString);
-      var newVEvent = IcalHelper.getRecurringVEvent(newVCalendar);
+      var newVRecurEvent = IcalHelper.getFirstRecurEvent(newVCalendar);
       vExEvents.forEach((vEvent) => {
-        if (vEvent.recurrenceId.compare(newVEvent.startDate) > 0) {
-          vEvent.uid = newVEvent.uid;
+        if (vEvent.recurrenceId.compare(newVRecurEvent.startDate) > 0) {
+          vEvent.uid = newVRecurEvent.uid;
           vEvent.description = event.remote.description;
           vEvent.location = event.remote.location;
           vEvent.summary = event.remote.title;
           vEvent.sequence = vEvent.sequence + 1;
-          vEvent.component.removeAllSubcomponents('valarm');
-          newVEvent.component.getAllSubcomponents('valarm').forEach(
-            (vAlarm) => {
-              vEvent.component.addSubcomponent(ICAL.helpers.clone(vAlarm));
-            }
-          );
-          newVCalendar.addSubcomponent(vEvent.component);
+          if (needExtraInfo) {
+            newVCalendar.addSubcomponent(vEvent.component);
+          } else {
+            vCalendar.removeSubcomponent(vEvent.component);
+          }
         }
       });
       vExDateProps.forEach((vProp) => {
         var vDate = IcalHelper.getPropertyValue(vProp, vTimezone);
-        if (vDate.compare(newVEvent.startDate) > 0) {
-          newVEvent.component.addProperty(vProp);
+        if (vDate.compare(newVRecurEvent.startDate) > 0) {
+          if (needExtraInfo) {
+            newVRecurEvent.component.addProperty(vProp);
+          } else {
+            vRecurEvent.component.removeProperty(vProp);
+          }
         }
       });
+      component.ical = vCalendar.toString();
 
-      this.deleteEvent(event, (err, evt) => {
-        if (err) {
-          return callback(err);
-        }
-        this._simulateCaldavProcess(event, vCalendar.toString(), () => {});
-        this._simulateCaldavProcess(event, newVCalendar.toString(), callback);
+      // save icalComponent after delete all future busytimes and
+      // exception events, and create a new recurring event after current date.
+      var trans = this.app.db.transaction(
+        ['events', 'busytimes', 'icalComponents'],
+        'readwrite'
+      );
+      trans.addEventListener('complete', () => {
+        this.icalComponents.persist(component, (err) => {
+          if (err) {
+            return callback(err);
+          }
+          this._simulateCaldavProcess(event, newVCalendar.toString(),
+            callback);
+          this._deleteRecurEventIfNecessary(eventId);
+        });
       });
+      trans.addEventListener('error', function(event) {
+        if (callback) {
+          callback(event);
+        }
+      });
+      this.busytimes.deleteFutureBusytimes(eventId, until, trans);
+      this.events.deleteFutureExEvents(eventId, until, trans);
     });
   },
 
@@ -349,17 +411,38 @@ Local.prototype = {
         return callback(err);
       }
       // callback should return exception event's id
-      var icalComp = ICAL.Component.fromString(component.ical);
-      icalComp.addSubcomponent(
-        ICAL.Component.fromString(
-          IcalComposer.exceptionEvent(event, parentModel)
-      ));
-
-      this.deleteEvent(event, (err, evt) => {
+      var vCalendar = ICAL.Component.fromString(component.ical);
+      // add vExEvent to vCalendar.
+      var vExEvent = IcalHelper.createVExEvent(event, parentModel);
+      vCalendar.addSubcomponent(vExEvent.component);
+      component.ical = vCalendar.toString();
+      // add some properties to change the type of event
+      // from normal to exception.
+      event.remote.repeat = 'never';
+      event.remote.isRecurring = false;
+      event.remote.recurrenceId = IcalHelper.formatICALTime(
+        vExEvent.recurrenceId
+      );
+      event.remote.isException = true;
+      event.parentId = event._id;
+      event._id = event.parentId + '-' + event.remote.recurrenceId.utc;
+      // delete current busytime and create a new exception event,
+      // and then persist iCalComponent.
+      this.busytimes.remove(busytime._id, (err) => {
         if (err) {
           return callback(err);
         }
-        this._simulateCaldavProcess(event, icalComp.toString(),callback);
+        this.createEvent(event, (err, busytime, event) => {
+          if (err) {
+            return callback(err);
+          }
+          this.icalComponents.persist(component, (err) => {
+            if (err) {
+              return callback(err);
+            }
+            callback(null, [busytime]);
+          });
+        });
       });
     });
   },
@@ -369,8 +452,7 @@ Local.prototype = {
       if (err) {
         return callback(err);
       }
-      this._simulateCaldavProcess(event, IcalComposer.calendar(event),
-        callback);
+      this.createEvent(event, callback);
     });
   },
 
@@ -413,7 +495,8 @@ Local.prototype = {
                   });
                 });
               } else {
-                callback(null, events, components, busytimes);
+                // need to put busytimes firest.
+                callback(null,  busytimes, events, components);
               }
             }
           });

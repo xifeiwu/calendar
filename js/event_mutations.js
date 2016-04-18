@@ -79,6 +79,10 @@ function createBusytime(event) {
       busytime.alarms.push(newAlarm);
     }
   }
+  if (event.remote.isException || event.remote.recurrenceId) {
+    busytime.recurrenceId = event.remote.recurrenceId;
+    busytime.isException = event.remote.isException;
+  }
   return busytime;
 }
 
