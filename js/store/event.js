@@ -6,6 +6,7 @@ var Calc = require('calc');
 var Calendar = require('./calendar');
 var denodeifyAll = require('promise').denodeifyAll;
 var providerFactory = require('provider/provider_factory');
+var debug = require('debug')('store/event');
 
 function Events() {
   Abstract.apply(this, arguments);
@@ -15,7 +16,8 @@ function Events() {
     'findByIds',
     'ownersOf',
     'eventsForCalendar',
-    'findExceptionEvent'
+    'deleteFutureExEvents',
+    'exEventCountsForEvent'
   ]);
 }
 module.exports = Events;
@@ -154,25 +156,78 @@ Events.prototype = {
     };
   },
 
-  findExceptionEvent: function(eventId, date, callback) {
-    var trans = this.db.transaction(this._store);
-    var store = trans.objectStore(this._store);
-    var index = store.index('parentId');
-    var key = IDBKeyRange.only(eventId);
+  /**
+   * return exception event counts for current event
+   *
+   * @param {String} eventId to find.
+   * @param {IDBTransaction} trans transaction.
+   * @param {Function} callback node style [err, counts of busytimes].
+   */
+  exEventCountsForEvent: function(eventId, trans, callback) {
+    if (typeof(trans) === 'function') {
+      callback = trans;
+      trans = undefined;
+    }
+    if (!trans) {
+      trans = this.db.transaction(this._store, 'readonly');
+    }
+    var indexedStore = trans.objectStore(this._store).index('parentId');
+    var req = indexedStore.count(window.IDBKeyRange.only(eventId));
+    req.onsuccess = function(evt) {
+      callback(null, evt.target.result);
+    };
+    req.onerror = function(evt) {
+      callback(evt);
+    };
+  },
 
-    var req = index.mozGetAll(key);
-
-    req.onsuccess = function(e) {
-      e.target.result.forEach((event) => {
-        if (Calc.isSameDate(new Date(event.remote.start.utc), date)) {
-          return callback(null, event);
+  /**
+   * delete all exception events with parentId the same as eventId parameter
+   * after startDate
+   *
+   * @param {String} eventId to find.
+   * @param {Date} startDate set start date.
+   * @param {Function} callback node style [err, array of busytimes].
+   */
+  deleteFutureExEvents: function(eventId, startDate, trans, callback) {
+    var self = this;
+    if (typeof(trans) === 'function') {
+      callback = trans;
+      trans = undefined;
+    }
+    if (!trans) {
+      trans = this.db.transaction(
+        this._dependentStores || this._store,
+        'readwrite'
+      );
+    }
+    if (callback) {
+      trans.addEventListener('complete', function() {
+        if (callback) {
+          callback(null, eventId);
         }
       });
-      callback(null);
-    };
+      trans.addEventListener('error', function(event) {
+        if (callback) {
+          callback(event);
+        }
+      });
+    }
 
-    req.onerror = function(e) {
-      callback(e);
+    var indexedStore = trans.objectStore(this._store).index('parentId');
+    var req = indexedStore.openCursor(IDBKeyRange.only(eventId));
+    req.onsuccess = function(evt) {
+      var cursor = evt.target.result;
+      if (cursor) {
+        var date = Calc.dateFromTransport(cursor.value.remote.recurrenceId);
+        if (date.valueOf() > startDate.valueOf()) {
+          self.remove(cursor.value._id, trans);
+        }
+        cursor.continue();
+      }
+    };
+    req.onerror = function(evt) {
+      debug('request cursor error.');
     };
   }
 };

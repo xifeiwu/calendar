@@ -8,6 +8,7 @@ var binsearch = require('binsearch');
 var compare = require('compare');
 var denodeifyAll = require('promise').denodeifyAll;
 var notificationsController = require('controllers/notifications');
+var debug = require('debug')('store/busytime');
 
 /**
  * Objects saved in the busytime store:
@@ -29,7 +30,9 @@ function Busytime() {
     'removeEvent',
     'loadSpan',
     'busytimesForEvent',
-    'busytimeForEvent'
+    'busytimeForEvent',
+    'deleteFutureBusytimes',
+    'busytimeCountsForEvent'
   ]);
 }
 module.exports = Busytime;
@@ -74,10 +77,10 @@ Busytime.prototype = {
           }
           return false;
         });
-      }
+      };
       request.onerror = function () {
         debug('remove alarm error.');
-      }
+      };
     });
   },
 
@@ -217,6 +220,78 @@ Busytime.prototype = {
       });
       callback(null);
     });
+  },
+
+  /**
+   * return busytime counts for current event
+   *
+   * @param {String} eventId to find.
+   * @param {IDBTransaction} trans transaction.
+   * @param {Function} callback node style [err, counts of busytimes].
+   */
+  busytimeCountsForEvent: function(eventId, trans, callback) {
+    if (typeof(trans) === 'function') {
+      callback = trans;
+      trans = undefined;
+    }
+    if (!trans) {
+      trans = this.db.transaction(this._store, 'readonly');
+    }
+    var indexedStore = trans.objectStore(this._store).index('eventId');
+    var req = indexedStore.count(window.IDBKeyRange.only(eventId));
+    req.onsuccess = function(evt) {
+      callback(null, evt.target.result);
+    };
+    req.onerror = function(evt) {
+      callback(evt);
+    };
+  },
+
+  /**
+   * delete all busytimes with eventId the same as eventId parameter
+   * after startDate
+   *
+   * @param {String} eventId to find.
+   * @param {Date} startDate set start date.
+   * @param {Function} callback node style [err, array of busytimes].
+   */
+  deleteFutureBusytimes: function(eventId, startDate, trans, callback) {
+    var self = this;
+    if (typeof(trans) === 'function') {
+      callback = trans;
+      trans = undefined;
+    }
+    if (!trans) {
+      trans = this.db.transaction(this._store, 'readwrite');
+    }
+    if (callback) {
+      trans.addEventListener('complete', function() {
+        if (callback) {
+          callback(null, eventId);
+        }
+      });
+      trans.addEventListener('error', function(event) {
+        if (callback) {
+          callback(event);
+        }
+      });
+    }
+
+    var indexedStore = trans.objectStore(this._store).index('eventId');
+    var req = indexedStore.openCursor(IDBKeyRange.only(eventId));
+    req.onsuccess = function(evt) {
+      var cursor = evt.target.result;
+      if (cursor) {
+        var date = Calc.dateFromTransport(cursor.value.start);
+        if (date.valueOf() > startDate.valueOf()) {
+          self.remove(cursor.value._id, trans);
+        }
+        cursor.continue();
+      }
+    };
+    req.onerror = function(evt) {
+      debug('request cursor error.');
+    };
   }
 };
 

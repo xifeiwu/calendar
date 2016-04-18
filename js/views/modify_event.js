@@ -233,6 +233,9 @@ ModifyEvent.prototype = {
   },
 
   goToPreviousPage: function(busytimes, moveDate) {
+    if (!Array.isArray(busytimes)) {
+      busytimes = [busytimes];
+    }
     var pathToGo = this.returnTo();
     var state = {
       eventStartHour: moveDate.getHours()
@@ -342,7 +345,7 @@ ModifyEvent.prototype = {
           break;
         case 'updateExceptionEvent':
           provider.updateExceptionEvent(self.event.data,
-            (err, events, components, busytimes) => {
+            (err, busytimes) => {
               if (err) {
                 self.showErrors(err);
                 return;
@@ -356,7 +359,7 @@ ModifyEvent.prototype = {
           if (self.event.data.remote.isRecurring &&
             self.originalRepeat === 'never') {
             provider.updateEvent(self.event.data,
-              (err, events, components, busytimes) => {
+              (err, busytimes, events, components) => {
                 if (err) {
                   self.showErrors(err);
                   return;
@@ -365,23 +368,18 @@ ModifyEvent.prototype = {
               }
             );
           } else {
-            provider.updateEvent(self.event.data, (err, busytime, event) => {
+            provider.updateEvent(self.event.data, (err, busytime) => {
               if (err) {
                 self.showErrors(err);
                 return;
               }
-              if (/^\/event\/detail\//.test(pathToGo) ||
-                  /^\/alarm\-display\//.test(pathToGo)) {
-                router.go('/event/detail/' + busytime._id, state);
-              } else if (/^\/event\/list\//.test(pathToGo)) {
-                router.go('/event/list/' + busytime._id, state);
-              }
+              self.goToPreviousPage(busytime, moveDate);
             });
           }
           break;
         case 'updateEventAllFuture':
           provider.updateEventAllFuture(self.originalStartDate, self.event.data,
-            self.busytimeId, (err, events, components, busytimes) => {
+            self.busytimeId, (err, busytimes, events, components) => {
               if (err) {
                 self.showErrors(err);
                 return;
@@ -396,7 +394,7 @@ ModifyEvent.prototype = {
             isAllDay: self.originalAllDayState
           };
           provider.updateEventThisOnly(parentModel, self.event.data,
-            self.busytimeId, (err, events, components, busytimes) => {
+            self.busytime, (err, busytimes) => {
               if (err) {
                 self.showErrors(err);
                 return;
@@ -407,12 +405,12 @@ ModifyEvent.prototype = {
           break;
         case 'updateEventToNormal':
           provider.updateEventToNormal(self.event.data,
-            (err, events, components, busytimes) => {
+            (err, busytime) => {
               if (err) {
                 self.showErrors(err);
                 return;
               }
-              self.goToPreviousPage(busytimes, moveDate);
+              self.goToPreviousPage(busytime, moveDate);
             }
           );
           break;
