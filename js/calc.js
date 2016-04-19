@@ -131,6 +131,20 @@ exports.spanOfDay = function(date, includeTime) {
 };
 
 /**
+ * Creates timespan for several days from the date given.
+ *
+ * @param {Date} date start date to span.
+ * @param {Number} days set the number of days to span.
+ */
+exports.spanOfSeveralDay = function(date, days) {
+  var startDay = exports.createDay(date);
+  var endDay = exports.createDay(date);
+  endDay.setDate(startDay.getDate() + days);
+  endDay = exports.endOfDay(endDay);
+  return new Timespan(startDay, endDay);
+};
+
+/**
  * Creates timespan for a given month.
  * Starts at the first week that occurs
  * in the given month. Ends at the

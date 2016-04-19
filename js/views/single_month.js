@@ -86,11 +86,6 @@ SingleMonth.prototype = {
       });
       day.create();
       this.days.push(day);
-      if (Calc.isSameDate(date, this.timeController.presentDay)) {
-        day.isPresentDay = true;
-      } else {
-        day.isPresentDay = false;
-      }
     });
   },
 
@@ -179,11 +174,6 @@ SingleMonth.prototype = {
       });
       var tag = Calc.relativeState(day.date);
       node.classList.add(tag);
-      if (tag === Calc.PRESENT) {
-        day.isPresentDay = true;
-      } else {
-        day.isPresentDay = false;
-      }
     });
   }
 };
