@@ -70,12 +70,14 @@ function createBusytime(event) {
       if (alarmDate.valueOf() < Date.now()) {
         continue;
       }
-      var newAlarm = {};
-      newAlarm.startDate = {};
+      var startDate = {};
       for (var j in busytime.start) {
-        newAlarm.startDate[j] = busytime.start[j];
+        startDate[j] = busytime.start[j];
       }
-      newAlarm.startDate.utc += (alarms[i].trigger * 1000);
+      startDate.utc += (alarms[i].trigger * 1000);
+      var newAlarm = {
+        start: startDate
+      };
       busytime.alarms.push(newAlarm);
     }
   }

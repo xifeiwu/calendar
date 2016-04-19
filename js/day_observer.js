@@ -36,6 +36,9 @@ var DISPATCH_DELAY = 25;
 // span beyond MAX_CACHED_MONTHS.
 var MAX_CACHED_MONTHS = 12;
 
+// the max possible days scope for finding alarms on today.
+var MAX_POSSIBLE_DAYS = 14;
+
 // stores busytimes by Id
 // {key:id, value:Busytime}
 var busytimes = new Map();
@@ -99,6 +102,7 @@ exports.init = function() {
   });
 
   this.timeController.on('monthChange', loadMonth);
+  this.timeController.on('presentDayChange', onPresentDayChange);
 
   // make sure loadMonth is called during setup if 'monthChange' was dispatched
   // before we added the listener
@@ -179,6 +183,45 @@ function cacheBusytime(busy) {
   busytimes.set(_id, busy);
   eventsToBusytimes.get(eventId).push(_id);
   registerBusytimeChange(_id);
+  triggerAlarm(busy);
+}
+
+function onPresentDayChange() {
+  var presentDay = exports.timeController.presentDay;
+  exports.busytimeStore.findBusytimesByAlarm(presentDay, MAX_POSSIBLE_DAYS,
+    (err, busytimes) => {
+      if (!err) {
+        busytimes.forEach(triggerAlarm);
+      }
+    }
+  );
+}
+
+function triggerAlarm(busytime) {
+  if (!busytime.alarms) {
+    return;
+  }
+  busytime.alarms.forEach((alarm) => {
+    var startDate = Calc.dateFromTransport(alarm.start);
+    var presentDay = exports.timeController.presentDay;
+    var presentDayEnd = Calc.endOfDay(presentDay);
+    var isBeforeToday = startDate.valueOf() < presentDayEnd.valueOf();
+    if (isBeforeToday && !alarm.triggered) {
+      alarm.busytimeId = busytime._id;
+      alarm.eventId = busytime.eventId;
+      alarm.triggered = true;
+      _addToMozAlarms(alarm);
+      exports.busytimeStore.persist(busytime);
+    }
+  });
+}
+
+function _addToMozAlarms(alarm) {
+  var alarmManager = navigator.mozAlarms;
+  var timezone = alarm.start.tzid === Calc.FLOATING ?
+    'ignoreTimezone' :
+    'honorTimezone';
+  alarmManager.add(Calc.dateFromTransport(alarm.start), timezone, alarm);
 }
 
 function removeBusytimeById(id) {

@@ -167,11 +167,12 @@ PullEvents.prototype = {
         }
 
         alarm = time.alarms[i];
-        alarm.startDate = {};
+        var startDate = {};
         for (var j in time.start) {
-          alarm.startDate[j] = time.start[j];
+          startDate[j] = time.start[j];
         }
-        alarm.startDate.utc += (alarm.trigger * 1000);
+        startDate.utc += (alarm.trigger * 1000);
+        alarm.start = startDate;
         delete alarm.action;
         delete alarm.trigger;
       }

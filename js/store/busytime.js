@@ -32,7 +32,8 @@ function Busytime() {
     'busytimesForEvent',
     'busytimeForEvent',
     'deleteFutureBusytimes',
-    'busytimeCountsForEvent'
+    'busytimeCountsForEvent',
+    'findBusytimesByAlarm'
   ]);
 }
 module.exports = Busytime;
@@ -292,6 +293,30 @@ Busytime.prototype = {
     req.onerror = function(evt) {
       debug('request cursor error.');
     };
+  },
+
+  findBusytimesByAlarm: function(presentDay, days, callback) {
+    var toLoad = Calc.spanOfSeveralDay(presentDay, days);
+    this.loadSpan(toLoad, (err, busytimes) => {
+      if (err) {
+        callback(err);
+      }
+      var results = busytimes.filter((busytime) => {
+        if (!busytime.alarms) {
+          return false;
+        }
+        return busytime.alarms.some((alarm) => {
+          var startDate = Calc.dateFromTransport(alarm.start);
+          var presentDayEnd = Calc.endOfDay(presentDay);
+          var isBeforeToday = startDate.valueOf() < presentDayEnd.valueOf();
+          if (isBeforeToday && !alarm.triggered) {
+            return true;
+          }
+          return false;
+        });
+      });
+      callback(null, results);
+    });
   }
 };
 
