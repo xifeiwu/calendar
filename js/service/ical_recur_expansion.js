@@ -70,13 +70,48 @@ module.exports = {
   },
 
   _beginIteration: function(event, each, min, max) {
-    if (event.startDate.compare(min) > 0) {
-      min = event.startDate;
-    }
-    var iterator = event.iterator(min);
+    var startDate = this._lastRecurDay(event, min);
+    var iterator = event.iterator(startDate);
     this._iterate(event, iterator, each, min, max);
 
     return iterator;
+  },
+
+  _lastRecurDay: function(vEvent, minDate) {
+    var startDate = vEvent.startDate;
+    if (startDate.compare(minDate) >= 0) {
+      return startDate;
+    }
+    var lastDate = startDate;
+    if (startDate.isDate) {
+      lastDate.isDate = startDate.isDate;
+    } else {
+      lastDate = minDate.convertToZone(startDate.zone);
+      lastDate.hour = startDate.hour;
+      lastDate.minute = startDate.minute;
+      lastDate.second = startDate.second;
+    }
+    var rRule = vEvent.component.getFirstPropertyValue('rrule');
+    switch (rRule.freq) {
+      case 'DAILY':
+        lastDate.adjust(-1, 0, 0, 0);
+        break;
+      case 'WEEKLY':
+        if (!rRule.interval) {
+          lastDate.adjust(-(lastDate.dayOfWeek() - 1), 0, 0, 0);
+        } else {
+          lastDate = startDate;
+        }
+        break;
+      case 'MONTHLY':
+        if (!rRule.interval) {
+          lastDate.day = 1;
+        } else {
+          lastDate = startDate;
+        }
+        break;
+    }
+    return lastDate;
   },
 
   _iterate: function(event, iterator, each, min, max) {
@@ -86,17 +121,20 @@ module.exports = {
 
     do {
       current = iterator.next();
-
-      if (!current || current.compare(max) > 0) {
+      if (!current) {
         break;
       }
 
-      if (!min || current.compare(min) >= 0) {
-        // sent should be inside the loop to guard against
-        // the possibility that the resume functionality breaking.
-        sent++;
-        each(current);
+      if (min && current.compare(min) < 0) {
+        continue;
       }
+      if (max && current.compare(max) > 0) {
+        break;
+      }
+      // sent should be inside the loop to guard against
+      // the possibility that the resume functionality breaking.
+      sent++;
+      each(current);
 
     } while (!this._isDone(current, sent, max));
   }

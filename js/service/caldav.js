@@ -470,6 +470,45 @@ Service.prototype = {
   },
 
   /**
+   * Converts a Date object into a transport object which is a
+   * more common representation of time.
+   *
+   * If parameter isDate is true, the tzid of result will be
+   * 'floating'. When the timezone is 'floating', the busytime
+   * will occur at that position regardless of the current tzid's
+   * offset.
+   *
+   * @param {Date} date js date object.
+   * @param {Boolean} isDate true when is a "date" representation.
+   */
+  dateToTransport: function(date, isDate) {
+    var result = Object.create(null);
+
+    var utc = Date.UTC(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds()
+    );
+
+    result.utc = utc;
+    if (isDate) {
+      result.offset = 0;
+      result.tzid = ICAL.Timezone.localTimezone.tzid;
+      result.isDate = isDate;
+    } else {
+      var localUtc = date.valueOf();
+      var offset = utc - localUtc;
+      result.offset = offset;
+      result.tzid = ICAL.Timezone.utcTimezone.tzid;
+    }
+    return result;
+  },
+
+  /**
    * Parse an ical data/string into primary
    * event and exceptions.
    *
@@ -607,16 +646,10 @@ Service.prototype = {
     var ical = options.ical;
 
     var monthSpan = options.span;
-    var minDate = new ICAL.Time();
-    minDate.fromUnixTime(monthSpan.start / 1000);
-    minDate.zone = ICAL.Timezone.utcTimezone;
-    var maxDate = new ICAL.Time();
-    maxDate.fromUnixTime(monthSpan.end / 1000);
-    maxDate.zone = ICAL.Timezone.utcTimezone;
 
     var localOpts = {
-      minDate: minDate,
-      maxDate: maxDate
+      minDate: monthSpan.start,
+      maxDate: monthSpan.end
     };
 
     this.expandRecurringEvent(ical, localOpts, stream,
@@ -664,14 +697,6 @@ Service.prototype = {
     var minDate = null;
     var now;
 
-    if (options.minDate) {
-      minDate = this.formatInputTime(options.minDate);
-    }
-
-    if (options.maxDate) {
-      maxDate = this.formatInputTime(options.maxDate);
-    }
-
     if (!('now' in options)) {
       options.now = ICAL.Time.now();
     }
@@ -684,7 +709,25 @@ Service.prototype = {
         callback(err);
         return;
       }
-
+      var isDate = event.startDate.isDate;
+      if (options.minDate) {
+        if (options.minDate instanceof Object) {
+          minDate = self.formatInputTime(options.minDate);
+        } else {
+          minDate = self.formatInputTime(
+            self.dateToTransport(new Date(options.minDate), isDate)
+          );
+        }
+      }
+      if (options.maxDate) {
+        if (options.maxDate instanceof Object) {
+          maxDate = self.formatInputTime(options.maxDate);
+        } else {
+          maxDate = self.formatInputTime(
+            self.dateToTransport(new Date(options.maxDate), isDate)
+          );
+        }
+      }
       var iter = IcalRecurExpansion.forEach(
         event,
         options.iterator,
@@ -929,15 +972,10 @@ Service.prototype = {
       stream.emit('event', result);
 
       var monthSpan = option.span;
-      var minDate = new ICAL.Time();
-      minDate.fromUnixTime(monthSpan.start / 1000);
-      minDate.zone = ICAL.Timezone.utcTimezone;
-      var maxDate = new ICAL.Time();
-      maxDate.fromUnixTime(monthSpan.end / 1000);
-      maxDate.zone = ICAL.Timezone.utcTimezone;
+
       var localOpts = {
-        minDate: minDate,
-        maxDate: maxDate
+        minDate: monthSpan.start,
+        maxDate: monthSpan.end
       };
 
       self.expandRecurringEvent(event, localOpts, stream,
