@@ -175,6 +175,17 @@ Router.prototype = {
     options.appPath = false;
     options.clear = false;
     this.state(path, view, options);
+  },
+
+  /**
+   * Find the active page
+   */
+  activePage: function() {
+    var currentView = this._activeObjects[0]._elementElement;
+    if (currentView.parentElement === document.getElementById('time-views')) {
+      currentView = document.getElementById('time-views');
+    }
+    return currentView;
   }
 };
 

@@ -54,7 +54,7 @@ ModifyEvent.prototype = {
     startTimeLocale: '#start-time-locale',
     endDateLocale: '#end-date-locale',
     endTimeLocale: '#end-time-locale',
-    header: '#modify-event-header'
+    header: '#header-modify-event'
   },
 
   uiSelector: '[name="%"]',

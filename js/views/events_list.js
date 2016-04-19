@@ -30,7 +30,7 @@ EventsList.prototype = {
 
   selectors: {
     element: '#events-list-view',
-    header: '#events-list-header',
+    header: '#header-events-list',
     currentDate: '#events-list-header-date',
     agenda: '#events-list-agenda',
     events: '#events-list-view #events-list'
@@ -188,11 +188,21 @@ EventsList.prototype = {
     ];
 
     this.optionMenuController.once('closed', () => {
-      if (this.events.querySelector('li[cacheFocus]')) {
-        this.events.querySelector('li[cacheFocus]').
-          removeAttribute('cacheFocus');
+      // Judging dialog status here is useful when Accessibility-Readout is en-
+      // abled because the process of focusing back to event-list may take
+      // effect after the process of focusing to dialog.
+      if (!this.dialogController.dialog.classList.contains('opened')) {
+        _dealCacheFocus.call(this);
+      } else {
+        this.dialogController.once('closed', _dealCacheFocus.bind(this));
       }
-      this.findAndFocus();
+      function _dealCacheFocus() {
+        if (this.events.querySelector('li[cacheFocus]')) {
+          this.events.querySelector('li[cacheFocus]').
+            removeAttribute('cacheFocus');
+          this.findAndFocus();
+        }
+      }
     });
 
     this.optionMenuController.once('selected', (optionKey) => {

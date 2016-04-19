@@ -40,7 +40,7 @@ AdvancedSettings.prototype = {
     syncFrequencyContainer:
       '#advanced-settings-view .sk-advs-sync-frequency',
     syncFrequency: '#setting-sync-frequency',
-    header: '#advanced-settings-header',
+    header: '#header-advanced-settings',
     standardAlarmLabel: '#default-event-alarm',
     alldayAlarmLabel: '#default-allday-alarm',
     defaultCalendar: '#advanced-settings-view select[name="defaultCalendar"]',

@@ -2,21 +2,21 @@
   <template>
     <div class="content">
       <ul>
-        <li>
+        <li role="menuitem">
           <div id="event-detail-header" tabindex="0">
-            <span id="event-detail-title" class="p-pri" data-l10n-id="event-detail-header">Event Detail</span>
+            <span id="event-detail-title" class="p-pri" data-l10n-id="event-detail-header"></span>
           </div>
         </li>
-        <li class="location" tabindex="0">
+        <li class="location" tabindex="0" role="menuitem">
           <div class="location-outer-container">
             <div class="location-label-container">
               <label class="event-detail-label" data-icon="geolocation" aria-hidden="true"></label>
             </div>
-            <div class="event-detail-location-div p-pri content" id="event-detail-location">
+            <div class="event-detail-location-div p-pri content" id="event-detail-location" aria-label="location">
             </div>
           </div>
         </li>
-        <li class="duration-time" tabindex="0">
+        <li class="duration-time" tabindex="0" role="menuitem">
           <div class="duration-time-container">
             <div class="icon-container">
               <label class="event-detail-label" data-icon="calendar" aria-hidden="true"></label>
@@ -25,12 +25,12 @@
             </div>
           </div>
         </li>
-        <li class="current-calendar" tabindex="0">
+        <li class="current-calendar" tabindex="0" role="menuitem">
           <div>
             <div class="indicator"></div>
             <div class="event-detail-current-calendar-div">
               <div class="event-detail-current-calendar-div-top">
-                <span class="p-sec" data-l10n-id="calendar">Calendar</span>
+                <span class="p-sec" data-l10n-id="calendar"></span>
               </div>
               <div class="event-detail-current-calendar-div-bot">
                 <span class="p-pri" id="event-detail-current-calendar"></span>
@@ -38,7 +38,7 @@
             </div>
           </div>
         </li>
-        <li class="detail-invitation-from" tabindex="0">
+        <li class="detail-invitation-from" tabindex="0" role="menuitem">
           <div class="event-detail-invitation-div-top">
             <span class="p-sec" data-l10n-id="invitation-from">Invitation from</span>
           </div>
@@ -46,7 +46,7 @@
             <span class="p-pri content" id="event-detail-invitation-from" data-l10n-id="none">None</span>
           </div>
         </li>
-        <li class="detail-invitees" tabindex="0">
+        <li class="detail-invitees" tabindex="0" role="menuitem">
           <div class="event-detail-invitees-div-top">
             <span class="p-sec" data-l10n-id="invitatees">Invitatees</span>
           </div>
@@ -54,17 +54,17 @@
             <span class="p-pri content" id="event-detail-invitees" data-l10n-id="none">None</span>
           </div>
         </li>
-        <li class="alarms" tabindex="0">
+        <li class="alarms" tabindex="0" role="menuitem">
           <div class="event-detail-alarms-div-top">
-            <span class="p-sec" data-l10n-id="alert">Alert</span>
+            <span class="p-sec" data-l10n-id="alert"></span>
           </div>
           <div class="event-detail-alarms-div-bot">
-            <span class="p-pri content" id="event-detail-alarms" data-l10n-id="none">None</span>
+            <span class="p-pri content" id="event-detail-alarms" data-l10n-id="none"></span>
           </div>
         </li>
-        <li class="description" tabindex="0">
+        <li class="description" tabindex="0" role="menuitem">
           <div class="event-detail-description-div-top">
-            <span class="p-sec" data-l10n-id="note">Note</span>
+            <span class="p-sec" data-l10n-id="note"></span>
           </div>
           <div class="event-detail-description-div-bot">
             <span class="p-pri content" id="event-detail-description"></span>

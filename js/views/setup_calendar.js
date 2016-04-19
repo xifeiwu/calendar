@@ -45,7 +45,7 @@ SetupCalendar.prototype = {
 
   selectors: {
     element: '#setup-calendar-view',
-    header: '#setup-calendar-header',
+    header: '#header-setup-calendar',
     accountList: '#setup-calendar-view .account-list',
     createAccount: '#setup-calendar-view .sk-add-account',
     addLocalCalendar: '#setup-calendar-view .add-local-calendar',

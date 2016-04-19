@@ -2,6 +2,7 @@ define(function(require, exports, module) {
 'use strict';
 
 var Responder = require('responder');
+var router = require('router');
 require('shared/h5-option-menu/dist/amd/script');
 
 function OptionMenuController(app) {
@@ -20,6 +21,7 @@ OptionMenuController.prototype = {
     if (!option || !option.items) {
       return console.error('OptionMenuController error: empty option!');
     }
+    var currentPage = router.activePage();
 
     this.optionMenu.setOptions({
       header: option.header || '',
@@ -33,11 +35,16 @@ OptionMenuController.prototype = {
       // since we try to open a option-menu of a different height
       this.optionMenu.querySelector('.inner-container').style.transform =
         'translateY(0%)';
+      this.optionMenu.setAttribute('aria-hidden', true);
+      currentPage.removeAttribute('aria-hidden');
       this.emit('closed');
     }.bind(this));
 
     this.optionMenu.on('h5options:opened', function() {
       this.emit('opened');
+      currentPage.setAttribute('aria-hidden', true);
+      this.optionMenu.removeAttribute('aria-hidden');
+      this.optionMenu.focus();
     }.bind(this));
 
     this.optionMenu.on('h5options:selected', function(e) {

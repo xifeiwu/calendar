@@ -1,34 +1,34 @@
 <element name="modify-event" extends="section">
   <template>
-    <h5-header id="modify-event-header">
+    <h5-header id="header-modify-event">
       <h1 data-l10n-id="new-event-header" class="save-text"></h1>
       <h1 data-l10n-id="edit-event-header" class="done-text"></h1>
     </h5-header>
 
-    <form>
+    <form role="heading" aria-labelledby="header-modify-event">
       <ul class="link-list" role="presentation">
-        <li class="title component-container" tabindex="0" nav-scope>
+        <li class="title component-container" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-title">
             <label data-l10n-id="title">Title</label>
             <input type="text" name="title" data-l10n-id="input-field"  x-inputmode="latin-prose" dir="auto"/>
           </h5-input-wrapper>
         </li>
 
-        <li class="location component-container" tabindex="0" nav-scope>
+        <li class="location component-container" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-location">
             <label data-l10n-id="location">Location</label>
             <input type="text" name="location"  data-l10n-id="input-field" x-inputmode="latin-prose" dir="auto"/>
           </h5-input-wrapper>
         </li>
 
-        <li class="allday">
+        <li class="allday" role="menuitem">
           <label class="menu-item">
             <h5-checkbox class="sk-modify-event-all-day" name="allday"></h5-checkbox>
             <label id="all-day-event-checkbox-label"  data-l10n-id="event-is-allday">All-day event</label>
           </label>
         </li>
 
-        <li class="start-date component-container" tabindex="0" nav-scope>
+        <li class="start-date component-container" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-start-date">
             <label data-l10n-id="start-date">Start date</label>
             <input name="startDate" data-l10n-id="event-start-date" placeholder="Date" type="date"
@@ -37,7 +37,7 @@
           </h5-input-wrapper>
         </li>
 
-        <li class="start-time component-container" tabindex="0" nav-scope>
+        <li class="start-time component-container" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-start-time">
             <label data-l10n-id="start-time">Start time</label>
             <input type="time" data-l10n-id="event-start-time" placeholder="Start Time" name="startTime"
@@ -46,7 +46,7 @@
           </h5-input-wrapper>
         </li>
 
-        <li class="end-date component-container" tabindex="0" nav-scope>
+        <li class="end-date component-container" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-end-date">
             <label data-l10n-id="end-date">End date</label>
             <input name="endDate" data-l10n-id="event-end-date" placeholder="Date" type="date"
@@ -55,7 +55,7 @@
           </h5-input-wrapper>
         </li>
 
-        <li class="end-time component-container" tabindex="0" nav-scope>
+        <li class="end-time component-container" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-end-time">
             <label data-l10n-id="end-time">End time</label>
             <input type="time" data-l10n-id="event-end-time" placeholder="End Time" name="endTime"
@@ -64,7 +64,7 @@
           </h5-input-wrapper>
         </li>
 
-        <li class="pack-select sk-modify-event-repeat repeat-style" role="presentation" tabindex="0">
+        <li class="pack-select sk-modify-event-repeat repeat-style" role="menuitem" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="repeat">Repeat</small>
             <select id="repeat-select" name="repeat" nav-scope nav-ignore>
@@ -78,24 +78,24 @@
           </a>
         </li>
 
-        <li class="pack-select sk-modify-event-calendar-id calendar-id" role="presentation" tabindex="0">
+        <li class="pack-select sk-modify-event-calendar-id calendar-id" role="menuitem" tabindex="0">
           <div id="calIndicator"></div>
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="calendar">Calendar</small>
-            <select name="calendarId" class="loading" nav-scope nav-ignore>
+            <select name="calendarId" class="loading" aria-hidden="true" nav-scope nav-ignore>
             </select>
             <span class="calendar-selector-locale"></span>
           </a>
         </li>
 
-        <li class="pack-select sk-modify-event-remind-me" role="presentation" tabindex="0">
+        <li class="pack-select sk-modify-event-remind-me" role="menuitem" tabindex="0">
           <a class="menu-item" nav-scope nav-ignore>
             <small data-l10n-id="alert" role="heading" aria-level="2">Alert</small>
             <div class="alarms"></div>
           </a>
         </li>
 
-        <li class="notes component-container sk-modify-event-note" tabindex="0" nav-scope>
+        <li class="notes component-container sk-modify-event-note" tabindex="0" role="menuitem" nav-scope>
           <h5-input-wrapper class="sk-modify-event-title">
             <label data-l10n-id="note">Note</label>
             <textarea name="description" rows="1"></textarea>

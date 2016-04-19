@@ -1,17 +1,17 @@
 <element name="setup-calendar" extends="section">
   <template>
-    <h5-header id="setup-calendar-header">
-      <h1 data-l10n-id="setup-calendar-header">Setup Calendars</h1>
+    <h5-header id="header-setup-calendar">
+      <h1 data-l10n-id="setup-calendar-header"></h1>
     </h5-header>
 
-    <div class="setup-calendar-container">
+    <div class="setup-calendar-container" role="heading" aria-labelledby="header-setup-calendar">
       <h5-separator data-l10n-id="preset-local"></h5-separator>
  
       <ul class="setup-ul local-calendars" role="presentation">
       </ul>
 
       <ul>
-        <li class="component-container">
+        <li class="component-container" role="menuitem">
           <h5-list-button class="add-local-calendar" icon="add-s" data-l10n-id="setup-add-new"></h5-list-button>
         </li>
       </ul>
@@ -23,7 +23,7 @@
       </ul>
 
       <ul role="presentation">
-        <li class="component-container" role="presentation">
+        <li class="component-container" role="menuitem">
           <h5-list-button class="sk-add-account" icon="add-s" data-l10n-id="setup-add-account"></h5-list-button>
         </li>
       </ul>

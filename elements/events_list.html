@@ -1,12 +1,12 @@
 <element name="events-list" extends="section">
   <template>
-    <h5-header id="events-list-header">
-      <h1 id="events-list-header-date" data-l10n-id="events-list-header">Event List</h1>
+    <h5-header id="header-events-list">
+      <h1 id="events-list-header-date" data-l10n-id="events-list-header"></h1>
     </h5-header>
 
-    <div class="content" id="events-list-agenda" nav-scope nav-loop nav-ignore>
+    <div class="content" id="events-list-agenda" role="heading" aria-labelledby="header-events-list" nav-scope nav-loop nav-ignore>
       <div id="detailDiv" class="event-details p-pri"></div>
-      <ul id="events-list" class="day-events" role="listbox" aria-labelledby="events-list-header-date">
+      <ul id="events-list" class="day-events" role="listbox">
       </ul>
     </div>
     <canvas id="calculator"></canvas>

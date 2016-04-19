@@ -56,7 +56,7 @@ var Alarm = create({
     var args = JSON.stringify(data);
     var description = navigator.mozL10n.get(id, data);
 
-    return `<div role="listitem" data-l10n-id="${id}"
+    return `<div data-l10n-id="${id}"
       data-l10n-args=\'${args}\'>
         ${description}
       </div>`;
