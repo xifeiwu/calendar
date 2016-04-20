@@ -4,6 +4,9 @@ define(function(require, exports, module) {
 
 var ICAL = require('ext/ical');
 var Calc = require('calc');
+var uuid = require('ext/uuid');
+
+var DAY_INDEX = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
 /**
  * get local timezone in the form of ICAL.Timezone
@@ -58,12 +61,17 @@ exports.localTimezone = function() {
  * change date format from JS Date to ICAL.Time
  *
  * @param {Date} date JS Date
- * @param {ICAL.Timezone} timezone set zone property of ICAL.Time
- * @param {boolean} isDate whether it is a date or date-time
+ * @param {ICAL.Timezone|boolean} timezone if the type of timezone is
+ * ICAL.Timezone or null, the type of ICAL.Time returned is date-time.
+ * If the value of timezone is true, the type of ICAL.Time returned is
+ * date, as timezone info is useless for date.
  */
-exports.toICALTime = function(date, timezone, isDate) {
+exports.toICALTime = function(date, timezone) {
+  var isDate = false;
   if (!timezone) {
     timezone = exports.localTimezone();
+  } else if (timezone === true) {
+    isDate = true;
   }
   var vTime = null;
   if (isDate) {
@@ -72,7 +80,7 @@ exports.toICALTime = function(date, timezone, isDate) {
       month: date.getMonth() + 1,
       day: date.getDate(),
       isDate: true
-    }, timezone);
+    }, ICAL.Timezone.localTimezone);
   } else {
     vTime = new ICAL.Time({
       year: date.getFullYear(),
@@ -129,6 +137,102 @@ exports.createVAlarm = function(alarm) {
 };
 
 /**
+ * create ICAL.Property of rrule.
+ */
+exports.createRrule = function(event) {
+  var rRule = new ICAL.Property('rrule');
+  var props = {};
+  var startDate = event.remote.startDate;
+  switch (event.remote.repeat) {
+    case 'every-day':
+      props.freq = 'DAILY';
+      break;
+    case 'every-week':
+      props.freq = 'WEEKLY';
+      props.byday = DAY_INDEX[startDate.getDay()];
+      break;
+    case 'every-2-weeks':
+      props.freq = 'WEEKLY';
+      props.interval = 2;
+      props.byday = DAY_INDEX[startDate.getDay()];
+      break;
+    case 'every-month':
+      props.freq = 'MONTHLY';
+      props.bymonthday = startDate.getDate();
+      break;
+    case 'every-year':
+      // XXX: Since ical.js cannot handle 2.29 in leap year with YEARLY,
+      // so useing 12*month here instead of YEARLY as a workaround.
+      props.freq = 'MONTHLY';
+      props.interval = 12;
+      props.bymonthday = startDate.getDate();
+      break;
+  }
+  var recur = new ICAL.Recur(props);
+  rRule.setValue(recur);
+  return rRule;
+};
+
+/**
+ * create an ICAL.Event which represent an exception event.
+ */
+exports.createVEvent = function(event, parentModel) {
+  var startDate = event.remote.startDate;
+  var endDate = event.remote.endDate;
+  var isAllDay = Calc.isAllDay(startDate, startDate, endDate);
+
+  var vEvent = new ICAL.Event();
+  var vTimezone = exports.localTimezone();
+  var rrule = exports.createRrule(event);
+  var transp = new ICAL.Property('transp');
+  if (isAllDay) {
+    vEvent.startDate = exports.toICALTime(startDate, true);
+    vEvent.endDate = exports.toICALTime(endDate, true);
+    transp.setValue('TRANSPARENT');
+  } else {
+    vEvent.startDate = exports.toICALTime(startDate, vTimezone);
+    vEvent.endDate = exports.toICALTime(endDate, vTimezone);
+    transp.setValue('OPAQUE');
+  }
+  var dtstamp = new ICAL.Property('dtstamp');
+  dtstamp.setValue(exports.toICALTime(new Date(), vTimezone));
+  var status = new ICAL.Property('status');
+  status.setValue('CONFIRMED');
+  [rrule, transp, dtstamp, status].forEach((prop) => {
+    vEvent.component.addProperty(prop);
+  });
+  vEvent.uid = uuid();
+  vEvent.description = event.remote.description;
+  vEvent.location = event.remote.location;
+  vEvent.summary = event.remote.title;
+  vEvent.sequence = 0;
+  event.remote.alarms.forEach(function(alarm) {
+    vEvent.component.addSubcomponent(exports.createVAlarm(alarm));
+  });
+  return vEvent;
+};
+
+/**
+ * create a vCalendar object using data of event given.
+ */
+exports.createVCalendar = function(event) {
+  var vCalendar = new ICAL.Component('vcalendar');
+  var peroid = new ICAL.Property('peroid');
+  peroid.setValue('-//H5OS//Calendar 1.0//EN');
+  var version = new ICAL.Property('version');
+  version.setValue('2.0');
+  [peroid, version].forEach((prop) => {
+    vCalendar.addProperty(prop);
+  });
+  var localTimezone = exports.localTimezone().component;
+  var recurEvent = exports.createVEvent(event).component;
+  [localTimezone, recurEvent].forEach((comp) => {
+    vCalendar.addSubcomponent(comp);
+  });
+  return vCalendar;
+};
+
+/**
  * create an ICAL.Event which represent an exception event.
  */
 exports.createVExEvent = function(event, parentModel) {
@@ -139,8 +243,8 @@ exports.createVExEvent = function(event, parentModel) {
   var vEvent = new ICAL.Event();
   var vTimezone = exports.localTimezone();
   if (isAllDay) {
-    vEvent.startDate = exports.toICALTime(startDate, vTimezone, true);
-    vEvent.endDate = exports.toICALTime(endDate, vTimezone, true);
+    vEvent.startDate = exports.toICALTime(startDate, true);
+    vEvent.endDate = exports.toICALTime(endDate, true);
   } else {
     vEvent.startDate = exports.toICALTime(startDate, vTimezone);
     vEvent.endDate = exports.toICALTime(endDate, vTimezone);
@@ -149,8 +253,7 @@ exports.createVExEvent = function(event, parentModel) {
   var recurrenceId = new ICAL.Property('recurrence-id');
   if (parentModel.isAllDay) {
     recurrenceId.setParameter('VALUE', 'DATE');
-    recurrenceId.setValue(exports.toICALTime(parentModel.startDate,
-      vTimezone, true));
+    recurrenceId.setValue(exports.toICALTime(parentModel.startDate, true));
     transp.setValue('TRANSPARENT');
   } else {
     recurrenceId.setParameter('TZID', vTimezone.tzid);
@@ -188,8 +291,8 @@ exports.updateVEvent = function(vEvent, event) {
   var isAllDay = Calc.isAllDay(startDate, startDate, endDate);
   var vTimezone = exports.localTimezone();
   if (isAllDay) {
-    vEvent.startDate = exports.toICALTime(startDate, vTimezone, true);
-    vEvent.endDate = exports.toICALTime(endDate, vTimezone, true);
+    vEvent.startDate = exports.toICALTime(startDate, true);
+    vEvent.endDate = exports.toICALTime(endDate, true);
   } else {
     vEvent.startDate = exports.toICALTime(startDate, vTimezone);
     vEvent.endDate = exports.toICALTime(endDate, vTimezone);
