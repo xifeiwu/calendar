@@ -7,7 +7,6 @@ var uuid = require('ext/uuid');
 var ICAL = require('ext/ical');
 var CaldavPullEvents = require('provider/caldav_pull_events');
 var nextTick = require('next_tick');
-var IcalComposer = require('ical/composer');
 var IcalHelper = require('ical/helper');
 var Calc = require('calc');
 
@@ -95,7 +94,7 @@ Local.prototype = {
 
     if (event.remote.isRecurring) {
       this._simulateCaldavProcess(event,
-        IcalComposer.calendar(event), callback);
+        IcalHelper.createVCalendar(event).toString(), callback);
     } else {
       var create = mutations.create({ event: event });
       create.commit(function(err) {
@@ -340,10 +339,9 @@ Local.prototype = {
       var isSameDate = startDate.valueOf() === newStartDate.valueOf();
       var needExtraInfo = isSameDate && (isAllDay === isDate);
 
-      var newCalendarString = IcalComposer.calendar(event);
+      var newVCalendar = IcalHelper.createVCalendar(event);
       var vExEvents = IcalHelper.getAllExEvents(vCalendar);
       var vExDateProps = vRecurEvent.component.getAllProperties('exdate');
-      var newVCalendar = ICAL.Component.fromString(newCalendarString);
       var newVRecurEvent = IcalHelper.getFirstRecurEvent(newVCalendar);
       vExEvents.forEach((vEvent) => {
         if (vEvent.recurrenceId.compare(newVRecurEvent.startDate) > 0) {
