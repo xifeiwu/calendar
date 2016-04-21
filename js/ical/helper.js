@@ -11,9 +11,8 @@ var DAY_INDEX = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 /**
  * get local timezone in the form of ICAL.Timezone
  */
-exports.localTimezone = function() {
-  var _calTimeOffset = function() {
-    var d = new Date();
+exports.localTimezone = function(date) {
+  var _calTimeOffset = function(d) {
     var offset = d.getTimezoneOffset();
     var hour = Math.abs(offset) / 60;
     var minute = Math.abs(offset) % 60;
@@ -32,7 +31,7 @@ exports.localTimezone = function() {
     return result;
   };
   var vStandard = new ICAL.Component('standard');
-  var offset = _calTimeOffset();
+  var offset = _calTimeOffset(date);
   var tzoffsetfrom = new ICAL.Property('tzoffsetfrom');
   tzoffsetfrom.setValue(offset);
   var tzoffsetto = new ICAL.Property('tzoffsetto');
@@ -69,7 +68,7 @@ exports.localTimezone = function() {
 exports.toICALTime = function(date, timezone) {
   var isDate = false;
   if (!timezone) {
-    timezone = exports.localTimezone();
+    timezone = exports.localTimezone(date);
   } else if (timezone === true) {
     isDate = true;
   }
@@ -182,7 +181,7 @@ exports.createVEvent = function(event, parentModel) {
   var isAllDay = Calc.isAllDay(startDate, startDate, endDate);
 
   var vEvent = new ICAL.Event();
-  var vTimezone = exports.localTimezone();
+  var vTimezone = exports.localTimezone(startDate);
   var rrule = exports.createRrule(event);
   var transp = new ICAL.Property('transp');
   if (isAllDay) {
@@ -224,7 +223,7 @@ exports.createVCalendar = function(event) {
   [peroid, version].forEach((prop) => {
     vCalendar.addProperty(prop);
   });
-  var localTimezone = exports.localTimezone().component;
+  var localTimezone = exports.localTimezone(event.remote.startDate).component;
   var recurEvent = exports.createVEvent(event).component;
   [localTimezone, recurEvent].forEach((comp) => {
     vCalendar.addSubcomponent(comp);
@@ -241,7 +240,7 @@ exports.createVExEvent = function(event, parentModel) {
   var isAllDay = Calc.isAllDay(startDate, startDate, endDate);
 
   var vEvent = new ICAL.Event();
-  var vTimezone = exports.localTimezone();
+  var vTimezone = exports.localTimezone(startDate);
   if (isAllDay) {
     vEvent.startDate = exports.toICALTime(startDate, true);
     vEvent.endDate = exports.toICALTime(endDate, true);
@@ -289,7 +288,7 @@ exports.updateVEvent = function(vEvent, event) {
   var startDate = event.remote.startDate;
   var endDate = event.remote.endDate;
   var isAllDay = Calc.isAllDay(startDate, startDate, endDate);
-  var vTimezone = exports.localTimezone();
+  var vTimezone = exports.localTimezone(startDate);
   if (isAllDay) {
     vEvent.startDate = exports.toICALTime(startDate, true);
     vEvent.endDate = exports.toICALTime(endDate, true);
