@@ -177,6 +177,14 @@ h5-check-box[focused] {
   padding: 1.4rem 2rem 1.2rem !important;
 }
 
+.large-text .repeat-style {
+  padding: 0.6rem 2rem 1rem !important;
+}
+
+.large-text .repeat-style select {
+  padding: 0;
+}
+
 #modify-event-view select[name="calendarId"] {
   position: absolute;
   opacity: 0;
