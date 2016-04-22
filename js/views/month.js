@@ -84,9 +84,6 @@ Month.prototype = {
    */
   frames: null,
 
-  SPANOFDAY: Calc.HOUR * 24,
-  SPANOFWEEK: Calc.HOUR * 24 * 7,
-
   onactive: function() {
     View.prototype.onactive.apply(this, arguments);
     this.app.timeController.scale = this.SCALE;
@@ -170,19 +167,20 @@ Month.prototype = {
 
   _changeSelectedDay: function(direction) {
     var curDay = this.app.timeController.selectedDay;
-    var dstDay = null;
+    var curDate = curDay.getDate();
+    var dstDay = new Date(curDay);
     switch (direction) {
       case 'ArrowRight':
-        dstDay = new Date(curDay.getTime() + this.SPANOFDAY);
+        dstDay.setDate(curDate + 1);
         break;
       case 'ArrowLeft':
-        dstDay = new Date(curDay.getTime() - this.SPANOFDAY);
+        dstDay.setDate(curDate - 1);
         break;
       case 'ArrowDown':
-        dstDay = new Date(curDay.getTime() + this.SPANOFWEEK);
+        dstDay.setDate(curDate + 7);
         break;
       case 'ArrowUp':
-        dstDay = new Date(curDay.getTime() - this.SPANOFWEEK);
+        dstDay.setDate(curDate - 7);
         break;
     }
     this.controller.move(dstDay);
