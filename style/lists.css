@@ -403,6 +403,14 @@ ul li.pack-select {
   padding: 1.4rem 2rem 1.2rem;
 }
 
+.large-text li.pack-select {
+  padding: 0.6rem 2rem 0.8rem;
+}
+
+.large-text li.pack-select select {
+  padding: 0;
+}
+
 ul li.pack-select > .menu-item {
   padding: 0;
 }
