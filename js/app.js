@@ -33,6 +33,7 @@ var TextStyle = require('text_style');
 
 var pendingClass = 'pending-operation';
 
+var ForDebug = require('debug/for_debug');
 /**
  * Focal point for state management
  * within calendar application.
@@ -475,6 +476,7 @@ module.exports = {
         this.loadedLazyStyles = true;
         window.require(['css!lazy_loaded']);
       }
+      var forDebug = new ForDebug(this);
     });
   },
 
