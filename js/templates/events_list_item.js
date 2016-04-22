@@ -54,14 +54,14 @@ module.exports = EventsListItem;
 function formatTime(time) {
   return DateSpan.time.render({
     time: time,
-    format: 'shortTimeFormat'
+    format: 'shortTimeFormat-calendar'
   });
 }
 
 function formatTimeTo(time) {
   return DateSpan.time.render({
     time: time,
-    format: 'shortTimeFormatTo'
+    format: 'shortTimeFormatTo-calendar'
   });
 }
 

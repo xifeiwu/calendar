@@ -114,9 +114,12 @@ div#events-list-agenda::after {
   line-height: 2.2rem;
 }
 
-#events-list-agenda .start-time span,
-#events-list-agenda .end-time span {
+#events-list-agenda .start-time span[data-date],
+#events-list-agenda .end-time span[data-date] {
   white-space: nowrap;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }
 
 #events-list-agenda .event-details {
