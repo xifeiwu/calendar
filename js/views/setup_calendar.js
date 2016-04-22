@@ -235,10 +235,17 @@ SetupCalendar.prototype = {
 
   _openDialog: function(option) {
     this.dialogController.once('opened', () => {
-      var diaInput = document.activeElement;
-      if (diaInput.tagName === 'INPUT') {
+      if (option.dialogType === 'prompt') {
+        var diaInput = this.dialogController.dialog.dialogTextInput;
         var pos = diaInput.value.length;
         diaInput.setSelectionRange(pos, pos);
+        // TODO: The following setTimeout is just a workaround for readout,
+        // when read out is enabled, opening a prompt dialog may set focus to
+        // html. Have tried using a promise but didn't work. Maybe this is a
+        // issue related to gecko.
+        setTimeout(() => {
+          diaInput.focus();
+        });
       }
     });
     this.dialogController.once('closed', () => {
