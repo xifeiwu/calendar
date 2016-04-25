@@ -238,6 +238,8 @@ SetupCalendar.prototype = {
       if (option.dialogType === 'prompt') {
         var diaInput = this.dialogController.dialog.dialogTextInput;
         var pos = diaInput.value.length;
+        this.dialogController.dialog.dialogMessage.
+          setAttribute('role', 'status');
         diaInput.setSelectionRange(pos, pos);
         // TODO: The following setTimeout is just a workaround for readout,
         // when read out is enabled, opening a prompt dialog may set focus to
@@ -250,6 +252,7 @@ SetupCalendar.prototype = {
     });
     this.dialogController.once('closed', () => {
       this.dialogController.clearMessage();
+      this.dialogController.dialog.dialogMessage.removeAttribute('role');
       this.element.focus();
     });
     this.dialogController.once('input-blur', this.dealAction.bind(this));
