@@ -6,7 +6,7 @@
 
 #event-detail-view #event-detail-title {
   color: var(--color-gs20);
-  line-height: 3rem;
+  line-height: normal;
   display: block;
   word-break: break-all;
   width: 30rem;
@@ -27,6 +27,10 @@
 .event-detail-label {
   float: left;
   color: var(--highlight-color);
+}
+
+#event-detail-view li.detail-title {
+  padding-left: 1.4rem;
 }
 
 #event-detail-view div.location-label-container {
@@ -52,35 +56,15 @@
 
 div#event-detail-duration-time {
   line-height: normal;
-  margin-right: 1.4rem;
   padding-left: 1rem;
 }
 
-div#event-detail-duration-time span {
-  font-size: 2.1rem;
-  color: var(--color-gs20);
-}
-
-.large-text div#event-detail-duration-time span {
-  font-size: 2.7rem;
-}
-
-div#event-detail-duration-time span[data-date] {
-  font-size: 1.6rem;
+div#event-detail-duration-time .secondLine {
   color: var(--color-gs65);
 }
 
-.large-text div#event-detail-duration-time span[data-date] {
-  font-size: 2.1rem;
-}
-
-div#event-detail-duration-time span.event-detail-frequency span {
-  font-size: 1.6rem;
+div#event-detail-duration-time div.event-detail-frequency{
   color: var(--color-gs65);
-}
-
-.large-text div#event-detail-duration-time span.event-detail-frequency span {
-  font-size: 2.1rem;
 }
 
 #event-detail-view .event-detail-location-div {
@@ -92,11 +76,7 @@ div#event-detail-duration-time span.event-detail-frequency span {
 }
 
 #event-detail-view .event-detail-location-div {
-  line-height: 2.1rem;
-}
-
-.large-text #event-detail-view .event-detail-location-div {
-  line-height: 3rem;
+  line-height: normal;
 }
 
 .event-detail-time-div {
@@ -115,7 +95,7 @@ li.current-calendar div.indicator{
 
 #event-detail-view li.alarms {
   padding-left: 1.4rem;
-  line-height: 2.1rem;
+  line-height: normal;
 }
 
 #event-detail-view .event-detail-current-calendar-div {
@@ -123,11 +103,19 @@ li.current-calendar div.indicator{
   height: auto;
   padding-left: 1rem;
   min-height: 8.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.large-text #event-detail-view .event-detail-current-calendar-div {
+  padding: 1rem 0 1rem 1rem;
 }
 
 #event-detail-view .event-detail-current-calendar-div-top {
-  padding: 2rem 0 1rem 0;
   color: var(--color-gs65);
+  line-height: normal;
+  display: flex;
 }
 
 #event-detail-view #event-detail-current-calendar {
@@ -136,7 +124,6 @@ li.current-calendar div.indicator{
   text-overflow: ellipsis;
   line-height: normal;
   white-space: nowrap;
-  transform: translatey(-0.5rem);
 }
 
 .large-text #event-detail-view #event-detail-current-calendar {
@@ -147,10 +134,12 @@ li.current-calendar div.indicator{
 .event-detail-current-calendar-div-bot {
   width: 28rem;
   color: var(--color-gs20);
+  line-height: normal;
 }
 
 #event-detail-view .event-detail-alarms-div-top {
   color: var(--color-gs65);
+  display: flex;
 }
 
 #event-detail-view .event-detail-alarms-div-bot {
@@ -181,11 +170,7 @@ li.current-calendar div.indicator{
 }
 
 #event-detail-view #event-detail-description {
-  line-height: 2.1rem;
-}
-
-.large-text #event-detail-view #event-detail-description {
-  line-height: 3rem;
+  line-height: normal;
 }
 
 #event-detail-view li.description {
@@ -220,7 +205,7 @@ li.current-calendar div.indicator{
 }
 
 #event-detail-invitees {
-  line-height: 2.1rem;
+  line-height: normal;
   width: 100%;
   word-break: break-all;
   white-space: pre-line;
