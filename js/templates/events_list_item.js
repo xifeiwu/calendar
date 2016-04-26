@@ -66,42 +66,49 @@ function formatTimeTo(time) {
 }
 
 function wordsLayouts (title) {
-  // To build a connection between strings' width and number of strings, a
-  // canvas was implemented and worked as a calculator.
-  var c = document.getElementById('calculator');
-  var ctx = c.getContext('2d');
-  var theFontFamily =
-    window.getComputedStyle(document.body).getPropertyValue('font-family');
-  var detailDiv =
-    document.querySelector('#events-list-view #detailDiv');
-  var detailDivStyle = window.getComputedStyle(detailDiv);
-  var fontSize = detailDivStyle.getPropertyValue('font-size');
-  var containerWidth = parseFloat(detailDivStyle.getPropertyValue('width'));
-  containerWidth -=
-    parseFloat(detailDivStyle.getPropertyValue('padding-left'));
-  containerWidth -=
-    parseFloat(detailDivStyle.getPropertyValue('padding-right'));
-  // Since words have different widths, 90% percent of total width to prevent
-  // incorrect display.
-  containerWidth *= 0.9;
-  ctx.font = fontSize + theFontFamily;
-  // The requirement is to display 3 lines, change this lineNumber's value
-  // if other numbers are on demand in the future.
-  var lineNumber = 3;
-  if (Math.ceil(ctx.measureText(title).width) < containerWidth * lineNumber) {
-    return title;
+  var ctx = document.getElementById('calculator').getContext('2d');
+  var bodyStyle = window.getComputedStyle(document.body);
+  var textArea = document.querySelector('#events-list-view .event-details');
+  var allStyles = window.getComputedStyle(textArea);
+  var width = parseFloat(allStyles.width);
+  width -= parseFloat(allStyles.paddingLeft);
+  width -= parseFloat(allStyles.paddingRight);
+  ctx.font = allStyles.fontSize + bodyStyle.fontFamily;
+
+  var result = '';
+  if (ctx.measureText(title).width < width * 3) {
+    result = '<span>' + title + '</span>';
+  } else {
+    var allStrs = title.split(' ');
+    var size = allStrs.length;
+    var index = 0;
+    var subStr = '';
+    while (index <= size) {
+      subStr = allStrs.slice(0, index).join(' ');
+      if (ctx.measureText(subStr).width > width * 2) {
+        break;
+      }
+      index++;
+    }
+    var firstPart = allStrs.slice(0, index - 1).join(' ');
+    var lastPart = allStrs.slice(index - 1).join(' ');
+    // if allStrs[index] is large than width, then it will be splited.
+    if (ctx.measureText(firstPart).width <= width) {
+      index = 1;
+      while (index <= title.length) {
+        subStr = title.slice(0, index);
+        if (ctx.measureText(subStr).width > width * 2) {
+            break;
+        }
+        index++;
+      }
+      firstPart = title.slice(0, index - 1);
+      lastPart = title.slice(index - 1);
+    }
+    result += '<span>' + firstPart + '</span>';
+    result += '<span class="last">' + lastPart + '</span>';
   }
-  // The widest string 'W' is used as a standard to define at where we start to
-  // add strings one by one until strings reaches the boundary.
-  var stringsLimitation =
-    Math.floor((containerWidth * lineNumber)/ctx.measureText('W').width);
-  var arr = title.slice(0, stringsLimitation);
-  while (Math.ceil(ctx.measureText(arr).width) < containerWidth * lineNumber) {
-    arr += title.slice(stringsLimitation, stringsLimitation + 1);
-    stringsLimitation++;
-  }
-  arr += '...';
-  return arr;
+  return result;
 }
 
 });
